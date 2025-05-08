@@ -26,13 +26,16 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-npm-cache
       - name: Install Dependencies
-        run: npm install
+        run: npm install && npm install hexo-asset-img --save
+
       - name: Build
         run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
+      - name: check
+        run: ll public
   deploy:
     needs: build
     permissions:
