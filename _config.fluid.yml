@@ -986,7 +986,7 @@ about:
   icons:
     - { class: "iconfont icon-github-fill", link: "https://github.com/loxehate", tip: "GitHub" }
     - { class: "iconfont icon-twitter-fill", link: "https://x.com/loxehate140698", tip: "X" }
-    - { class: "iconfont icon-wechat-fill", qrcode: "/img/favicon.png" }
+    - { class: "iconfont icon-discord-fill", link: "https://discord.com/channels/1347161247157583982/1347161247157583984", tip: "discord" }
 
 
 #---------------------------
