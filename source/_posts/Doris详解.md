@@ -39,7 +39,7 @@ Doris数据库适用于需要处理海量数据、需要实时查询和分析数
 
 Doris整体架构如下图所示，Doris 架构非常简单，只有两类进程
 
-![](/images/Doris.png)
+![](图片/Doris.png)
 
 **Frontend（FE）**
 
@@ -167,7 +167,7 @@ ext4和xfs文件系统均支持
 cat /proc/cpuinfo | grep avx2
 ```
 
-![](图片\doris-下载.png)
+![](图片/doris-下载.png)
 
 ```
  如果CPU不支持avx2指令集，请选择无avx2版本。您可以通过cat /proc/cpuinfo检查是否支持。avx2指令将提高诸如布隆过滤器之类的数据结构的计算效率

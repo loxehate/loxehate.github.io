@@ -35,7 +35,7 @@ jobs:
         with:
           path: ./public
       - name: check
-        run: pwd && ls -alh
+        run: pwd && ls -alh node_modules/ && ls -alh public && ls -alh public/
   deploy:
     needs: build
     permissions:
