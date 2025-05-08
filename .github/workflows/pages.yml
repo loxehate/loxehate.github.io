@@ -37,7 +37,7 @@ jobs:
           mv /home/runner/work/loxehate.github.io/loxehate.github.io/source/_posts/图片 /home/runner/work/loxehate.github.io/loxehate.github.io/public
 
       - name: check
-        run: pwd && ls -alh public && ls -alh public/img && grep -H -r "dragon.png" public/
+        run: pwd && ls -alh public && ls -alh public/img && grep -H -r "fluid.png" public/
                 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
