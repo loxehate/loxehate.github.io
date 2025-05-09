@@ -102,7 +102,7 @@ ExecReload：重新加载服务文件所需执行的主要命令。需要使用�
 
 **Restart**:这个值用于指定在什么情况下需要重启服务进程，这些不同的值分别表示了在哪些情况下，服务会被重新启动，如下:
 
-![](图片\systemed-restart.png)
+![](图片/systemed-restart.png)
 
 no（默认值）：退出后不会重启
 always：除了用systemctl stop 或等价的服务停止操作命令，其他情况都可以重启

@@ -167,7 +167,7 @@ wg-quick down wg0
 wg
 ```
 
-![](图片\wireguard服务端启动.png)
+![](图片/wireguard服务端启动.png)
 
 **客户端启动**
 
@@ -186,7 +186,7 @@ wg-quick down client
 wg
 ```
 
-![](图片\wireguard客户端.png)
+![](图片/wireguard客户端.png)
 
 *还可以在客户端配置路由*：
 
@@ -924,4 +924,4 @@ PersistentKeepalive = 21
 
 ### 五、实验架构
 
-![](图片\WireGuard.png)
+![](图片/WireGuard.png)

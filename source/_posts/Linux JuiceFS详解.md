@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS person
 
 `JuiceFS`官网的[技术架构](https://so.csdn.net/so/search?q=技术架构&spm=1001.2101.3001.7020)图：
 
-![](D:\学习\linux运维\图片\JuiceFS技术架构.png)
+![](D:\学习\linux运维\图片/JuiceFS技术架构.png)
 
 #### 3.1 JuiceFS 的三个技术层
 
@@ -189,11 +189,11 @@ CREATE TABLE IF NOT EXISTS person
 同时，JuiceFS 会将每个文件以及它的 Chunks、Slices、Blocks 等元数据信息存储在元数据引擎中。
 ```
 
-![](D:\学习\linux运维\图片\JuiceFS 存储文件-1.png)
+![](D:\学习\linux运维\图片/JuiceFS 存储文件-1.png)
 
 文件最终会被拆分成 Chunks、Slices 和 Blocks 存储在对象存储，存储桶中只有一个 chunks 目录和一堆数字编号的目录和文件，如下图
 
-![](D:\学习\linux运维\图片\JuiceFS 存储文件-2.png)
+![](D:\学习\linux运维\图片/JuiceFS 存储文件-2.png)
 
 ### 四、 JuiceFS实战
 

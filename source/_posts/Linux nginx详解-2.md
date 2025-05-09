@@ -37,7 +37,7 @@ Nginx提供了一个状态页（status page），用于查看服务器的运行�
 192.168.2.100/ngin_status
 ```
 
-![](图片\网页的状态页.png)
+![](图片/网页的状态页.png)
 
 ```
 Active connections：
@@ -489,14 +489,14 @@ nginx -s reload
 
 #### 6.3 配置实例-----自签名证书
 
-![](图片\自签名证书.png)
+![](图片/自签名证书.png)
 
 ```
 ca.crt相当于颁发机构
 byyb.com.crt相当于颁发对象
 ```
 
-![](图片\生成证书.png)
+![](图片/生成证书.png)
 
 ```
 cat byyb.com.crt ca.crt  > www.byyb.com.crt #合并
@@ -531,7 +531,7 @@ location  / {
 https:www.byyb.com
 ```
 
-![](图片\https.png)
+![](图片/https.png)
 
 ### 七、自定义图标
 
@@ -884,7 +884,7 @@ last;
 vim /apps/nginx/conf.d/computer.conf #编辑配置文件
 ```
 
-![](图片\目录重定向.png)
+![](图片/目录重定向.png)
 
 ```
 #建立测试文件夹和主页
@@ -945,7 +945,7 @@ server {
 }
 ```
 
-![](图片\http 转https.png)
+![](图片/http 转https.png)
 
 ```
 打开浏览器，访问
@@ -995,7 +995,7 @@ location ~* \.(jpg|gif|swf)$ {
         }
 ```
 
-![](图片\防盗链-1.png)
+![](图片/防盗链-1.png)
 
 ```
 cd  /data/nginx/html/pc/
@@ -1057,10 +1057,10 @@ www.accp.com
 无法查看图片
 ```
 
-![](图片\防盗链-2.png)
+![](图片/防盗链-2.png)
 
 补充说明
 
 如果子配置文件中用的 return 403
 
-![](图片\防盗链-3.png)
+![](图片/防盗链-3.png)

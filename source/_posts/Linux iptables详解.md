@@ -54,13 +54,13 @@ netfilter/iptables后期简称为iptables, iptables是基于内核的防火墙,�
 表中所有规则配置后,立即生效,不需要重启服务。
 ```
 
-![](图片\iptables.png)
+![](图片/iptables.png)
 
 ### 1.2 iptables的四表五链
 
 iptables由五个表table和五个链chain以及一些规则组成：
 
-![](图片\iptables规则表，链结构.png)
+![](图片/iptables规则表，链结构.png)
 
 数据包到达防火墙时，规则表之间的优先顺序: raw > mangle > nat > filter
 
@@ -84,7 +84,7 @@ iptables由五个表table和五个链chain以及一些规则组成：
 filter表是防火墙的默认表
 ```
 
-![](图片\iptables表顺序.png)
+![](图片/iptables表顺序.png)
 
 
 
@@ -121,7 +121,7 @@ filter表是防火墙的默认表
 
 ### 1.3 数据包控制的匹配流程
 
-![](图片\iptables匹配流程.png)
+![](图片/iptables匹配流程.png)
 
 ```
 标红的代表该链的规则通常在这个表上配置 
@@ -254,59 +254,59 @@ iptables [-t 表名] 管理选项 [链名] [匹配条件] [-j  控制类型]
 
 ### 2.5 iptables语法总结
 
-![](图片\iptables语法总结.png)
+![](图片/iptables语法总结.png)
 
 ### 2.6 案例
 
 - 案例1：默认查看filter表
 
-![](图片\iptables默认查看filter表.png)
+![](图片/iptables默认查看filter表.png)
 
 -nL可以合起来写，但是n必须放在前面，放在后面会报错，如上图所示的报错 
 
 - 案例2 ：查看其他表
 
-![](图片\iptables案例2 ：查看其他表.png)
+![](图片/iptables案例2 ：查看其他表.png)
 
 - 案例3：一键清空规则
 
-![](图片\iptables 案例3：一键清空规则.png)
+![](图片/iptables 案例3：一键清空规则.png)
 
 - 案例4：设置ping不可达
 
-![](图片\iptables案例4：设置ping不可达1.png)
+![](图片/iptables案例4：设置ping不可达1.png)
 
-![](图片\iptables案例4：设置ping不可达2.png)
+![](图片/iptables案例4：设置ping不可达2.png)
 
 0.0.0.0/0 代表所有主机都生效 
 
-![](图片\iptables案例4：设置ping不可达3.png)
+![](图片/iptables案例4：设置ping不可达3.png)
 
-![](图片\iptables案例4：设置ping不可达4.png)
+![](图片/iptables案例4：设置ping不可达4.png)
 
-![](图片\iptables案例4：设置ping不可达5.png)
+![](图片/iptables案例4：设置ping不可达5.png)
 
 -  案例5：添加
 
-![](图片\iptables 案例5：添加.png)
+![](图片/iptables 案例5：添加.png)
 
 -  案例6：插入
 
-![](图片\iptables 案例6：插入.png)
+![](图片/iptables 案例6：插入.png)
 
 不指定默认是在第一行插入添加 
 
 - 案例7：删除
 
-![](图片\iptables案例7：删除.png)
+![](图片/iptables案例7：删除.png)
 
  如果有多条一样的规则，是先删序号小的那条
 
 - 案例8：设置默认规则
 
-![](图片\iptables案例8：设置默认规则1.png)
+![](图片/iptables案例8：设置默认规则1.png)
 
-![](图片\iptables案例8：设置默认规则2.png)
+![](图片/iptables案例8：设置默认规则2.png)
 
 ## 三、规则的匹配
 
@@ -334,13 +334,13 @@ iptables -I INPUT -i ens33 -s 192.168.109.0/24 -j DROP
 
 - 案例1 
 
-![](图片\iptables案例1 通用.png)
+![](图片/iptables案例1 通用.png)
 
 -  案例2
 
-![](图片\iptables 案例2通用1.png)
+![](图片/iptables 案例2通用1.png)
 
-![](图片\iptables案例2通用2.png)
+![](图片/iptables案例2通用2.png)
 
 ### 3.2 隐含匹配
 
@@ -358,7 +358,7 @@ iptables -I INPUT -i ens33 -s 192.168.109.0/24 -j DROP
 | --sport ：1000                                   | 匹配源端口是1000及以上的数据包 |
 | 注意：--sport和--dport必须配合-p <协议类型> 使用 |                                |
 
-![](图片\iptables 端口匹配.png)
+![](图片/iptables 端口匹配.png)
 
 ####  3.2.2 TCP标记匹配
 
@@ -382,7 +382,7 @@ Chain OUTPUT (policy ACCEPT)
 target     prot opt source               destination   
 ```
 
-![](图片\iptablesTCP标记匹配.png)
+![](图片/iptablesTCP标记匹配.png)
 
 #### 3.2.3 ICMP类型匹配
 
@@ -408,9 +408,9 @@ iptables -A INPUT -p icmp -j DROP
 #如果我们想要双标，别人ping不通自己，但是自己也能ping通别人，怎么操作呢
 ```
 
-![](图片\iptables ICMP类型匹配1.png)
+![](图片/iptables ICMP类型匹配1.png)
 
-![](图片\iptables ICMP类型匹配2.png)
+![](图片/iptables ICMP类型匹配2.png)
 
 ### 3.3 显示匹配
 
@@ -438,7 +438,7 @@ Chain OUTPUT (policy ACCEPT)
 target     prot opt source               destination 
 ```
 
-![](图片\iptables多端口匹配.png)
+![](图片/iptables多端口匹配.png)
 
 -  IP范围匹配:
 
@@ -463,7 +463,7 @@ Chain OUTPUT (policy ACCEPT)
 target     prot opt source               destination  
 ```
 
-![](图片\iptables  IP范围匹配.png)
+![](图片/iptables  IP范围匹配.png)
 
 -  MAC地址匹配: （用的不多）
 

@@ -50,10 +50,8 @@ ansible-playbook
 
 ansible-doc
 获取各模块的帮助信息
-```
-
-<<<<<<< HEAD
 ansible的hosts
+```
 
 ```
 [groupname]  
@@ -63,8 +61,6 @@ hostname2 ansible_ssh_host=IP2 ansible_ssh_port=PORT2 ansible_ssh_user=USER2
 
 groupname是主机组名称,hostname是主机的名称或IP地址
 
-=======
->>>>>>> 29effbf3a1272164df7c7b275247681f3f891c42
 ### 4、ansible的颜色
 
 Ansible的返回结果非常友好，一般会用三种颜色来表示执行结果：
@@ -119,8 +115,6 @@ ansible node -m ping -l 192.168.118.133						#针对node组里的192.168.118.133
 ### 6、ansible的Host-pattern
 
 ```
-
-
 all:表示主机清单所有的主机，如下所示：
 ansible -i /etc/ansible/hosts all -m ping					#all表示主机清单所有的主机
 
@@ -816,7 +810,7 @@ hosts.j2模板文件
 
 一个典型的 Ansible 角色目录结构可能包含以下几个部分
 
-![](图片\ansible-roles.png)
+![](图片/ansible-roles.png)
 
 ```
 files: 用来存放由 copy 模块或 script 模块调用的文件。
@@ -881,7 +875,7 @@ Ansible还支持一些特殊标签，如always和never。带有always标签的�
 除了在任务级别，还可以在Play级别定义标签，这样该Play下的所有任务（除非被特定任务的标签覆盖）都将继承该Play的标签
 ```
 
-![](图片\ansible-tags-play.png)
+![](图片/ansible-tags-play.png)
 
 ### 8、 ansible-playbook剧本
 
@@ -1747,7 +1741,7 @@ curl -L http://127.0.0.1:2379/v2/keys/weather -XPUT -d value=sunny
   debug: msg="{{ lookup('etcd','weather')}}"
 ```
 
-默认情况下，etcd lookup会在http://127.0.0.1:4001上查找etcd服务器。但我们在执行playbook之前可以通过设置ANSIBLE_ETCD_URL环境变量来修改这个设置。
+默认情况下，etcd lookup会在"http://127.0.0.1:4001"上查找etcd服务器。但我们在执行playbook之前可以通过设置ANSIBLE_ETCD_URL环境变量来修改这个设置。
 
 **password**
 
@@ -1773,7 +1767,9 @@ dnstxt lookup用于获取指定域名的TXT记录。需要在主控端安装pyth
 
 #### 8.7 变量的使用
 
-变量的引用：{{变 量名}}
+```
+变量的引用：{{变量名}}
+```
 
 **自定义变量的实现方式：**
 
@@ -2689,7 +2685,7 @@ ansible-playbook /etc/ansible/nmp.yml
 网址：galaxy.ansible.com
 ```
 
-![](D:\学习\linux运维\图片\ansible-Galaxy.png)
+![](D:\学习\linux运维\图片/ansible-Galaxy.png)
 
 ```
 [root@manager roles-all]# ansible-galaxy collection install nginxinc.nginx_core
