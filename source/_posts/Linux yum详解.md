@@ -2,6 +2,7 @@
 title: Linux yum详解
 tags: [yum]
 categories: [Linux]
+date: 2025-05-16
 ---
 ### 一、[yum](https://so.csdn.net/so/search?q=yum&spm=1001.2101.3001.7020)命令介绍
 

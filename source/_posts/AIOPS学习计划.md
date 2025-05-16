@@ -2,6 +2,7 @@
 title: AIOps学习计划
 tags: [AIOps]
 categories: [职业发展]
+date: 2025-05-16
 ---
 
 ---

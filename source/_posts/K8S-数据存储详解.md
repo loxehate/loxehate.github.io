@@ -2,6 +2,7 @@
 title: K8S-数据存储详解
 tags: [kubernetes]
 categories: [云原生]
+date: 2025-05-16
 ---
 ```
  Volume是Pod中能够被多个容器访问的共享目录，它被定义在Pod上，然后被一个Pod里的多个容器挂载到具体的文件目录下，kubernetes通过Volume实现同一个Pod中不同容器之间的数据共享以及数据的持久化存储。Volume的生命容器不与Pod中单个容器的生命周期相关，当容器终止或者重启时，Volume中的数据也不会丢失。
