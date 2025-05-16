@@ -1,7 +1,7 @@
 ---
-title: AIOps 学习计划
+title: AIOps学习计划
 tags: [AIOps]
-categories: [学习计划]
+categories: [职业发展]
 ---
 
 ---
