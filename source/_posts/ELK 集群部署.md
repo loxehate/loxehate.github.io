@@ -459,6 +459,7 @@ Use an existing CA? [y/N]y
 
 - 输入您的 CA 的密码。如果没有，则为空，在这种情况下，您只需在提示符下按ENTER键
 
+    ```
     ## What is the path to your CA?
     
     Please enter the full pathname to the Certificate Authority that you wish to
@@ -469,6 +470,9 @@ Use an existing CA? [y/N]y
     It is possible for the keystore is password to be blank,
     in which case you can simply press <ENTER> at the prompt
     Password for elastic-stack-ca.p12: 
+    ```
+
+    
 
 - 输入证书的到期值。您可以： 以年、月或日为单位输入有效期。例如，输入90D
 
