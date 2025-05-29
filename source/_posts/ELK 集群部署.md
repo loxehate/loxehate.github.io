@@ -2025,251 +2025,17 @@ GET _cat/recovery
 - **版本兼容性**：在进行任何升级之前，务必阅读 Elasticsearch 的[官方升级指南](https://www.elastic.co/guide/en/elasticsearch/reference/7.14/setup-upgrade.html)，确保你理解版本之间的兼容性和可能的变更。
 - **插件兼容性**：如果你使用了任何插件，确保这些插件也与新版本兼容，并在升级前更新这些插件。
 
-### 十四、Elasticsearch(白金版破解)
+### 十四、Elastic日志告警
 
-#### 1、下载源代码文件
+#### 1、申请License证书
 
-破解Elastic需要修改两个java文件，分别为`LicenseVerifier.java`和`XPackBuild.java`,我们从github上下载对应的源文件，注意Elasticsearch版本，修改url中对应的版本号即可，我这里是7.17.21
+[Elastic官网申请证书](https://license.elastic.co/registration)，申请完成之后邮件会收到一个下载地址，下载后会得到一个json文件
 
-```
-curl -o LicenseVerifier.java -s https://raw.githubusercontent.com/elastic/elasticsearch/7.17.21/x-pack/plugin/core/src/main/java/org/elasticsearch/license/LicenseVerifier.java
+#### 2、更新License证书
 
-curl -o XPackBuild.java -s https://raw.githubusercontent.com/elastic/elasticsearch/7.17.21/x-pack/plugin/core/src/main/java/org/elasticsearch/xpack/core/XPackBuild.java
-```
+点击Stack-许可管理-更新许可证。上传我们修改后的JSON文件，提示更新成功.![](图片/kibana-更新License证书.png)
 
-#### 2、修改代码
-
-修改XPackBuild.java，在第一个静态方法中的`if、else`是判断jar包有没有被修改的，参考如下修改:
-
-```
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
-
-/**
- * Information about the built version of x-pack that is running.
- */
-public class XPackBuild {
-
-    public static final XPackBuild CURRENT;
-
-    static {
-        final String shortHash;
-        final String date;
-
-        Path path = getElasticsearchCodebase();
-        /*if (path.toString().endsWith(".jar")) {
-            try (JarInputStream jar = new JarInputStream(Files.newInputStream(path))) {
-                Manifest manifest = jar.getManifest();
-                shortHash = manifest.getMainAttributes().getValue("Change");
-                date = manifest.getMainAttributes().getValue("Build-Date");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            // not running from a jar (unit tests, IDE)
-            shortHash = "Unknown";
-            date = "Unknown";
-        }*/
-
-		shortHash = "Unknown";
-		date = "Unknown";
-        CURRENT = new XPackBuild(shortHash, date);
-    }
-
-    /**
-     * Returns path to xpack codebase path
-     */
-    @SuppressForbidden(reason = "looks up path of xpack.jar directly")
-    static Path getElasticsearchCodebase() {
-        URL url = XPackBuild.class.getProtectionDomain().getCodeSource().getLocation();
-        try {
-            return PathUtils.get(url.toURI());
-        } catch (URISyntaxException bogus) {
-            throw new RuntimeException(bogus);
-        }
-    }
-
-    private String shortHash;
-    private String date;
-
-    XPackBuild(String shortHash, String date) {
-        this.shortHash = shortHash;
-        this.date = date;
-    }
-
-    public String shortHash() {
-        return shortHash;
-    }
-
-    public String date() {
-        return date;
-    }
-}
-```
-
-修改`LicenseVerifier.java`文件，第一个verifyLicense的构造方法就是判断License是否有效的，我们直接返回True即可，参考如下修改:
-
-```
-package org.elasticsearch.license;
-
-import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.BytesRefIterator;
-import org.elasticsearch.common.bytes.BytesReference;
-import org.elasticsearch.core.Streams;
-import org.elasticsearch.xcontent.ToXContent;
-import org.elasticsearch.xcontent.XContentBuilder;
-import org.elasticsearch.xcontent.XContentFactory;
-import org.elasticsearch.xcontent.XContentType;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-
-/**
- * Responsible for verifying signed licenses
- */
-public class LicenseVerifier {
-
-    /**
-     * verifies the license content with the signature using the packaged
-     * public key
-     * @param license to verify
-     * @return true if valid, false otherwise
-     */
-    public static boolean verifyLicense(final License license, PublicKey publicKey) {
-        return true;
-        /*byte[] signedContent = null;
-        byte[] publicKeyFingerprint = null;
-        try {
-            byte[] signatureBytes = Base64.getDecoder().decode(license.signature());
-            ByteBuffer byteBuffer = ByteBuffer.wrap(signatureBytes);
-            @SuppressWarnings("unused")
-            int version = byteBuffer.getInt();
-            int magicLen = byteBuffer.getInt();
-            byte[] magic = new byte[magicLen];
-            byteBuffer.get(magic);
-            int hashLen = byteBuffer.getInt();
-            publicKeyFingerprint = new byte[hashLen];
-            byteBuffer.get(publicKeyFingerprint);
-            int signedContentLen = byteBuffer.getInt();
-            signedContent = new byte[signedContentLen];
-            byteBuffer.get(signedContent);
-            XContentBuilder contentBuilder = XContentFactory.contentBuilder(XContentType.JSON);
-            license.toXContent(contentBuilder, new ToXContent.MapParams(Collections.singletonMap(License.LICENSE_SPEC_VIEW_MODE, "true")));
-            Signature rsa = Signature.getInstance("SHA512withRSA");
-            rsa.initVerify(publicKey);
-            BytesRefIterator iterator = BytesReference.bytes(contentBuilder).iterator();
-            BytesRef ref;
-            while ((ref = iterator.next()) != null) {
-                rsa.update(ref.bytes, ref.offset, ref.length);
-            }
-            return rsa.verify(signedContent);
-        } catch (IOException | NoSuchAlgorithmException | SignatureException | InvalidKeyException e) {
-            throw new IllegalStateException(e);
-        } finally {
-            if (signedContent != null) {
-                Arrays.fill(signedContent, (byte) 0);
-            }
-        }*/
-    }
-
-    private static final PublicKey PUBLIC_KEY;
-
-    static {
-        try (InputStream is = LicenseVerifier.class.getResourceAsStream("/public.key")) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Streams.copy(is, out);
-            PUBLIC_KEY = CryptUtils.readPublicKey(out.toByteArray());
-        } catch (IOException e) {
-            throw new AssertionError("key file is part of the source and must deserialize correctly", e);
-        }
-    }
-
-    public static boolean verifyLicense(final License license) {
-        return verifyLicense(license, PUBLIC_KEY);
-    }
-}
-```
-
-#### 3、编译文件
-
-在服务器使用javac编译修改后的java文件为class文件，-cp后面跟着的是[elasticsearch安装](https://so.csdn.net/so/search?q=elasticsearch安装&spm=1001.2101.3001.7020)目录下的jar包，是编译时需要的依赖。
-
-```
-/usr/share/elasticsearch/jdk/bin/javac  -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" LicenseVerifier.java
-/usr/share/elasticsearch/jdk/bin/javac  -cp "/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/modules/x-pack-core/*" XPackBuild.java
-```
-
-**注意jdk的版本**，如果版本低于官方编译的版本，编译会出现类似`类文件具有错误的版本 55.0, 应为 52.0`的错误
-
-#### 4、替换class文件
-
-编译完成我们得到了两个class文件，现在要做的就是替换对应的jar中的原生class文件。
-
-```
-#停止es服务
-systemctl stop elasticsearch
-
-#解压原生jar包
-cp /usr/local/elasticsearch-7.17.21/modules/x-pack-core/x-pack-core-7.17.21.jar /tmp/x-pack
-cd /tmp/x-pack && jar -xvf x-pack-core-7.17.21.jar
-
-#替换class文件
-cp /home/admin/XPackBuild.class /tmp/x-pack/org/elasticsearch/xpack/core/
-cp /home/admin/LicenseVerifier.class /tmp/x-pack/org/elasticsearch/license/
-
-#重新打包jar包
-cd /tmp/x-pack/
-rm -rf x-pack-core-7.17.21.jar # 删除临时拷贝过来的源文件
-jar cvf x-pack-core-7.17.21.jar .   #得到新的破解jar包
-
-#替换官网的jar包为自己编译后的
-#集群将编译后的jar包，分发至每个节点
-cp /tmp/x-pack/x-pack-core-7.17.21.jar /usr/local/elasticsearch-7.17.21/modules/x-pack-core/ 
-
-#启动es服务
-systemctl start elasticsearch
-```
-
-#### 5、申请License证书
-
-[Elastic官网申请证书](https://license.elastic.co/registration)，申请完成之后邮件会收到一个下载地址，下载后会得到一个json文件，我们需要修改License中的type改为platinum，将expiry_date_in_millis延长N年时间。
-
-```
-{
-	"license": {
-		"uid": "cd5c2258-7422-4f9a-a7c9-cb8d29a25361",
-		"type": "platinum",
-		"issue_date_in_millis": 1678665600000,
-		"expiry_date_in_millis": 3207746200000,
-		"max_nodes": 10000,
-		"issued_to": "azi",
-		"issuer": "Web Form",
-		"signature": "AAAAAwAAAA1a8PJsIPdFZHe4WLkDAAABmC9ZN0hjZDBGYnVyRXpCOW5Bb3FjZDAxOWpSbTVoMVZwUzRxVk1PSmkxaktJRVl5MUYvUWh3bHZVUTllbXNPbzBUemtnbWpBbmlWRmRZb25KNFlBR2x0TXc2K2p1Y1VtMG1UQU9TRGZVSGRwaEJGUjE3bXd3LzRqZ05iLzRteWFNekdxRGpIYlFwYkJiNUs0U1hTVlJKNVlXekMrSlVUdFIvV0FNeWdOYnlESDc3MWhlY3hSQmdKSjJ2ZTcvYlBFOHhPQlV3ZHdDQ0tHcG5uOElCaDJ4K1hob29xSG85N0kvTWV3THhlQk9NL01VMFRjNDZpZEVXeUtUMXIyMlIveFpJUkk2WUdveEZaME9XWitGUi9WNTZVQW1FMG1DenhZU0ZmeXlZakVEMjZFT2NvOWxpZGlqVmlHNC8rWVVUYzMwRGVySHpIdURzKzFiRDl4TmM1TUp2VTBOUlJZUlAyV0ZVL2kvVk10L0NsbXNFYVZwT3NSU082dFNNa2prQ0ZsclZ4NTltbU1CVE5lR09Bck93V2J1Y3c9PQAAAQA+fZ30LicFouBamUw0wXUkbOsUP8p1bevJ+JsC4hWsed4ouqqJFipCa0bJJFISWzssU8BpxWQcnNE4WSSbZlSNuxzo2kGUuyE4wWyJyI7kfVpg8dm8POG0ugsIFLfgQISaFxI0MukpmGVyaukQONC9nqKSGgQ7xX2mOrnEC1tRwvBuiJT4aGulM2yMNxOB49DufwfR6w6KVZtpbbC/9BQtRVLl5Vyy/2I8F/il9q+U2J9EdGS4Gt6bW8N2GvZK4rqaPVSTxyh7YNar4IzErpfea9nYkdcgCJ9yOcZw4dCcwaTC90RTYqDIyIQ5h7ET+1Gpr9NemrrbYqfxUR2oIEmX",
-		"start_date_in_millis": 1678665600000
-	}
-}
-```
-
-#### 6、更新License证书
-
-点击Stack-许可管理-更新许可证。上传我们修改后的JSON文件，提示更新成功，许可证为platinum（白金版），有效期为2055年。到此就破解成功了
-
-![](图片/kibana-更新License证书.png)
-
-#### 7、配置encryptionKey
+#### 3、配置encryptionKey
 
 使用Kibana的告警显示我们需要在kibana.yml中设置xpack.encryptedSavedObjects.encryptionKey，可参考8.2步骤配置
 
@@ -2287,7 +2053,7 @@ xpack.encryptedSavedObjects.encryptionKey: "11112222333344445555666677778888"
 systemctl restart kibana
 ```
 
-#### 8、创建webhook连接器
+#### 4、创建webhook连接器
 
 点击创建连接器，选择webhook类型
 
@@ -2321,7 +2087,7 @@ systemctl restart kibana
  }
 ```
 
-#### 9、创建告警规则
+#### 5、创建告警规则
 
 选择创建规则，填写好规则名称、通知的时机，告警规则的类型。
 
