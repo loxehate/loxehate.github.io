@@ -2332,7 +2332,7 @@ systemctl restart kibana
 ![](图片/kibana-配置连接器.png)
 
 在正文里面可以参考我写的文档，变量的引用可以参考Kibana官网文档。
-context.hits代表匹配到的原始文档，但是有很多信息我们没必要咋告警中体现出来，所以使用{{#context.hits}}和{{/context.hits}}语法，把需要展示的字段信息，写在中间就可以遍历出文档里面的内容了
+context.hits代表匹配到的原始文档，但是有很多信息我们没必要咋告警中体现出来，所以使用`{{#context.hits}}`和`{{/context.hits}}`语法，把需要展示的字段信息，写在中间就可以遍历出文档里面的内容了
 
     {
          "msgtype": "markdown",
