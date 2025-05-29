@@ -1,5 +1,5 @@
 ---
-title: Elasticsearch集群部署
+title: ELK集群部署
 tags: [Elasticsearch]
 categories: [中间件]
 date: 2025-05-29
@@ -2651,3 +2651,1495 @@ bin/elasticsearch-plugin install file:///root/elasticsearch-analysis-pinyin-7.17
 ```
 
 **注意：插件的版本要与 ElasticSearch 版本要一致**
+
+### 十七、Elasticsearch-gateway极限网关
+
+```
+官方文档:https://infinilabs.cn/docs/latest/gateway/overview/
+```
+
+#### 1、介绍
+
+```
+极限网关（INFINI Gateway）是一个面向 Elasticsearch 的高性能应用网关，它包含丰富的特性，使用起来也非常简单。极限网关工作的方式和普通的反向代理一样，我们一般是将网关部署在 Elasticsearch 集群前面， 将以往直接发送给 Elasticsearch 的请求都发送给网关，再由网关转发给请求到后端的 Elasticsearch 集群。因为网关位于在用户端和后端 Elasticsearch 之间，所以网关在中间可以做非常多的事情， 比如可以实现索引级别的限速限流、常见查询的缓存加速、查询请求的审计、查询结果的动态修改等等。
+```
+
+#### 2、数据架构
+
+![](%E5%9B%BE%E7%89%87/es%E7%BD%91%E5%85%B3-01.jpg)
+
+#### 3、部署网关
+
+##### 3.1 环境准备
+
+| 服务       | 版本   |
+| ---------- | ------ |
+| Console    | 1.29.3 |
+| Gateway    | 1.29.3 |
+| Easysearch | 1.12.1 |
+
+##### 3.2 系统调用
+
+系统参数
+
+```
+sudo tee /etc/security/limits.d/21-infini.conf <<-'EOF'
+*                soft    nofile         1048576
+*                hard    nofile         1048576
+*                soft    memlock        unlimited
+*                hard    memlock        unlimited
+root             soft    nofile         1048576
+root             hard    nofile         1048576
+root             soft    memlock        unlimited
+root             hard    memlock        unlimited
+EOF
+```
+
+内核调用
+
+```
+cat << SETTINGS | sudo tee /etc/sysctl.d/70-infini.conf
+fs.file-max=10485760
+fs.nr_open=10485760
+vm.max_map_count=262144
+
+net.core.somaxconn=65535
+net.core.netdev_max_backlog=65535
+net.core.rmem_default = 262144
+net.core.wmem_default = 262144
+net.core.rmem_max=4194304
+net.core.wmem_max=4194304
+
+net.ipv4.ip_forward = 1
+net.ipv4.ip_nonlocal_bind=1
+net.ipv4.ip_local_port_range = 1024 65535
+net.ipv4.conf.default.accept_redirects = 0
+net.ipv4.conf.default.rp_filter = 1
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.tcp_tw_reuse=1
+net.ipv4.tcp_tw_recycle = 1
+net.ipv4.tcp_max_tw_buckets = 300000
+net.ipv4.tcp_timestamps=1
+net.ipv4.tcp_syncookies=1
+net.ipv4.tcp_max_syn_backlog=65535
+net.ipv4.tcp_synack_retries=0
+net.ipv4.tcp_keepalive_intvl = 30
+net.ipv4.tcp_keepalive_time = 900
+net.ipv4.tcp_keepalive_probes = 3
+net.ipv4.tcp_fin_timeout = 10
+net.ipv4.tcp_max_orphans = 131072
+net.ipv4.tcp_rmem = 4096 4096 16777216
+net.ipv4.tcp_wmem = 4096 4096 16777216
+net.ipv4.tcp_mem = 786432 3145728  4194304
+SETTINGS
+```
+
+```
+sysctl -p
+```
+
+##### 3.3 安装网关
+
+自动安装
+
+```
+curl -sSL http://get.infini.cloud | bash -s -- -p gateway
+
+通过以上脚本可自动下载相应平台的 gateway 最新版本并解压到/opt/gateway
+
+脚本的可选参数如下：
+
+    -v [版本号]（默认采用最新版本号）
+
+    -d [安装目录]（默认安装到/opt/gateway）
+```
+
+系统服务启动
+
+```
+./gateway -service install
+
+systemctl status gateway && systemctl start gateway
+```
+
+##### 3.4 网关配置
+
+**gateway.yml**
+
+```
+allow_multi_instance: true
+#for more config examples, please visit: https://github.com/infinilabs/testing
+
+#the env section used for setup default settings, it can be overwritten by system environments.
+#eg: PROD_ES_ENDPOINT=http://192.168.3.185:9200 LOGGING_ES_ENDPOINT=http://192.168.3.185:9201  ./bin/gateway
+env: #use $[[env.LOGGING_ES_ENDPOINT]] in config instead
+  LOGGING_ES_ENDPOINT: http://192.16.20.41:9200/
+  LOGGING_ES_USER: elastic
+  LOGGING_ES_PASS: elastic
+  PROD_ES_ENDPOINT: http://192.16.20.220:9200/
+  PROD_ES_USER: elastic
+  PROD_ES_PASS: elastic
+  DEV_ES_ENDPOINT: http://192.168.1.173:9200/
+  DEV_ES_USER: elastic
+  DEV_ES_PASS: elastic
+  GW_BINDING: "0.0.0.0:8000"
+  API_BINDING: "0.0.0.0:2900"
+
+
+path.data: data
+path.logs: log
+path.configs: config # directory of additional gateway configurations
+
+configs:
+  auto_reload: true
+  managed: false
+
+## modules can be disabled by setting enabled to false
+#modules:
+#  - name: pipeline
+#    enabled: false
+#  - name: elasticsearch
+#    enabled: false
+#plugins:
+#  - name: gateway
+#    enabled: false
+#  - name: metrics
+#    enabled: false
+
+
+gateway:
+  disable_reuse_port_by_default: false
+
+# Gateway internal stats collecting
+stats:
+  enabled: true
+  # save stats under path.data
+  persist: true
+  # disable stats operations cache
+  no_buffer: true
+  # stats operations cache size
+  buffer_size: 1000
+  # stats operations cache flush interval
+  flush_interval_ms: 1000
+
+# Statsd integration
+statsd:
+  enabled: false
+  host: localhost
+  port: 8125
+  namespace: "gateway."
+  protocol: "udp"
+  # flush interval
+  interval_in_seconds: 1
+
+##json logging layout
+#log.format: '{"timestamp":"%UTCDateT%UTCTime","level":"%Level","message":"%EscapedMsg","file":"%File:%Line","func":"%FuncShort"}%n'
+
+#system api
+api:
+  enabled: true
+  network:
+    binding: $[[env.API_BINDING]]
+#  tls:
+#    enabled: true
+#    skip_insecure_verify: true
+  security: #basic auth for system api
+    enabled: false
+    username: admin
+    password: $[[keystore.API_PASS]] #./bin/gateway keystore add API_PASS
+
+##elasticsearch servers
+elasticsearch:
+  - name: prod
+    enabled: true
+    endpoints:
+      - $[[env.PROD_ES_ENDPOINT]]
+    discovery:
+      enabled: true
+    basic_auth:
+      username: $[[env.PROD_ES_USER]]
+      password: $[[env.PROD_ES_PASS]]
+    traffic_control.max_bytes_per_node: 1010485760
+    metadata_cache_enabled: false # Whether to cache the cluster info in memory cache
+
+  - name: dev
+    enabled: true
+    endpoints:
+      - $[[env.DEV_ES_ENDPOINT]]
+    discovery:
+      enabled: true
+    basic_auth:
+      username: $[[env.DEV_ES_USER]]
+      password: $[[env.DEV_ES_PASS]]
+    traffic_control.max_bytes_per_node: 1010485760
+    metadata_cache_enabled: false # Whether to cache the cluster info in memory cache
+  - name: logging-server
+    enabled: false
+    endpoints:
+      - $[[env.LOGGING_ES_ENDPOINT]]
+    basic_auth:
+      username: $[[env.LOGGING_ES_USER]]
+      password: $[[env.LOGGING_ES_PASS]]
+    discovery:
+      enabled: false
+
+entry:
+  - name: my_es_entry
+    enabled: true
+    router: my_router
+    max_concurrency: 10000
+    network:
+      binding: $[[env.GW_BINDING]]
+      # See `gateway.disable_reuse_port_by_default` for more information.
+      reuse_port: true
+#  tls:
+#   enabled: true #auto generate certs, cert_file and key_file are optional
+#   cert_file: /data/gateway/cert/elasticsearch.pem
+#   key_file: /data/gateway/cert/elasticsearch.key
+#   skip_insecure_verify: false
+
+router:
+  - name: my_router
+  # 默认路由
+    default_flow: write-flow
+    # tracing_flow: logging_flow
+    rules:
+      - method:
+          - "GET"
+          - "HEAD"
+        pattern:
+          - "/{any:*}"
+        flow:
+          - read-flow
+      - method:
+          - "POST"
+          - "GET"
+        pattern:
+          - "/_refresh"
+          - "/_count"
+          - "/_search"
+          - "/_msearch"
+          - "/_mget"
+          - "/{any_index}/_count"
+          - "/{any_index}/_search"
+          - "/{any_index}/_msearch"
+          - "/{any_index}/_mget"
+        flow:
+          - read-flow
+      - method:
+          - "*"
+        pattern:
+          - "/_bulk"
+          - "/{any_index}/_bulk"
+        flow:
+          - write-bulk-flow
+
+flow:
+  #部署阶段测试flow流程
+  - name: test-flow
+    filter:
+      - if:
+      # 当主集群可用时
+          cluster_available: ["prod"]
+        then:
+          # 先将数据写入主集群
+          - elasticsearch:
+              elasticsearch: "dev"
+          - queue:
+              queue_name: "prod-queue"
+        else:
+          - elasticsearch:
+              elasticsearch: "prod"
+          - queue:
+              queue_name: "dev-queue"
+
+
+  - name: write-flow
+    filter:
+      - if:
+      # 当主集群可用时
+          cluster_available: ["prod"]
+        then:
+          # 先将数据写入主集群
+          - elasticsearch:
+              elasticsearch: "prod"
+            # 写入消息队列,等待 pipeline 异步消费到备集群
+              refresh:
+                enabled: true
+                interval: 30s
+          - queue:
+              queue_name: "dev-queue"
+        else:
+          - elasticsearch:
+              elasticsearch: "dev"
+              refresh:
+                enabled: true
+                interval: 30s
+          - queue:
+              queue_name: "prod-queue"
+
+  - name: write-bulk-flow
+    filter:
+      - if:
+      # 当主集群可用时
+          cluster_available: ["prod"]
+        then:
+          # 先将数据写入主集群
+          - elasticsearch:
+              elasticsearch: "prod"
+              refresh:
+                enabled: true
+                interval: 30s
+            # 写入消息队列,等待 pipeline 异步消费到备集群
+          - bulk_reshuffle:
+              elasticsearch: dev
+              level: cluster
+        else:
+          - elasticsearch:
+              elasticsearch: "dev"
+              refresh:
+                enabled: true
+                interval: 30s
+          - bulk_reshuffle:
+              elasticsearch: prod
+              level: cluster
+      
+  # 读请求优先发给主集群, 当主集群不可用时发给备集群
+  - name: read-flow
+    filter:
+      - if:
+          cluster_available: ["prod"]
+        then:
+          - elasticsearch:
+              elasticsearch: "prod"
+              refresh:
+                enabled: true
+                interval: 30s
+        else:
+          - elasticsearch:
+              elasticsearch: "dev"
+              refresh:
+                enabled: true
+                interval: 30s
+
+
+##background jobs
+pipeline:
+  - name: prod-consumer
+    auto_start: true
+    keep_running: true
+    processor:
+      - queue_consumer:
+          input_queue: "prod-queue" 
+          elasticsearch: "prod"
+          when:
+            cluster_available: ["prod"] # 当集群可用时，才消费队列中的数据
+  - name: dev-consumer
+    auto_start: true
+    keep_running: true
+    processor:
+      - queue_consumer:
+          input_queue: "dev-queue"
+          elasticsearch: "dev"
+          when:
+            cluster_available: ["dev"]
+
+  - name: prod_bulk_requests
+    auto_start: true
+    keep_running: true
+    retry_delay_in_ms: 1000
+    processor:
+      - bulk_indexing:
+          num_of_slices: 1
+          max_connection_per_node: 1000
+          max_worker_size: 200
+          idle_timeout_in_seconds: 5
+          elasticsearch: "prod"
+          bulk:
+            compress: false
+            batch_size_in_mb: 20
+            batch_size_in_docs: 5000
+            invalid_queue: "prod_bulk_invalid_requests"
+            dead_letter_queue: "prod_bulk_dead_requests"
+            max_retry_times: 5
+            response_handle:
+              bulk_result_message_queue: "prod_bulk_result_messages"
+              max_request_body_size: 1024
+              max_response_body_size: 1024
+              save_success_results: true
+              max_error_details_count: 5
+          consumer:
+            fetch_max_messages: 100
+            eof_retry_delay_in_ms: 500
+          queue_selector.labels:
+              type: bulk_reshuffle
+              level: cluster
+              elasticsearch: prod
+          when:
+            cluster_available: ["prod"]
+
+
+  - name: dev_bulk_requests
+    auto_start: true
+    keep_running: true
+    processor:
+      - bulk_indexing:
+          num_of_slices: 1
+          max_connection_per_node: 1000
+          max_worker_size: 200
+          idle_timeout_in_seconds: 5
+          elasticsearch: "dev"
+          bulk:
+            compress: false
+            batch_size_in_mb: 20
+            batch_size_in_docs: 5000
+            invalid_queue: "dev_bulk_invalid_requests"
+            dead_letter_queue: "dev_bulk_dead_requests"
+            max_retry_times: 5
+            response_handle:
+              bulk_result_message_queue: "dev_bulk_result_messages"
+              max_request_body_size: 1024
+              max_response_body_size: 1024
+              save_success_results: true
+              max_error_details_count: 5
+          consumer:
+            fetch_max_messages: 100
+            eof_retry_delay_in_ms: 1000
+          queue_selector.labels:
+              type: bulk_reshuffle
+              level: cluster
+              elasticsearch: dev
+          when:
+            cluster_available: ["dev"]
+
+##metrics
+metrics:
+  enabled: true
+  queue: metrics
+  logging_queue: logging
+  instance:
+    enabled: true
+  network:
+    enabled: true
+    summary: true
+    sockets: true
+
+##diskqueue
+disk_queue:
+  prepare_files_to_read: true
+  #max_bytes_per_file: 20971520
+  eof_retry_delay_in_ms: 500
+  cleanup_files_on_init: false
+  retention:
+    max_num_of_local_files: 20 # automatically cleanup consumed files
+  compress:
+    segment:
+      enabled: true
+    delete_after_compress: true # trigger cleanup after compression.
+    idle_threshold: 20 # max number of uncompressed consumed files to preserve.
+#  upload_to_s3: true
+#  s3:
+#    server: my_blob_store #name defined in s3 servers
+#    location: your_location
+#    bucket: your_bucket_name
+
+##s3 servers
+#s3:
+#  my_blob_store: #name of s3 server
+#    endpoint: "localhost:9021"
+#    access_key: "your_access_key"
+#    access_secret: "your_access_secret"
+#    token: "your_token"
+#    skip_insecure_verify: true
+#    ssl: true
+
+## badger kv storage configuration
+badger:
+  enabled: true
+  single_bucket_mode: true
+  path: '' # defaults to {path.data}/gateway/node/{nodeID}/badger/
+  memory_mode: false # don't persist data to disk
+  sync_writes: false # flush to disk on every write
+  mem_table_size: 10485760
+  num_mem_tables: 1
+  # lsm tuning options
+  value_log_max_entries: 1000000
+  value_log_file_size: 536870912
+  value_threshold: 1048576
+  num_level0_tables: 1
+  num_level0_tables_stall: 2
+
+## floating ip configuration
+floating_ip:
+  enabled: true # enable floating ip, requires root privilege
+  netmask: 255.255.255.0
+  ip: '192.168.1.233' # if empty, will automatically bind to x.x.x.234
+  interface: 'ens160' # if empty, will automatically find an interface to bind
+  local_ip: '192.168.1.173' # if empty, will automatically bind to interface's ip address
+  priority: 101 # if <= 0, will random set current node's priority. master will switch to standby if other nodes has higher priority
+  echo: # gateway will automatically ping master's echo.port to check whether it's still alive
+    port: 61111
+    dial_timeout_in_ms: 1000
+    timeout_in_ms: 5000
+  broadcast:
+    binding: 224.3.2.2:7654 # broadcast address for floating ip status broadcast
+
+## elasticsearch module global configurations
+elastic:
+  # elasticsearch for gateway's system info storage
+  elasticsearch: prod
+  enabled: true
+  remote_configs: false
+  health_check:
+    enabled: true
+    interval: 30s
+  availability_check:
+    enabled: true
+    interval: 30s
+  metadata_refresh:
+    enabled: true
+    interval: 60s
+  cluster_settings_check:
+    enabled: false
+    interval: 60s
+```
+
+gateway_easy.yml
+
+```
+allow_multi_instance: true
+#for more config examples, please visit: https://github.com/infinilabs/testing
+
+#the env section used for setup default settings, it can be overwritten by system environments.
+#eg: PROD_ES_ENDPOINT=http://192.168.3.185:9200 LOGGING_ES_ENDPOINT=http://192.168.3.185:9201  ./bin/gateway
+env: #use $[[env.LOGGING_ES_ENDPOINT]] in config instead
+  LOGGING_ES_ENDPOINT: http://192.16.20.41:9200/
+  LOGGING_ES_USER: elastic
+  LOGGING_ES_PASS: elastic
+  PROD_ES_ENDPOINT: http://192.16.20.220:9200/
+  PROD_ES_USER: elastic
+  PROD_ES_PASS: elastic
+  DEV_ES_ENDPOINT: http://192.168.1.173:9200/
+  DEV_ES_USER: elastic
+  DEV_ES_PASS: elastic
+  GW_BINDING: "0.0.0.0:8000"
+  API_BINDING: "0.0.0.0:2900"
+
+path.data: data
+path.logs: log
+path.configs: config # directory of additional gateway configurations
+
+configs.auto_reload: true # set true to auto reload gateway configurations
+
+## modules can be disabled by setting enabled to false
+#modules:
+#  - name: pipeline
+#    enabled: false
+#  - name: elasticsearch
+#    enabled: false
+#plugins:
+#  - name: gateway
+#    enabled: false
+#  - name: metrics
+#    enabled: false
+
+
+gateway:
+  # By default, gateway will always set entry.network.reuse_port as true.
+  # If the host doesn't support SO_REUSEPORT, set `true` to disable this behavior
+  disable_reuse_port_by_default: false
+
+# Gateway internal stats collecting
+stats:
+  enabled: true
+  # save stats under path.data
+  persist: true
+  # disable stats operations cache
+  no_buffer: true
+  # stats operations cache size
+  buffer_size: 1000
+  # stats operations cache flush interval
+  flush_interval_ms: 1000
+
+# Statsd integration
+statsd:
+  enabled: false
+  host: localhost
+  port: 8125
+  namespace: "gateway."
+  protocol: "udp"
+  # flush interval
+  interval_in_seconds: 1
+
+##json logging layout
+#log.format: '{"timestamp":"%UTCDateT%UTCTime","level":"%Level","message":"%EscapedMsg","file":"%File:%Line","func":"%FuncShort"}%n'
+
+#system api
+api:
+  enabled: true
+  network:
+    binding: $[[env.API_BINDING]]
+#  tls:
+#    enabled: true
+#    skip_insecure_verify: true
+  security: #basic auth for system api
+    enabled: false
+    username: admin
+    password: $[[keystore.API_PASS]] #./bin/gateway keystore add API_PASS
+
+##elasticsearch servers
+elasticsearch:
+  - name: prod
+    enabled: true
+    endpoints:
+      - $[[env.PROD_ES_ENDPOINT]]
+    discovery:
+      enabled: false
+    basic_auth:
+      username: $[[env.PROD_ES_USER]]
+      password: $[[env.PROD_ES_PASS]]
+    traffic_control.max_bytes_per_node: 1010485760
+    metadata_cache_enabled: false # Whether to cache the cluster info in memory cache
+
+  - name: dev
+    enabled: true
+    endpoints:
+      - $[[env.DEV_ES_ENDPOINT]]
+    discovery:
+      enabled: false
+    basic_auth:
+      username: $[[env.DEV_ES_USER]]
+      password: $[[env.DEV_ES_PASS]]
+    traffic_control.max_bytes_per_node: 1010485760
+    metadata_cache_enabled: false # Whether to cache the cluster info in memory cache
+  - name: logging-server
+    enabled: true
+    endpoints:
+      - $[[env.LOGGING_ES_ENDPOINT]]
+    basic_auth:
+      username: $[[env.LOGGING_ES_USER]]
+      password: $[[env.LOGGING_ES_PASS]]
+    discovery:
+      enabled: false
+
+entry:
+  - name: my_es_entry
+    enabled: true
+    router: my_router
+    max_concurrency: 10000
+    network:
+      binding: $[[env.GW_BINDING]]
+      # See `gateway.disable_reuse_port_by_default` for more information.
+      reuse_port: true
+#  tls:
+#   enabled: true #auto generate certs, cert_file and key_file are optional
+#   cert_file: /data/gateway/cert/elasticsearch.pem
+#   key_file: /data/gateway/cert/elasticsearch.key
+#   skip_insecure_verify: false
+
+router:
+  - name: my_router
+  # 默认路由
+    default_flow: write-flow
+    # tracing_flow: logging_flow
+    rules:
+      - method:
+          - "GET"
+          - "HEAD"
+        pattern:
+          - "/{any:*}"
+        flow:
+          - read-flow
+      - method:
+          - "POST"
+          - "GET"
+        pattern:
+          - "/_refresh"
+          - "/_count"
+          - "/_search"
+          - "/_msearch"
+          - "/_mget"
+          - "/{any_index}/_count"
+          - "/{any_index}/_search"
+          - "/{any_index}/_msearch"
+          - "/{any_index}/_mget"
+        flow:
+          - read-flow
+
+flow:
+  - name: write-flow
+    filter:
+      - if:
+      # 当主集群可用时
+          cluster_available: ["prod"]
+        then:
+          # 先将数据写入主集群
+          - elasticsearch:
+              elasticsearch: "prod"
+            # 写入消息队列,等待 pipeline 异步消费到备集群
+          - queue:
+              queue_name: "dev-queue"
+        else:
+          - elasticsearch:
+              elasticsearch: "dev"
+          - queue:
+              queue_name: "prod-queue"
+      
+  # 读请求优先发给主集群, 当主集群不可用时发给备集群
+  - name: read-flow
+    filter:
+      - if:
+          cluster_available: ["prod"]
+        then:
+          - elasticsearch:
+              elasticsearch: "prod"
+        else:
+          - elasticsearch:
+              elasticsearch: "dev"
+
+  - name: logging_flow
+    filter:
+      - logging:
+          queue_name: request_logging
+          max_request_body_size: 4096
+          max_response_body_size: 4096
+
+  - name: async_bulk_flow
+    filter:
+      - bulk_reshuffle:
+          when:
+            contains:
+              _ctx.request.path: /_bulk
+          elasticsearch: prod
+          # Options: cluster,node,index,shard
+          # NOTE: node/shard level requires elasticsearch cluster info
+          level: node
+          partition_size: 10 #extra partition within level
+          #shards: [1,3,5,7,9,11,13] #filter shards to ingest for node or shard level
+          continue_metadata_missing: true # If true, will continue to execute following processors if cluster info missing (level: node, shard)
+          fix_null_id: true
+      - elasticsearch:
+          elasticsearch: prod
+          max_connection_per_node: 1000
+
+##background jobs
+pipeline:
+  - name: prod-consumer
+    auto_start: true
+    keep_running: true
+    processor:
+      - queue_consumer:
+          input_queue: "prod-queue" 
+          elasticsearch: "prod"
+          when:
+            cluster_available: ["prod"] # 当集群可用时，才消费队列中的数据
+  - name: dev-consumer
+    auto_start: true
+    keep_running: true
+    processor:
+      - queue_consumer:
+          input_queue: "dev-queue"
+          elasticsearch: "dev"
+          when:
+            cluster_available: ["dev"]
+
+  - name: pipeline_logging_merge
+    auto_start: true
+    keep_running: true
+    processor:
+      - indexing_merge:
+          input_queue: "logging"
+          idle_timeout_in_seconds: 1
+          elasticsearch: "logging-server"
+          index_name: ".infini_logs"
+          output_queue:
+            name: "gateway-pipeline-logs"
+            label:
+              tag: "pipeline_logging"
+          worker_size: 1
+          bulk_size_in_kb: 1
+  - name: ingest_pipeline_logging
+    auto_start: true
+    keep_running: true
+    processor:
+      - bulk_indexing:
+          bulk:
+            compress: true
+            batch_size_in_mb: 1
+            batch_size_in_docs: 1
+          consumer:
+            fetch_max_messages: 100
+          queues:
+            type: indexing_merge
+            tag: "pipeline_logging"
+  ## system logging and metrics
+  - name: async_messages_merge
+    auto_start: true
+    keep_running: true
+    processor:
+      - indexing_merge:
+          input_queue: "bulk_result_messages"
+          elasticsearch: "logging-server"
+          index_name: ".infini_async_bulk_results"
+          output_queue:
+            name: "bulk_requests"
+            label:
+              tag: "bulk_logging"
+          worker_size: 1
+          bulk_size_in_mb: 10
+  - name: metrics_merge
+    auto_start: true
+    keep_running: true
+    processor:
+      - indexing_merge:
+          input_queue: "metrics"
+          elasticsearch: "logging-server"
+          index_name: ".infini_metrics"
+          output_queue:
+            name: "bulk_requests"
+            label:
+              tag: "metrics"
+          worker_size: 1
+          bulk_size_in_mb: 10
+  - name: request_logging_merge
+    auto_start: true
+    keep_running: true
+    processor:
+      - indexing_merge:
+          input_queue: "request_logging"
+          elasticsearch: "logging-server"
+          index_name: ".infini_requests_logging"
+          output_queue:
+            name: "bulk_requests"
+            label:
+              tag: "request_logging"
+          worker_size: 1
+          bulk_size_in_mb: 10
+  - name: ingest_merged_requests
+    auto_start: true
+    keep_running: true
+    processor:
+      - bulk_indexing:
+          num_of_slices: 1 #runtime slicing
+          bulk:
+            compress: false
+            batch_size_in_mb: 10
+            batch_size_in_docs: 500
+            #remove_duplicated_newlines: true
+            invalid_queue: "invalid_request"
+            response_handle:
+              bulk_result_message_queue: "system_failure_messages"
+              max_request_body_size: 10240
+              max_response_body_size: 10240
+              save_success_results: false
+              max_error_details_count: 5
+          consumer:
+            fetch_max_messages: 100
+          queues:
+            type: indexing_merge
+          when:
+            cluster_available: ["logging-server"]
+
+  ##async way to ingest bulk requests handled by async_bulk_flow
+  - name: async_ingest_bulk_requests
+    auto_start: true
+    keep_running: true
+    retry_delay_in_ms: 1000
+    processor:
+      - bulk_indexing:
+          max_connection_per_node: 1000
+          num_of_slices: 1 #runtime slice
+          max_worker_size: 200
+          idle_timeout_in_seconds: 10
+          bulk:
+            compress: false
+            batch_size_in_mb: 20
+            batch_size_in_docs: 5000
+            invalid_queue: "bulk_invalid_requests"
+            dead_letter_queue: "bulk_dead_requests"
+            response_handle:
+              bulk_result_message_queue: "bulk_result_messages"
+              max_request_body_size: 1024
+              max_response_body_size: 1024
+              save_success_results: true
+              max_error_details_count: 5
+              retry_rules:
+                default: true
+                retry_429: true
+                retry_4xx: false
+                denied:
+                  status: []
+                  keyword:
+                    - illegal_state_exception
+          consumer:
+            fetch_max_messages: 100
+            eof_retry_delay_in_ms: 500
+          queue_selector:
+            labels:
+              type: bulk_reshuffle
+
+##metrics
+metrics:
+  enabled: true
+  queue: metrics
+  logging_queue: logging
+  instance:
+    enabled: true
+  network:
+    enabled: true
+    summary: true
+    sockets: true
+
+##diskqueue
+disk_queue:
+  prepare_files_to_read: true
+  #max_bytes_per_file: 20971520
+  eof_retry_delay_in_ms: 500
+  cleanup_files_on_init: false
+  retention:
+    max_num_of_local_files: 20 # automatically cleanup consumed files
+  compress:
+    segment:
+      enabled: true
+    delete_after_compress: true # trigger cleanup after compression.
+    idle_threshold: 20 # max number of uncompressed consumed files to preserve.
+#  upload_to_s3: true
+#  s3:
+#    server: my_blob_store #name defined in s3 servers
+#    location: your_location
+#    bucket: your_bucket_name
+
+##s3 servers
+#s3:
+#  my_blob_store: #name of s3 server
+#    endpoint: "localhost:9021"
+#    access_key: "your_access_key"
+#    access_secret: "your_access_secret"
+#    token: "your_token"
+#    skip_insecure_verify: true
+#    ssl: true
+
+## badger kv storage configuration
+badger:
+  enabled: true
+  single_bucket_mode: true
+  path: '' # defaults to {path.data}/gateway/node/{nodeID}/badger/
+  memory_mode: false # don't persist data to disk
+  sync_writes: false # flush to disk on every write
+  mem_table_size: 10485760
+  num_mem_tables: 1
+  # lsm tuning options
+  value_log_max_entries: 1000000
+  value_log_file_size: 536870912
+  value_threshold: 1048576
+  num_level0_tables: 1
+  num_level0_tables_stall: 2
+
+## floating ip configuration
+floating_ip:
+  enabled: false # enable floating ip, requires root privilege
+  netmask: 255.255.255.0
+  ip: '' # if empty, will automatically bind to x.x.x.234
+  interface: '' # if empty, will automatically find an interface to bind
+  local_ip: '' # if empty, will automatically bind to interface's ip address
+  priority: 0 # if <= 0, will random set current node's priority. master will switch to standby if other nodes has higher priority
+  echo: # gateway will automatically ping master's echo.port to check whether it's still alive
+    port: 61111
+    dial_timeout_in_ms: 1000
+    timeout_in_ms: 5000
+  broadcast:
+    binding: 224.3.2.2:7654 # broadcast address for floating ip status broadcast
+
+## elasticsearch module global configurations
+elastic:
+  # elasticsearch for gateway's system info storage
+  elasticsearch: prod
+  enabled: true
+  remote_configs: false
+  health_check:
+    enabled: true
+    interval: 30s
+  availability_check:
+    enabled: true
+    interval: 30s
+  metadata_refresh:
+    enabled: true
+    interval: 60s
+  cluster_settings_check:
+    enabled: false
+    interval: 60s
+```
+
+##### 3.5 启动网关
+
+```
+systemctl start gateway && systemctl status gateway
+```
+
+##### **3.6 验证网关**
+
+查看集群信息
+
+```
+curl -XGET http://192.168.1.73:8000/
+```
+
+查看gatewat消息队列信息
+
+```
+curl -s http://localhost:2900/queue/stats
+```
+
+查看promethus指标
+
+```
+http://localhost:2900/stats?format=prometheus
+```
+
+##### 3.7 gateway高可用
+
+**浮动 IP**
+
+```
+极限网关内置浮动 IP 功能，可以实现双机热备、故障转移的能力，极限网关天然提供四层网络流量的高可用，无需再额外考虑增加额外的软件和设备来保障因为停机、网络故障等造成的代理服务中断。
+```
+
+注意:
+
+- 该特性目前仅支持 Mac OS、Linux 操作系统。且需要网关以 root 身份运行。
+- 此特性依赖目标系统的 `ping` 和 `ifconfig` 命令，请确保相关包默认已安装。
+- 一组启用浮动 IP 的网关所在网卡地址应该在一个子网，且内网广播互通（网关实际 IP 和浮动 IP 要求只最后一位地址不一样，如：`192.168.3.x`）。
+
+**什么是浮动 IP**
+
+```
+极限网关基于浮动 IP 来实现高可用，浮动 IP 也叫虚拟 IP 或者动态 IP，我们知道每台服务器之间都必须要有 IP 才能进行通信，一台服务器的 IP 一般是固定的并且一般要提前分配好， 如果这台服务器因为故障挂了的话，这个 IP 以及上面部署的业务也就不能访问了。 而一个浮动 IP 通常是一个公开的、可以路由到的 IP 地址，并且不会自动分配给实体设备。项目管理者临时分配这个动态 IP 到一个或者多个实体设备。 这个实体设备有自动分配的静态 IP 用于内部网间设备的通讯。这个内部网使用私有地址，这些私有地址不能被路由到。通过浮动 IP 内网实体的服务才能被外网识别和访问。
+```
+
+![](%E5%9B%BE%E7%89%87/es-gateway-7.jpg)
+
+参考配置：
+
+```
+## floating ip configuration
+floating_ip:
+  enabled: true # enable floating ip, requires root privilege
+  netmask: 255.255.255.0
+  ip: '192.168.1.233' # if empty, will automatically bind to x.x.x.234
+  interface: 'ens160' # if empty, will automatically find an interface to bind
+  local_ip: '192.168.1.173' # if empty, will automatically bind to interface's ip address
+  priority: 101 # if <= 0, will random set current node's priority. master will switch to standby if other 
+```
+
+##### 3.8 与prometheus集成
+
+```
+scrape_configs:
+  - job_name: "prometheus"
+    scrape_interval: 5s
+    # metrics_path defaults to '/metrics'
+    metrics_path: /stats
+    params:
+      format: ['prometheus']
+    # scheme defaults to 'http'.
+    static_configs:
+      - targets: ["localhost:2900"]
+        labels:
+          group: 'infini'
+```
+
+查看promethus指标
+
+```
+http://localhost:2900/stats?format=prometheus
+```
+
+#### 4、部署console
+
+```
+为了方便在多个集群之间快速切换，使用 INFINI Console（http://console.infinilabs.com/） 来进行管理。
+```
+
+##### 4.1 安装console
+
+自动安装
+
+```
+curl -sSL http://get.infini.cloud | bash -s -- -p console
+```
+
+系统服务启动
+
+```
+./console -service install
+
+systemctl status console && systemctl start console
+```
+
+初始化
+
+使用浏览器打开 http://localhost:9000 访问，可以看到如下界面，可以进行初始化配置。console元数据信息需要注册在elasticsearch集群中，可以独立安装Easysearch注册或直接注册在业务ES集群中。
+
+![](%E5%9B%BE%E7%89%87/es-console.png)
+
+打开菜单 `System`，注册当前需要管理的 Elasticsearch 集群和网关地址，用来快速管理，如下：
+
+![](%E5%9B%BE%E7%89%87/es-console-2.png)
+
+#### 5、测试网关
+
+##### 5.1 验证数据同步
+
+数据插入
+
+```
+for i in {1..3};docurl -XPUT -u elastic:test123 -H "Content-Type: Application/json" \http://11.8.36.25:8000/index-1/_doc/$i \-d "{\"name\":\"tom_$i\",\"age\":\"$i\"}";done
+```
+
+数据查询，dev和prod节点可以查询到相同数据
+
+```
+GET index-1/_search
+
+# 返回结果
+{
+  "took" : 3,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 3,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "index-1",
+        "_type" : "_doc",
+        "_id" : "1",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "tom_1",
+          "age" : "1"
+        }
+      },
+      {
+        "_index" : "index-1",
+        "_type" : "_doc",
+        "_id" : "2",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "tom_2",
+          "age" : "2"
+        }
+      },
+      {
+        "_index" : "index-1",
+        "_type" : "_doc",
+        "_id" : "3",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "tom_3",
+          "age" : "3"
+        }
+      }
+    ]
+  }
+}
+```
+
+##### 5.2 消息队列验证
+
+切换defalut_flow为test-flow，再次进行数据同步验证
+
+```
+router:
+  - name: my_router
+  # 默认路由
+    default_flow: test-flow
+```
+
+_bulk数据插入
+
+```
+POST _bulk
+{ "index" : { "_index" : "gw-test-2", "_id" : "1" } }
+{ "name" : "Alice", "age" : 25, "created_at": "2025-05-27T10:00:00Z" }
+{ "index" : { "_index" : "gw-test-2", "_id" : "2" } }
+{ "name" : "Bob", "age" : 33, "created_at": "2025-05-27T10:01:00Z" }
+{ "index" : { "_index" : "gw-test-2", "_id" : "3" } }
+```
+
+数据查看，dev和prod节点可以查询到相同数据
+
+```
+GET gw-test-2/_search
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 3,
+      "relation": "eq"
+    },
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "gw-test-2",
+        "_type": "_doc",
+        "_id": "1",
+        "_score": 1,
+        "_source": {
+          "name": "Alice",
+          "age": 30,
+          "created_at": "2025-05-27T10:00:00Z"
+        }
+      },
+      {
+        "_index": "gw-test-2",
+        "_type": "_doc",
+        "_id": "2",
+        "_score": 1,
+        "_source": {
+          "name": "Bob",
+          "age": 25,
+          "created_at": "2025-05-27T10:05:00Z"
+        }
+      },
+      {
+        "_index": "gw-test-2",
+        "_type": "_doc",
+        "_id": "3",
+        "_score": 1,
+        "_source": {
+          "name": "Charlie",
+          "age": 35,
+          "created_at": "2025-05-27T10:10:00Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+切回defalut_flow为write-flow,恢复正常flow状态。
+
+##### 5.3 容灾模拟验证
+
+在console中暂停dev环境消息队列pipeline，或停止dev集群
+
+![](%E5%9B%BE%E7%89%87/es-gateway-1.png)
+
+数据插入
+
+```
+POST _bulk
+{ "index" : { "_index" : "gw-test-2", "_id" : "1" } }
+{ "name" : "Alice", "age" : 25, "created_at": "2025-05-27T10:00:00Z" }
+{ "index" : { "_index" : "gw-test-2", "_id" : "2" } }
+{ "name" : "Bob", "age" : 33, "created_at": "2025-05-27T10:01:00Z" }
+{ "index" : { "_index" : "gw-test-2", "_id" : "3" } }
+```
+
+数据查询，prod节点可以查询到相同数据，dev节点无法查到数据
+
+```
+GET gw-test-2/_search
+{
+  "took": 2,
+  "timed_out": false,
+  "_shards": {
+    "total": 1,
+    "successful": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "hits": {
+    "total": {
+      "value": 3,
+      "relation": "eq"
+    },
+    "max_score": 1,
+    "hits": [
+      {
+        "_index": "gw-test-2",
+        "_type": "_doc",
+        "_id": "1",
+        "_score": 1,
+        "_source": {
+          "name": "Alice",
+          "age": 30,
+          "created_at": "2025-05-27T10:00:00Z"
+        }
+      },
+      {
+        "_index": "gw-test-2",
+        "_type": "_doc",
+        "_id": "2",
+        "_score": 1,
+        "_source": {
+          "name": "Bob",
+          "age": 25,
+          "created_at": "2025-05-27T10:05:00Z"
+        }
+      },
+      {
+        "_index": "gw-test-2",
+        "_type": "_doc",
+        "_id": "3",
+        "_score": 1,
+        "_source": {
+          "name": "Charlie",
+          "age": 35,
+          "created_at": "2025-05-27T10:10:00Z"
+        }
+      }
+    ]
+  }
+}
+```
+
+开启dev环境消息队列pipeline，dev环境可以查询数据，数据正常同步。
+
+#### 6、基于gateway无缝迁移
+
+##### 6.1 ES迁移流程
+
+![](%E5%9B%BE%E7%89%87/es-gateway-3.png)
+
+```
+业务代码，切流量，双写。(新增的变更都会记录在网关本地，但是暂停消费到移动云)
+暂停网关移动云这边的增量数据消费。
+迁移 11 月的数据，快照，快照上传到 S3 。
+下载 S3 的文件到移动云。
+恢复快照到移动云的 11 月份的索引。
+开启网关移动云这边的增量消费。
+等待增量追平（接近追平）。
+按照时间条件（如：时间 A，当前时间往前 30 分钟），验证文档数据量，Hash 校验等等。
+停业务的写入，网关，腾讯云的写入（10 分钟）。
+等待剩余的增量追完。
+对时间 A 之后的，增量进行校验。
+切换所有流量到移动云，业务端直接访问移动云 ES。
+```
+
+
+
+##### 6.2 流量切换
+
+停止dev环境消息队列pipeline，dev集群无法通过网关写入数据，报错在消息队列中。将业务正常写的流量切换到网关
+
+![](%E5%9B%BE%E7%89%87/es-gateway-2.jpg)
+
+切换流量到网关之后，用户的请求还是以同步的方式正常访问自建集群，网关记录到的请求会按顺序记录到 MQ 里面，但是消费是暂停状态。
+
+##### 6.3 全量数据迁移
+
+在流量迁移到网关之后，我们开始对自建 Elasticsearch 集群的数据进行全量迁移到XX云 Elasticsearch 集群。
+
+![](%E5%9B%BE%E7%89%87/es-gateway-4.jpg)通过快照的方式进行恢复
+
+##### 6.4 增量数据迁移
+
+在全量导入的过程中，可能存在数据的增量修改，不过这部分请求都已经完整记录下来了，我们只需要开启网关的消费任务即可将挤压的请求应用到dev的 Elasticsearch 集群。
+
+![](%E5%9B%BE%E7%89%87/es-gateway-5.jpg)
+
+##### 6.5 执行数据比对
+
+增量数据比对
+
+gateway-diff.yaml
+
+```
+[root@iZbp1gxkifg8uetb33pvcpZ gateway]# cat 5.4DIFF5.6.yml 
+path.data: data
+path.logs: log
+
+#show progress bar
+progress_bar.enabled: true
+
+
+elasticsearch:
+  - name: target
+    enabled: true
+    endpoints:
+      - http://es-cn-tl32p9fkk0006m56k.elasticsearch.xxx.com:9200
+    basic_auth:
+      username: elastic
+      password: ******
+    discovery:
+      enabled: false
+  - name: source
+    enabled: true
+    endpoints:
+      - http://192.168.0.19:9200
+    basic_auth:
+      username: test
+      password: ******
+    discovery:
+      enabled: false
+
+
+pipeline:
+  - name: index_diff_service
+    auto_start: true
+    processor:
+    - dag:
+        mode: wait_all
+        parallel:
+          - dump_hash: #dump es1's doc
+              indices: "demo_5_4_2"
+              scroll_time: "10m"
+              elasticsearch: "source"
+#              query_string: "@timestamp.keyword:[\"2021-01-17 03:41:20\" TO \"2021-03-17 03:41:20\"]"
+              output_queue: "source_docs"
+              batch_size: 5000
+              slice_size: 5
+          - dump_hash: #dump es2's doc
+              indices: "demo_5_4_2"
+              scroll_time: "10m"
+#              query_string: "@timestamp.keyword:[\"2021-01-17 03:41:20\" TO \"2021-03-17 03:41:20\"]"
+              batch_size: 5000
+              slice_size: 5
+              elasticsearch: "target"
+              output_queue: "target_docs"
+        end:
+          - index_diff:
+              diff_queue: "diff_result"
+              buffer_size: 10
+              text_report: true #如果要存 es，这个开关关闭，开启 pipeline 的 diff_result_ingest 任务
+              source_queue: 'source_docs'
+              target_queue: 'target_docs'
+
+#pipeline:
+#  - name: diff_result_ingest
+#    processor:
+#      - json_indexing:
+#          index_name: "diff_result"
+#          elasticsearch: "source"
+#          input_queue: "diff_result"
+```
+
+```
+./gateway -config gateway-diff.yaml
+```
+
+##### 6.6 切换集群
+
+如果验证完之后，两个集群的数据已经完全一致了，可以将程序切换到新集群，或者将网关的配置里面的主备进行互换
+
+![](%E5%9B%BE%E7%89%87/es-gateway-6.jpg)
+
+双集群在线运行一段时间，待业务完全验证之后，再安全下线旧集群.
