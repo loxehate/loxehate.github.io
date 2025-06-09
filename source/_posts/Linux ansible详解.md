@@ -2719,6 +2719,7 @@ ssh连接速度优化,关闭UseDNS,GSSAPIAuthcation …
 给主机进行分组操作与管理.
 关闭gather_facts,如果不用facts变量可以关闭, 剧本中: gather_facts: false 配置文件: gathering = explicit
 关闭host,key,check 一般使用密码认证的时候需要关闭,如果不关闭 ansible配置文件 host_key_checking = False
+Mitogen for Ansible：https://github.com/mitogen-hq/mitogen/blob/master/docs/ansible_detailed.rst
 ```
 
 #### 14.2、安全
