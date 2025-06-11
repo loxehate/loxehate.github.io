@@ -47,7 +47,7 @@ Hadoop分布式文件系统(HDFS)被设计成适合运行在通用硬件(commodi
     
     3）Secondary NameNode（2nn）：每隔一段时间对NameNode的元数据进行备份
 
-![](D:\学习\Linux微服务\图片/HDFS架构.png)
+![](图片/HDFS架构.png)
 
 #### 2.3 MapReduce架构
 
@@ -565,7 +565,7 @@ hadoop fs -put /app/testData/jdk-17.0.12_linux-x64_bin.tar.gz /ikun
 
 可以看到，此时两个文件已经上传完成
 
-![](D:\学习\Linux微服务\图片/hadoop 上传文件.png)
+![](图片/hadoop 上传文件.png)
 
 ##### 2.查看上传的文件存放位置
 
@@ -663,7 +663,7 @@ systemctl enable hadoop.service && systemctl status hadoop.service
 
 ![](图片/Hadoop版本依赖.png)
 
-![](D:\学习\Linux微服务\图片/hadoop节点部署.png)
+![](图片/hadoop节点部署.png)
 
 #### 5.2 安装hadoop安装包
 
