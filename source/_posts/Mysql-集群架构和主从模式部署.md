@@ -2,7 +2,7 @@
 title: Mysql-集群架构和主从模式部署
 tags: [Mysql]
 categories: [数据库]
-date: 2025-05-08
+date: 2025-06-11
 ---
 ### 一、集群架构设计
 
@@ -59,7 +59,7 @@ date: 2025-05-08
 MySQL主从模式是指数据可以从一个MySQL数据库服务器主节点复制到一个或多个从节点。MySQL 默认采用异步复制方式，这样从节点不用一直访问主服务器来更新自己的数据，从节点可以复制主数据库中的所有数据库，或者特定的数据库，或者特定的表。
 ```
 
-![1](图片/主从模式.png)
+![1](D:\学习\mysql\图片\主从模式.png)
 
 mysql主从复制用途：
 
@@ -87,16 +87,36 @@ mysql主从复制用途：
 
 下图是主从复制的原理图。
 
-![](图片/主从复制.png)
+![](D:\学习\mysql\图片\主从复制.png)
 
 主从复制整体分为以下三个步骤：
 
 ```
-主库将数据库的变更操作记录到Binlog日志文件中
+🚩 阶段 1：主库写入 binlog
+应用向主库执行写操作（INSERT/UPDATE/DELETE）
 
-从库读取主库中的Binlog日志文件信息写入到从库的Relay Log中继日志中
+主库先将事务写入 binlog（Binary Log）中，按顺序记录为 event（事件）
 
-从库读取中继日志信息在从库中进行Replay,更新从库数据信息
+写入后提交事务
+
+🚩 阶段 2：从库 IO 线程 拉取 binlog
+从库启动后会开启一个 IO 线程，主动连接主库
+
+向主库发送 SHOW BINLOG DUMP 请求，从某个位置或 GTID 开始订阅 binlog
+
+主库由 binlog dump 线程 推送 binlog event 给从库
+
+从库接收这些 binlog event，写入本地的 relay log（中继日志）
+
+🚩 阶段 3：从库 SQL 线程 执行 relay log
+从库的 SQL 线程 读取 relay log
+
+将其中的 binlog event 重新解析并执行（复刻主库操作）
+
+执行完事务后会将当前位置更新到 relay_log.info（传统）或 mysql.slave_relay_log_info（基于表的复制元数据）
+
+
+SHOW VARIABLES LIKE 'relay_log_info_repository';
 ```
 
 在上述三个过程中，涉及了Master的BinlogDump Thread和Slave的I/O Thread、SQL Thread，它们的作用如下：
@@ -113,7 +133,7 @@ Slave的SQL Thread检测到Relay Log的变更请求，解析relay log中内容�
 
 下图是异步复制的时序图。
 
-![](图片/异步复制.png)
+![](D:\学习\mysql\图片\异步复制.png)
 
 mysql主从复制存在的问题：
 
@@ -155,7 +175,7 @@ Send Binlog to Slave
 
 下图是 MySQL 官方对于半同步复制的时序图，主库等待从库写入 relay log 并返回 ACK 后才进行Engine Commit
 
-![](图片/半同步复制.png)
+![](D:\学习\mysql\图片\半同步复制.png)
 
 #### 4、并行复制
 
@@ -169,7 +189,7 @@ MySQL的主从复制延迟一直是受开发者最为关注的问题之一，MyS
 
 MySQL 5.6版本也支持所谓的并行复制，但是其并行只是基于库的。如果用户的MySQL数据库中是多个库，对于从库复制的速度的确可以有比较大的帮助。
 
-![](图片/MySQL 5.6并行复制原理.png)
+![](D:\学习\mysql\图片\MySQL 5.6并行复制原理.png)
 
 基于库的并行复制，实现相对简单，使用也相对简单些。基于库的并行复制遇到单库多表使用场景就发挥不出优势了，另外对事务并行处理的执行顺序也是个大问题。
 
@@ -305,7 +325,7 @@ grant replication slave on *.* to 'copyuser'@'192.168.1.20';
 
 执行`show master status;`就能看到当前master的状态信息
 
-![](图片/主库配置.png)
+![](D:\学习\mysql\图片\主库配置.png)
 
 **配置从库**
 
@@ -330,22 +350,22 @@ replicate_ignore_db = mysql,sys    #不同步的数据库日志
 change master to master_host='192.168.137.145', master_port=3306, master_user='root', master_password='123456', master_log_file='mysql-bin.000001', master_log_pos=869;
 ```
 
-![](图片/配置连接主库.png)
+![](D:\学习\mysql\图片\配置连接主库.png)
 
 执行 `start slave`启动slave端
 再次执行`show salve status \G`
 
-![](图片/配置从库.png)
+![](D:\学习\mysql\图片\配置从库.png)
 
 **测试**
 
 主库插入数据
 
-![](图片/主库插入数据.png)
+![](D:\学习\mysql\图片\主库插入数据.png)
 
 从库查询
 
-![](图片/从库查询.png)
+![](D:\学习\mysql\图片\从库查询.png)
 
 #### 3、半同步模式搭建
 
@@ -357,7 +377,7 @@ change master to master_host='192.168.137.145', master_port=3306, master_user='r
 select @@have_dynamic_loading;
 ```
 
-![](图片/动态安装插件.png)
+![](D:\学习\mysql\图片\动态安装插件.png)
 
 查看当前已经安装的插件
 
@@ -413,7 +433,7 @@ start svale;
 vim /var/log/mysqld.log
 ```
 
-![](图片/半同步模式.png)
+![](D:\学习\mysql\图片\半同步模式.png)
 
 #### **4、并行复制配置**
 
@@ -505,5 +525,35 @@ mysql> select * from replication_applier_status_by_worker;
 |              |         8 |        36 | ON            |                       |                 0 |                    | 0000-00-00 00:00:00  |
 +--------------+-----------+-----------+---------------+-----------------------+-------------------+--------------------+----------------------+
 
+```
+
+### 四、常见问题
+
+#### 1、从库服务器异常重启
+
+从库启动成功后，主从复制主键冲突，报错如下:
+
+```
+Could not execute Write_rows event on table test.logs; Duplicate entry '10790784' for key 'logs.PRIMARY', Error_code: 1062; handler error HA_ERR_FOUND_DUPP_KEY; the event's master log mysql-bin.005293, end_log_pos 284661112
+```
+
+通过与主库数据对比，发现从库多余了30条数据，且log表data字段都是mysql重启后时间，判断
+
+```
+在 MySQL 复制中，从库写入了 relay log，并执行这些 SQL
+
+正常情况下，执行完事务后会将当前位置更新到 relay_log.info（传统）或 mysql.slave_relay_log_info（基于表的复制元数据）。
+
+但如果 crash 来得很突然，MySQL 还没来得及更新位点文件，从而造成“事务已经执行，但位点没有更新”的假象。
+```
+
+会重新进行复制，导致复制主键冲突。
+
+手动数据对比主键，重复数据，跳过冲突数据，主从同步恢复正常
+
+```
+stop slave;
+set global sql_slave_skip_counter=1;
+start slave;
 ```
 
