@@ -59,7 +59,7 @@ date: 2025-06-11
 MySQL主从模式是指数据可以从一个MySQL数据库服务器主节点复制到一个或多个从节点。MySQL 默认采用异步复制方式，这样从节点不用一直访问主服务器来更新自己的数据，从节点可以复制主数据库中的所有数据库，或者特定的数据库，或者特定的表。
 ```
 
-![1](D:\学习\mysql\图片\主从模式.png)
+![1](图片/主从模式.png)
 
 mysql主从复制用途：
 
@@ -87,7 +87,7 @@ mysql主从复制用途：
 
 下图是主从复制的原理图。
 
-![](D:\学习\mysql\图片\主从复制.png)
+![](图片/主从复制.png)
 
 主从复制整体分为以下三个步骤：
 
@@ -133,7 +133,7 @@ Slave的SQL Thread检测到Relay Log的变更请求，解析relay log中内容�
 
 下图是异步复制的时序图。
 
-![](D:\学习\mysql\图片\异步复制.png)
+![](图片/异步复制.png)
 
 mysql主从复制存在的问题：
 
@@ -175,7 +175,7 @@ Send Binlog to Slave
 
 下图是 MySQL 官方对于半同步复制的时序图，主库等待从库写入 relay log 并返回 ACK 后才进行Engine Commit
 
-![](D:\学习\mysql\图片\半同步复制.png)
+![](图片/半同步复制.png)
 
 #### 4、并行复制
 
@@ -189,7 +189,7 @@ MySQL的主从复制延迟一直是受开发者最为关注的问题之一，MyS
 
 MySQL 5.6版本也支持所谓的并行复制，但是其并行只是基于库的。如果用户的MySQL数据库中是多个库，对于从库复制的速度的确可以有比较大的帮助。
 
-![](D:\学习\mysql\图片\MySQL 5.6并行复制原理.png)
+![](图片/MySQL 5.6并行复制原理.png)
 
 基于库的并行复制，实现相对简单，使用也相对简单些。基于库的并行复制遇到单库多表使用场景就发挥不出优势了，另外对事务并行处理的执行顺序也是个大问题。
 
@@ -325,7 +325,7 @@ grant replication slave on *.* to 'copyuser'@'192.168.1.20';
 
 执行`show master status;`就能看到当前master的状态信息
 
-![](D:\学习\mysql\图片\主库配置.png)
+![](图片/主库配置.png)
 
 **配置从库**
 
@@ -350,22 +350,22 @@ replicate_ignore_db = mysql,sys    #不同步的数据库日志
 change master to master_host='192.168.137.145', master_port=3306, master_user='root', master_password='123456', master_log_file='mysql-bin.000001', master_log_pos=869;
 ```
 
-![](D:\学习\mysql\图片\配置连接主库.png)
+![](图片/配置连接主库.png)
 
 执行 `start slave`启动slave端
 再次执行`show salve status \G`
 
-![](D:\学习\mysql\图片\配置从库.png)
+![](图片/配置从库.png)
 
 **测试**
 
 主库插入数据
 
-![](D:\学习\mysql\图片\主库插入数据.png)
+![](图片/主库插入数据.png)
 
 从库查询
 
-![](D:\学习\mysql\图片\从库查询.png)
+![](图片/从库查询.png)
 
 #### 3、半同步模式搭建
 
@@ -377,7 +377,7 @@ change master to master_host='192.168.137.145', master_port=3306, master_user='r
 select @@have_dynamic_loading;
 ```
 
-![](D:\学习\mysql\图片\动态安装插件.png)
+![](图片/动态安装插件.png)
 
 查看当前已经安装的插件
 
@@ -433,7 +433,7 @@ start svale;
 vim /var/log/mysqld.log
 ```
 
-![](D:\学习\mysql\图片\半同步模式.png)
+![](图片/半同步模式.png)
 
 #### **4、并行复制配置**
 
