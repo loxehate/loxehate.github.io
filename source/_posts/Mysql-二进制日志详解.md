@@ -409,6 +409,14 @@ insert into bb(id) value(200)
 
 不管是STATEMENT格式还是ROW格式，对于mysqlbinlog的输出是“可执行”的，一般可输出为.sql文件。将mysqlbinlog的输出作为mysql命令的输入，就能重放binlog中记录的修改，这对于MySQL的即时点数据恢复时很有价值的。
 
+
+```
+mysqlbinlog --base64-output=DECODE-ROWS \
+            --verbose \
+            /var/lib/mysql/mysql-bin.000001
+```
+
+
 #### 3、十六进制转换格式
 
 mysqlbinlog可以把生成的二进制日志内容转换成十六进制：
