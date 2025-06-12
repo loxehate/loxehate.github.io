@@ -82,7 +82,7 @@ GitOps 与代码和协作都有紧密联系
 
 ##### 3.2 CI构建GitHub Action
 
-![](图片/GitOps 工作流1.png)
+![](图片/GitOps工作流1.png)
 
 完整的 GitOps 工作流分成三个部分
 
@@ -105,7 +105,7 @@ GitOps 与代码和协作都有紧密联系
 
 ##### 3.3 CI构建Jenkins
 
-![](图片/GitOps 工作流2.png)
+![](图片/GitOps工作流2.png)
 
 完整的流程
 
