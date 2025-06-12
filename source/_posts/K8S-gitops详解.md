@@ -507,7 +507,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 登陆argocd
 
-![](图片/gitops argocd.png)
+![](图片/gitops-argocd.png)
 
 ##### 5.2 创建 ArgoCD 应用
 
@@ -681,7 +681,7 @@ argocd-image-updater run --match-application-name python --registries-conf-path 
 
 修改python/app.py内容修改文件返回内容为`当前环境argocd`修改完成后，将代码推送到 GitHub 的 main 分支。此时会触发GitHub Action 工作流。当argocd-image-updater 工作流被触发时，它将构建 Tag 为 main 开头的镜像版本，并将其推送到镜像仓库中
 
-![](图片/gitops image.png)
+![](图片/gitops-image.png)
 
 
 
@@ -799,7 +799,7 @@ kubectl apply -f blue_ingress.yaml
 
 http://bluegreen.demo
 
-![](图片/gitops 蓝色环境.png)
+![](图片/gitops蓝色环境.png)
 
 在这个页面里，浏览器每秒钟会向后端发出 50 个请求，蓝色的方块代表后端返回接口的内容为 blue，对应 blue 版本的镜像，代表蓝色环境。
 
