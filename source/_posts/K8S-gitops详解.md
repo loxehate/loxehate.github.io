@@ -569,7 +569,7 @@ kubectl apply -n argocd -f https://ghproxy.com/https://raw.githubusercontent.com
 ```
 kubectl create -n argocd secret docker-registry dockerhub-secret \
   --docker-username chengzh \
-  --docker-password xxxxxx\
+  --docker-password test\
   --docker-server "https://registry-1.docker.io"
 ```
 
