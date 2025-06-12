@@ -2,7 +2,7 @@
 title: K8S-gitops详解
 tags: [kubernetes]
 categories: [云原生]
-date: 2025-05-16
+date: 2025-06-12
 ---
 ### 一、**GitOps**介绍
 
