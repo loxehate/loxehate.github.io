@@ -795,7 +795,7 @@ gitalk:
   repo: loxehate.gittalk
   owner: loxehate
   admin: ['loxehate']
-  language: zh-CN
+  language: en
   labels: ['Gitalk']
   perPage: 10
   pagerDirection: last
