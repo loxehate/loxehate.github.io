@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-npm-cache
       - name: Install Dependencies
-        run: npm install && npm install hexo-asset-img --save
+        run: npm install && npm install hexo-asset-img --save && npm install particles.js
 
       - name: Build
         run: npm run build
