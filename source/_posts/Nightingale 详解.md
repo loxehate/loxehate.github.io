@@ -1,7 +1,7 @@
 ---
 title: Nightingale详解
 tags: [Nightingale]
-categories: [中间件]
+categories: [监控观测]
 date: 2025-05-29
 ---
 ### 一、概述
