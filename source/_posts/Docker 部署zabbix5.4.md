@@ -1,6 +1,6 @@
 ---
 title: Docker部署zabbix5.4
-tags: [Zabbix]
+tags: [Docker,Zabbix]
 categories: [监控观测]
 date: 2025-06-13
 ---
