@@ -31,7 +31,7 @@
       }
     },
     "size": {
-      "value": 10,
+      "value": 6.9,
       "random": true,
       "anim": {
         "enable": false,
@@ -63,11 +63,11 @@
     }
   },
   "interactivity": {
-    "detect_on": "grab",
+    "detect_on": "canvas",
     "events": {
       "onhover": {
         "enable": true,
-        "mode": "repulse"
+        "mode": "grab"
       },
       "onclick": {
         "enable": true,
