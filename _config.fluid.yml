@@ -986,6 +986,8 @@ about:
   icons:
     - { class: "iconfont icon-github-fill", link: "https://github.com/loxehate", tip: "GitHub" }
     - { class: "iconfont icon-twitter-fill", link: "https://x.com/loxehate140698", tip: "X" }
+    - { class: "iconfont icon-instagram-fill", link: "https://www.instagram.com/hateloxe2019/", tip: "instagram" }
+    - { class: "iconfont icon-youtube-fill", link: "https://www.youtube.com/channel/UCf5R5H9bmwhl2yCuYjY1FvQ", tip: "youtube" }
     - { class: "iconfont icon-discord-fill", link: "https://discord.com/channels/1347161247157583982/1347161247157583984", tip: "discord" }
 
 
