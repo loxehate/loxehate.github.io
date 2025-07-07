@@ -294,7 +294,7 @@ stop slave;
 show slave status;
 ```
 
-从库切换gtid复制模式
+从库切换二进制复制模式
 
 ```
 CHANGE MASTER TO master_log_file='mysql-bin.000004', master_log_pos=350910;
