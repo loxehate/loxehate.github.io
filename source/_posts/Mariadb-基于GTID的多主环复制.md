@@ -2,7 +2,7 @@
 title: Mariadb-基于GTID的多主环复制
 tags: [Mariadb]
 categories: [数据库]
-date: 2025-05-08
+date: 2025-07-07
 ---
 ### 一、多主环复制
 
@@ -20,7 +20,7 @@ date: 2025-05-08
 
 ##### 2.1 双主环复制架构
 
-![](图片/multi-master-ring-replication1.png)
+![](图片\multi-master-ring-replication1.png)
 
 ```
 应该像标准 MariaDB 复制一样，在每个主服务器上设置复制。主服务器之间的复制设置应该呈环状。换句话说，每个主服务器应该复制到另一个主服务器，并且每个主服务器只能有一个其他主服务器作为从服务器。
@@ -30,7 +30,7 @@ date: 2025-05-08
 
 ##### 2.2 从服务器复制到主服务器
 
-![](图片/multi-master-ring-replication2.png)
+![](图片\multi-master-ring-replication2.png)
 
 **通过从属复制的好处**
 
@@ -61,7 +61,253 @@ date: 2025-05-08
 - 多主环复制与普通复制的主要区别在于，主服务器所做的更改最终会复制回它。当发生这种情况时，主服务器会发现二进制日志事件的 server_id 与主服务器相同，因此会忽略该事件。因此，确保所有 server_id 都是唯一的，并且不会更改服务器 ID 至关重要。
 - 在多主环复制设置中执行[ALTER TABLE时，应注意，当您在一个主服务器上运行](https://mariadb.com/kb/en/multi-master-ring-replication/alter_table)[ALTER TABLE](https://mariadb.com/kb/en/multi-master-ring-replication/alter_table)时，另一个主服务器可能会生成使用旧表定义的事件。应特别注意不要删除可能被任何应用程序使用或在即将到来的复制流中仍然可用的列。
 
-### 二、多主环复制搭建
+### 二、多主环复制准备
+
+#### 1、检查数据库环境配置
+
+```
+为复制设置中的每个主服务器和从服务器分配一个唯一的 server_id。该值可以是 1 到 4294967295 之间的数字，如果使用uuid_short() ，则可以是 1-255 之间的数字。建议您确保系统中没有任何服务器具有相同的 server_id！
+
+使用gtid.
+
+为每个主服务器赋予一个唯一的gtid_domain_id(建议从1开始)。这将允许复制过程独立于其他主服务器，并行地应用来自不同主服务器的事务。
+```
+
+#### 2、数据库uuid_short()详解
+
+##### 2.1 uuid_short()构造逻辑
+
+UUID_SHORT() 实际返回一个 64 位无符号整数
+
+```
+(server_id & 255) << 56
++ (server_startup_time_in_seconds << 24)
++ incremented_variable++
+```
+
+`(server_id & 255) << 56`
+
+```
+server_id：是当前 MariaDB 实例的 server_id，范围应为 1~4294967295。
+
+& 255：只保留低 8 位，相当于 server_id % 256，最大值为 255。
+
+<< 56：左移 56 位，把这个值放在最高的 8 位。
+```
+
+ `(server_startup_time_in_seconds << 24)`
+
+```
+server_startup_time_in_seconds：是 从 1970 年 UNIX 时间戳起，到当前MariaDB 启动时间的总秒数。
+
+<< 24：左移 24 位，把这个值放在中间的 32 位。
+```
+
+`incremented_variable++`
+
+```
+MariaDB 启动后，UUID_SHORT() 内部维护一个自增计数器，初始为 0。
+
+每次调用 UUID_SHORT() 时，这个值加一。
+```
+
+UUID_SHORT() 计算方式
+
+```
+UUID_SHORT()
+= (244 << 56)
++ (1459703190 << 24)
++ 15728271
+
+= 17523466569730560000
++     2458844542689280
++              15728271
+=   17611337380730564175
+```
+
+通过上述分析判断
+
+```
+只要 server_id & 255 不重复，，UUID_SHORT() 就不会冲突。必须使用 server_id ∈ [1, 255]，避免发生 server_id & 255 冲突
+```
+
+查询当前sever_id和计算低 8 位值。server_id为1-255之间时，对应得低8位就是server_id本身。
+
+```
+SELECT @@server_id, @@server_id & 255 AS effective_server_id;
+```
+
+##### 2.2 server_id修改准则
+
+当前数据库server_id主从配置均大于255，修改server_id至1-255之间。
+
+查询当前主数据库server_id和低8位值。
+
+```
+SELECT @@server_id, @@server_id & 255 AS effective_server_id;
+
+8967	7
+查出当前server_id为8967，effective_server_id为7，则修改server_id在在1-255之间除了7以外的任意值.
+```
+
+注：在多主环复制集群中，所有数据库的server_id都不能为7,其他数据库server_id设置同理。主从复制中，先修改从库server_id，确认主从复制正常时，再修改主库。
+
+##### 2.3 server_id从库修改
+
+检查从库当前server_id和低8位值。确认修改后的server_id,与集群无冲突。
+
+```
+SELECT @@server_id, @@server_id & 255 AS effective_server_id;
+```
+
+检查主从复制是否正常
+
+```
+show slave status\G
+```
+
+停止从库复制
+
+```
+stop slave;
+```
+
+修改从库配置文件
+
+```
+vim /etc/my.cnf.d/server.cnf
+server-id = 146
+```
+
+重启从库数据库，检查主从复制是否正常
+
+```
+show slave status\G
+```
+
+##### 2.4 server_id主库修改
+
+检查主库当前server_id和低8位值。确认修改后的server_id,与集群无冲突。
+
+```
+SELECT @@server_id, @@server_id & 255 AS effective_server_id;
+```
+
+检查主从复制是否正常
+
+```
+show slave status\G
+```
+
+停止从库复制
+
+```
+stop slave;
+```
+
+修改主库配置文件
+
+```
+vim /etc/my.cnf.d/server.cnf
+server-id = 146
+```
+
+重启主库数据库，检查主从复制是否正常
+
+```
+show slave status\G
+```
+
+#### 3、数据库复制模式切换
+
+##### 3.1 二进制切换为gtid
+
+更新从库配置文件
+
+```
+目前mariadb10.1.46版本默认开启gtid，只需再server.cnf中调整gtid参数相关配置即可
+
+#gtid配置
+gtid_domain_id=0
+auto_increment_offset=1
+auto_increment_increment=10
+slave_type_conversions=ALL_NON_LOSSY,ALL_LOSSY
+gtid_ignore_duplicates=OFF
+log-slave-updates=1
+#10.1.46-MariaDB默认没有安装semi插件
+#rpl-semi-sync-master-enabled = 0
+```
+
+停止从库二进制复制
+
+```
+stop slave;
+```
+
+查看二进制复制Relay_Master_Log_File和Exec_Master_Log_Pos值
+
+```
+show slave status;
+```
+
+主库获取对应的 GTID 位置
+
+```
+SELECT BINLOG_GTID_POS('mysql-bin.000006', 13069),@@hostname;
+
+BINLOG_GTID_POS('mysql-bin.000006', 13069) | @@hostname                      |
++--------------------------------------------+---------------------------------+
+| 1-46-6847,0-2036-1274318                   | n9e-0-17-test-shanghai2-hwcloud 
+```
+
+从库执行gitd_pos
+
+```
+SET GLOBAL gtid_slave_pos = '1-136-7553,0-2036-1274318';
+show variables like '%gtid%';
+```
+
+从库切换gtid复制模式
+
+```
+CHANGE MASTER TO master_use_gtid=slave_pos;
+```
+
+启动复制，查看复制状态
+
+```
+START SLAVE;
+show slave status\G
+```
+
+##### 3.2 gtid切换二进制复制
+
+停止从库二进制复制
+
+```
+stop slave;
+```
+
+查看二进制复制Relay_Master_Log_File和Exec_Master_Log_Pos值
+
+```
+show slave status;
+```
+
+从库切换gtid复制模式
+
+```
+CHANGE MASTER TO master_log_file='mysql-bin.000004', master_log_pos=350910;
+```
+
+启动复制，查看复制状态
+
+```
+START SLAVE;
+show slave status\G
+```
+
+### 三、多主环复制搭建
 
 ```
 Mariadb版本：10.1.46-MariaDB（默认开启gtid）
@@ -167,6 +413,34 @@ rpl_semi_sync_master_enabled=0
 
 # 将来自其他主服务器的更新记录到二进制日志中。
 log_slave_updates
+
+# 控制当从库接收到已经执行过的 GTID 时，是否跳过重复事务。
+# 如果接收到的 GTID 在从库已经执行过，直接跳过，不报错（从库 silently 忽略重复事务）
+gtid_ignore_duplicates=OFF
+
+#强制所有事务必须带 GTID，并按顺序执行；防止无 GTID 或顺序错误的事务写入 binlog
+gtid_strict_mode=1
+
+#并行复制
+#工作线程池中创建多少个线程
+slave_parallel_threads=2
+#副本并行模式
+#optimistic:有序并行复制的乐观模式,尝试并行应用大多数事务性 DML，并通过回滚和重试处理任何冲突
+#conservative:有序并行复制的保守模式,限制并行性以避免任何冲突（默认）
+#aggressive:试图最大化并行性，可能以增加冲突率为代价
+#minimal：仅并行化事务的提交步骤
+#none完全禁用并行应用
+slave_parallel_mode=conservative
+
+#限制每个线程的队列事件数，提高worker线程处理能力，限制它将为此使用的内存量。
+#总分配实际上等效slave_parallel_max_queued * slave_parallel_threads，设置得足够低，以便并行副本队列的总分配不会导致服务器内存不足。
+#131072 × 2 × 2 KB ≈ 512 MB
+slave_parallel_max_queued=131072
+
+#当设置为非零值时，一个主连接中的每个复制域在任何时候最多可以保留该多个工作线程，而其余（最多 slave_parallel_threads 值）可供其他主连接使用 或并行使用的复制域
+#复制工作线程池在所有多源主线程之间共享连接，以及可以并行复制的所有复制域使用乱序（默认0）
+#slave_parallel_mode为aggressive和optimistic有效
+slave_domain_parallel_threads=0
 ```
 
 ##### 3.2 master1配置文件
@@ -214,6 +488,7 @@ gtid_domain_id=0
 auto_increment_offset=1
 auto_increment_increment=10
 slave_type_conversions=ALL_NON_LOSSY,ALL_LOSSY
+gtid_strict_mode=1
 gtid_ignore_duplicates=OFF
 log-slave-updates=1
 #10.1.46-MariaDB默认没有安装semi插件
