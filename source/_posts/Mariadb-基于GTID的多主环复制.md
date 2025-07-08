@@ -20,7 +20,7 @@ date: 2025-07-07
 
 ##### 2.1 双主环复制架构
 
-![](图片\multi-master-ring-replication1.png)
+![](图片/multi-master-ring-replication1.png)
 
 ```
 应该像标准 MariaDB 复制一样，在每个主服务器上设置复制。主服务器之间的复制设置应该呈环状。换句话说，每个主服务器应该复制到另一个主服务器，并且每个主服务器只能有一个其他主服务器作为从服务器。
@@ -30,7 +30,7 @@ date: 2025-07-07
 
 ##### 2.2 从服务器复制到主服务器
 
-![](图片\multi-master-ring-replication2.png)
+![](图片/multi-master-ring-replication2.png)
 
 **通过从属复制的好处**
 
