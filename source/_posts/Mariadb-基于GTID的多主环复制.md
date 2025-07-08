@@ -2,7 +2,7 @@
 title: Mariadb-基于GTID的多主环复制
 tags: [Mariadb]
 categories: [数据库]
-date: 2025-07-07
+date: 2025-07-08
 ---
 ### 一、多主环复制
 
