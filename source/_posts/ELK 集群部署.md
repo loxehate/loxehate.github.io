@@ -2,7 +2,7 @@
 title: ELK集群部署
 tags: [Elasticsearch]
 categories: [中间件]
-date: 2025-05-29
+date: 2025-07-15
 ---
 ### 一、环境信息
 
@@ -1384,7 +1384,16 @@ POST _snapshot/my_repository/my_snapshot_2099.05.06/_restore
   "indices": "my-index,logs-my_app-default"
 }
 ```
+**跨集群恢复**
 
+```
+#老集群快照仓库路径需要与新集群快照仓库路径保持一致
+#老集群创建快照以后，如果新集群已经有对应的快照库，就无法识别老集群新创建的快照，每次恢复之前，需要先删除快照仓库，重新创建一下，快照才可以读取
+POST _snapshot/my_repository/my_snapshot_2099.05.06/_restore
+{
+  "indices": "my-index,logs-my_app-default"
+}
+```
 **还原时重命名**
 
 ```
