@@ -2,7 +2,7 @@
 title: Redis详解
 tags: [Redis]
 categories: [中间件]
-date: 2025-05-29
+date: 2025-07-16
 ---
 ### 一、Redis概述
 
@@ -1973,7 +1973,373 @@ OK
 
 ![](图片/redis-acl.png)
 
-### 十、Redis常见运维命令
+### 十、Redis代理
+
+#### 1、Predixy简介
+
+```
+Predixy 是一款高性能全特征redis代理，支持redis-sentinel和redis-cluster
+
+github参考：https://github.com/joyieldInc/predixy
+```
+
+##### 1.1 性能对比
+
+predixy特性
+
+```
+高性能并轻量级
+支持多线程
+多平台支持：Linux、OSX、BSD、Windows(Cygwin)
+支持Redis Sentinel，可配置一组或者多组redis
+支持Redis Cluster
+支持redis阻塞型命令，包括blpop、brpop、brpoplpush
+支持scan命令，无论是单个redis还是多个redis实例都支持
+多key命令支持: mset/msetnx/mget/del/unlink/touch/exists
+支持redis的多数据库，即可以使用select命令
+支持事务，当前仅限于Redis Sentinel下单一redis组可用
+支持脚本，包括命令：script load、eval、evalsha
+支持发布订阅机制，也即Pub/Sub系列命令
+多数据中心支持，读写分离支持
+扩展的AUTH命令，强大的读、写、管理权限控制机制，健空间限制机制
+日志可按级别采样输出，异步日志记录避免线程被io阻塞
+日志文件可以按时间、大小自动切分
+丰富的统计信息，包括CPU、内存、请求、响应等信息
+延迟监控信息，可以看到整体延迟，分后端redis实例延迟
+```
+
+predixy性能
+
+```
+predixy很快，有多快？对比几个流行的redis代理(twemproxy,codis,redis-cerberus), predixy要比它们快得多。
+https://github.com/joyieldInc/predixy/wiki/Benchmark
+```
+
+![](%E5%9B%BE%E7%89%87/redis%E4%BB%A3%E7%90%86%E5%AF%B9%E6%AF%94.jpeg)
+
+##### 1.2 版本选择
+
+predixy-1.0.5版本
+
+```
+wget https://github.com/joyieldInc/predixy/releases/download/1.0.5/predixy-1.0.5-bin-amd64-linux.tar.gz
+```
+
+#### 2、Predixy部署
+
+##### 2.1 基础架构
+
+```
+基于Predixy构建redis-sentinel集群跨云不同数据中心读写分离，master节点写请求，同一数据中心下slave节点读请求，架构图如下：
+```
+
+![](%E5%9B%BE%E7%89%87/redis-predix.png)
+
+**redis-app迁移流程**
+
+```
+1、huawei云环境新增ztcloud-sentinel集群slave2，slave3节点，并不参与master选举
+2、huawei云ztcloud-slave2，ztcloud-slave3节点通过云平台redis迁移任务实时同步数据至redis-cloud
+3、huawei云环境部署配置多节点predixy代理（至少两个节点），配置负载均衡
+4、predixy接入ztcloud-sentinel集群，客户端验证测试
+5、ztcloud-app迁移至huawei-app，域名连接predixy
+6、huawei-app写请求由ztcloud-master执行，读请求由huawei云ztcloud-slave2，ztcloud-slave3节点执行
+7、ztcloud-app迁移至huawei-app全部完成，验证redis-cloud与ztcloud-sentinel数据一致性，域名切换至redis-cloud
+8、重启huawei-app应用服务，验证服务是否正常
+```
+
+注：ztcloud-slave2，ztcloud-slave3需额外配置redis.conf，如下配置
+
+```
+#不参与master选举
+replica-priority 0
+
+#配置replica连接的真实ip和port,宿主机ip和port
+replica-announce-ip 192.168.1.180
+replica-announce-port 6379
+```
+
+##### 2.1 环境准备
+
+**redis-sentinel环境：**
+
+| 主机IP        | Redis版本 | 端口  | 角色     | 数据中心 |
+| ------------- | --------- | ----- | -------- | -------- |
+| 172.16.20.64  | 6.2.7     | 6379  | master   | shenzhen |
+| 172.16.20.37  | 6.2.7     | 6379  | slave    | shenzhen |
+| 192.168.1.173 | 6.2.7     | 6379  | slave    | Dalian   |
+| 192.168.1.180 | 6.2.7     | 6379  | slave    | Dalian   |
+| 172.16.20.64  | 6.2.7     | 26379 | sentinel | shenzhen |
+| 172.16.20.37  | 6.2.7     | 26379 | sentinel | shenzhen |
+| 172.16.20.198 | 6.2.7     | 26379 | sentinel | shenzhen |
+
+**Predixy环境：**
+
+| 主机IP        | Predixy版本 | 端口 | 角色   | 数据中心 |
+| ------------- | ----------- | ---- | ------ | -------- |
+| 192.168.1.180 | 1.0.5       | 7617 | master | Dalian   |
+| 192.168.1.175 | 1.0.5       | 7617 | slave  | Dalian   |
+
+##### 2.2 安装Predixy
+
+**1、解压安装**
+
+```
+mkdir -p /etc/predixy
+tar -zxf predixy-1.0.5-bin-amd64-linux.tar.gz -C /etc/predixy
+cp /etc/predixy/bin/predixy /usr/bin/predixy
+```
+
+**2、配置文件修改**
+
+```
+参考文档：https://github.com/joyieldInc/predixy/blob/master/doc/config_CN.md
+```
+
+**predixy.conf**
+
+```
+################################### GENERAL ####################################
+## Predixy configuration file example
+
+## Specify a name for this predixy service
+## redis command INFO can get this
+Name Predixy
+
+## Specify listen address, support IPV4, IPV6, Unix socket
+## Examples:
+# Bind 127.0.0.1:7617
+Bind 0.0.0.0:7617
+# Bind /tmp/predixy
+
+## Default is 0.0.0.0:7617
+Bind 0.0.0.0:7617
+
+## Worker threads
+WorkerThreads 4
+
+## Memory limit, 0 means unlimited
+
+## Examples:
+# MaxMemory 100M
+# MaxMemory 1G
+# MaxMemory 0
+
+## MaxMemory can change online by CONFIG SET MaxMemory xxx
+## Default is 0
+MaxMemory 0
+
+## Close the connection after a client is idle for N seconds (0 to disable)
+## ClientTimeout can change online by CONFIG SET ClientTimeout N
+## Default is 0
+ClientTimeout 0
+
+
+## IO buffer size
+## Default is 4096
+# BufSize 4096
+
+################################### LOG ########################################
+## Log file path
+## Unspecify will log to stdout
+## Default is Unspecified
+Log ./predixy.log
+
+## LogRotate support
+
+## 1d rotate log every day
+## nh rotate log every n hours   1 <= n <= 24
+## nm rotate log every n minutes 1 <= n <= 1440
+## nG rotate log evenry nG bytes
+## nM rotate log evenry nM bytes
+## time rotate and size rotate can combine eg 1h 2G, means 1h or 2G roate a time
+
+## Examples:
+# LogRotate 1d 2G
+LogRotate 1d
+
+## Default is disable LogRotate
+
+
+## In multi-threads, worker thread log need lock,
+## AllowMissLog can reduce lock time for improve performance
+## AllowMissLog can change online by CONFIG SET AllowMissLog true|false
+## Default is true
+# AllowMissLog false
+
+## LogLevelSample, output a log every N
+## all level sample can change online by CONFIG SET LogXXXSample N
+LogVerbSample 0
+LogDebugSample 0
+LogInfoSample 10000
+LogNoticeSample 1
+LogWarnSample 1
+LogErrorSample 1
+
+
+################################### AUTHORITY ##################################
+Include auth.conf
+
+################################### SERVERS ####################################
+# Include cluster.conf
+Include sentinel.conf
+# Include try.conf
+
+
+################################### DATACENTER #################################
+## LocalDC specify current machine dc
+LocalDC dl
+
+## see dc.conf
+Include dc.conf
+
+
+################################### COMMAND ####################################
+## Custom command define, see command.conf
+#Include command.conf
+
+################################### LATENCY ####################################
+## Latency monitor define, see latency.conf
+Include latency.conf
+```
+
+**dc.conf**
+
+```
+DataCenter {
+   DC dl {
+       AddrPrefix {
+           + 192.168
+       }
+       ReadPolicy {
+           dl 90 10
+           sz 0
+       }
+   }
+   DC sz {
+       AddrPrefix {
+           + 172.16
+       }
+       ReadPolicy {
+           sz 90 10
+           dl 0
+       }
+   }
+}
+```
+
+**sentinel.conf**
+
+```
+SentinelServerPool {
+   Databases 16
+   Hash crc16
+   HashTag "{}"
+   Password 123
+   Distribution modula
+   MasterReadPriority 0
+   StaticSlaveReadPriority 50
+   DynamicSlaveReadPriority 50
+   RefreshInterval 1
+   ServerTimeout 1
+   ServerFailureLimit 10
+   ServerRetryTimeout 1
+   KeepAlive 120
+   Sentinels {
+       + 172.16.20.64:26379
+       + 172.16.20.37:26379
+       + 172.16.20.198:26379
+   }
+   #sentinel mastername
+   Group master {
+   }
+}
+
+```
+
+**auth.conf**
+
+predixy的passwd默认与redis实例密码保持一致
+
+```
+{
+Authority {
+    Auth "123" {
+        Mode write
+    }
+    Auth "123" {
+        Mode admin
+    }
+}
+```
+
+**3、服务注册**
+
+```
+cat <<EOF >/etc/systemd/system/predixy.service
+[Unit]
+Description="predixy"
+Documentation=https://github.com/joyieldInc/predixy
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/predixy /etc/predixy/conf/predixy.conf
+Restart=on-failure
+SuccessExitStatus=0
+LimitNOFILE=65536
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+**4、负载均衡配置**
+
+```
+使用nginx或keepalived或负载均衡器实现高可用
+```
+
+##### 2.3 predixy启动
+
+```
+systemctl daemon-reload
+systemctl enable predixy && systemctl start predixy
+systemctl status predixy
+```
+
+#### 3、客户端验证
+
+`predixy`代理客户端
+
+```
+redis-cli -p 7617
+
+127.0.0.1:7617> set k1 aaa
+OK
+127.0.0.1:7617> set k2 aaa
+OK
+127.0.0.1:7617> get k1
+"aaa"
+127.0.0.1:7617> get k2
+"aaa"
+```
+
+启动`slave` 192.168.1.180客户端
+
+```
+redis-cli -p 6379
+keys *
+1) "k1"
+```
+
+启动`slave`172.16.20.37客户端，查看有没有key落到当前集群中
+
+```
+127.0.0.1:46379> keys *
+1) "k2"
+```
+
+### 十一、Redis常见运维命令
 
 #### 1、连接管理命令
 
