@@ -2,7 +2,7 @@
 title: Redis详解
 tags: [Redis]
 categories: [中间件]
-date: 2025-07-16
+date: 2025-07-22
 ---
 ### 一、Redis概述
 
@@ -2339,6 +2339,83 @@ keys *
 1) "k2"
 ```
 
+#### 4、常见问题
+
+##### 4.1 redis跨云主从中断，从节点重新全量同步
+
+**问题展现：**
+
+redis跨云主从中断，从节点重新开始全量同步，master节点日志报错：
+
+```
+ # Client id=613214257 addr=1.1.9.1:11333 laddr=1.1.9.3:1688 fd=548 name= age=242965 idle=1 flags=S db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=40954 argv-mem=0 obl=0 oll=3679 omem=84461800 tot-mem=84523264 events=rw cmd=replconf user=default redir=-1 scheduled to be closed ASAP for overcoming of output buffer limits.
+# Connection with replica 171.116.2.16:1688 lost.
+* Replica 171.116.2.16:1688 asks for synchronization
+* Unable to partial resync with replica 171.116.2.16:1688 for lack of backlog (Replica request was: 7852767712949)。
+```
+
+slave节点报错：
+
+```
+# Connection with master lost.
+* Caching the disconnected master state
+```
+
+**问题分析：**
+
+redis跨云主从通过vpn带宽进行网络连通，监控发现带宽占满导致主从中断，断线后重新连接主节点（master）时触发全量同步
+
+```
+Redis 使用 PSYNC 机制优先尝试部分同步，仅当失败时才回退到全量同步。失败原因主要是：
+replication backlog 太小
+从断开到重连期间，主节点的写入量可能超出 backlog 环形缓存，旧增量数据被覆盖，从节点 offset 不再命中，从而触发全量同步
+
+Client output buffer 溢出
+主节点尝试将数据推送给从节点，但从节点处理速度过慢或网络不稳定，导致输出缓冲不断累积，超过 Redis 的限制（hard limit 或 soft limit），主节点直接关闭连接
+
+在高并发写入下，主节点无法完全缓存同步数据
+数据流量太大，主节点在生成 RDB 文件或数据传输期间继续写入，加剧缓冲压力，间歇性冲突更容易触发断开
+```
+
+**解决方案：**
+
+`client-output-buffer-limit slave`（**仅 Master 设置**）
+
+- 限制 Master 向每个 Slave 推送数据时的输出缓冲区大小；
+- 如果 Slave 消费太慢，超限会断开连接；
+
+```
+#1GB 硬限制，256MB 软限制 60s；
+CONFIG SET client-output-buffer-limit "slave 1073741824 268435456 60"
+```
+
+`repl-backlog-size`（**仅 Master 设置**）
+
+- 用于 partial resync（增量同步）的环形缓冲区大小；
+- 所有从节点共享这个 backlog；
+
+```
+#主节点内存比例设置，一般 64–512MB 之间
+CONFIG SET repl-backlog-size 134217728  # 128MB
+```
+
+`repl-timeout`（**Slave 设置**）
+
+- Slave 设置：等待 master 的 ACK/PING 等超时时间；
+- 如果超时未收到心跳，会断开并重新发起同步；
+
+```
+CONFIG SET repl-timeout 60
+```
+
+**实施建议：**
+
+```
+正常情况下，修改repl-backlog-size和repl-timeout参数即可，在没有充足的内存下不建议修改client-output-buffer-limit slave参数
+
+新增跨云slave节点时，通过RDB数据迁移时，RDB迁移与恢复正常的时间内master节点写入的数据大小应小于repl-backlog-size，否则新增slave节点依旧为全量同步
+```
+
 ### 十一、Redis常见运维命令
 
 #### 1、连接管理命令
@@ -2586,3 +2663,6 @@ OK
 ```
 
 说明：执行ROLE命令后，将返回当前节点的角色信息，包括角色为主节点、没有从节点、IP地址为`127.0.0.1`、端口号为`7000`、节点ID为`7616b37a6c94b26f1fc0e73323bd7e089d532c0c`。
+
+### 
+
