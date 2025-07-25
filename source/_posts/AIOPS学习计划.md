@@ -134,7 +134,9 @@ aiops-learning
 - [Prometheus + Alertmanager 示例](httpsgithub.comprometheusalertmanager)
 - [ELK Docker 部署模板](httpsgithub.comdeviantonydocker-elk)
 - [Scikit-learn 示例项目](httpsgithub.comscikit-learnscikit-learn)
-- [OpenTelemetry Collector](httpsgithub.comopen-telemetryopentelemetry-collector)
+- [OpenTelemetry Collector](https//github.comopen-telemetryopentelemetry-collector)
+- [keep](https://github.com/loxehate/keep)
+- [chaterm](https://github.com/chaterm/chaterm)
 
 ---
 
