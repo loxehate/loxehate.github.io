@@ -53,7 +53,9 @@ Linux/Mac 系统还需要给插件增加可执行权限 chmod +x ~/.docker/cli-p
 builder 支持三种不同策略构建跨平台镜像:
 
 ##### 1.4.1 在内核中使用 QEMU 仿真支持
-
+```
+参考文档：https://github.com/tonistiigi/binfmt
+```
 如果你正在使用 Docker Desktop, 则已经支持了 QEMU, QEMU 是最简单的构建跨平台镜像策略。它不需要对原有的 Dockerfile 进行任何更改, BuildKit 会通过 binfmt_misc 这一 Linux 内核功能实现跨平台程序的执行。
 
 工作原理:
