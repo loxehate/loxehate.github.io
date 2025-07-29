@@ -1431,7 +1431,34 @@ POST _snapshot/my_repository/my_snapshot_2099.05.06/_restore
   "feature_states": [ "geoip" ]
 }
 ```
+**恢复速度限制**
 
+```
+快照仓库配置：max_restore_bytes_per_sec 
+于限制每个数据节点 恢复快照时的最大吞吐速率。对于 共享文件系统类型（fs）仓库 或 source-only、S3、Google Cloud、Azure 等类型仓库，默认值是 unlimited（无限制）
+
+集群配置：
+indices.recovery.max_bytes_per_sec
+所有分片恢复操作的最大带宽限制，默认为40mb,snapshot 仓库 max_restore_bytes_per_sec 设置很高，但这里仍是 40mb，恢复仍会被限制
+
+cluster.routing.allocation.node_concurrent_recoveries
+每个节点同时可进行的分片恢复数量（默认是 2）
+cluster.routing.allocation.node_initial_primaries_recoveries
+启动初期允许的主分片恢复数量（默认是 4）
+```
+
+参数设置
+
+```
+PUT _cluster/settings
+{
+  "persistent": {
+    "indices.recovery.max_bytes_per_sec": "500mb",
+    "cluster.routing.allocation.node_concurrent_recoveries": 6,
+    "cluster.routing.allocation.node_initial_primaries_recoveries": 6
+  }
+}
+```
 #### 4、恢复整个集群
 
 ```
