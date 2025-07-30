@@ -1,25 +1,21 @@
 hexo.extend.filter.register('theme_inject', function (injects) {
-  injects.footer.raw('banner-switch', `
+  injects.footer.raw('dynamic-banner', `
     <script>
       (function () {
-        const bannerSelector = '.site-banner'; // Fluid 默认 banner class
+        const banner = document.getElementById('banner');
+        if (!banner) return;
 
-        function setBannerImage() {
+        function updateBanner() {
           const isDark = document.documentElement.classList.contains('dark');
-          const banner = document.querySelector(bannerSelector);
-          if (!banner) return;
-
-          const img = isDark ? '/img/dark.png' : '/img/light.jpg';
-          banner.style.backgroundImage = 'url(' + img + ')';
-          banner.style.backgroundSize = 'cover';
-          banner.style.backgroundPosition = 'center';
+          const newImg = isDark ? '/img/dark.png' : '/img/light.jpg';
+          banner.style.background = "url('" + newImg + "') center center / cover no-repeat";
         }
 
-        // 初始加载
-        document.addEventListener('DOMContentLoaded', setBannerImage);
+        // 初始设置
+        document.addEventListener('DOMContentLoaded', updateBanner);
 
-        // 监听 class 变化（响应主题切换）
-        const observer = new MutationObserver(setBannerImage);
+        // 监听主题切换
+        const observer = new MutationObserver(updateBanner);
         observer.observe(document.documentElement, {
           attributes: true,
           attributeFilter: ['class']
