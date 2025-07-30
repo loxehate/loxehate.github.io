@@ -20,7 +20,7 @@ hexo.extend.filter.register('theme_inject', function (injects) {
         // 点击切换按钮时修改 banner
         toggleBtn.addEventListener('click', function () {
           const current = toggleBtn.getAttribute('data');
-          const newMode = current === 'dark' ? 'light' : 'dark';
+          const newMode = current === 'dark' ? 'dark' : 'light';
           toggleBtn.setAttribute('data', newMode);
           updateBannerByMode(newMode);
         });
