@@ -8,9 +8,7 @@ hexo.extend.filter.register('theme_inject', function (injects) {
   injects.footer.raw('particles-script', `
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script>
-      particlesJS.load("particles-js", "/js/particles-config.json", function () {
-        console.log("🌌 particles.js loaded.");
-      });
+      particlesJS.load("particles-js", "/js/particles-config.json");
     </script>
   `);
 });
