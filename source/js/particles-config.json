@@ -11,7 +11,7 @@
       "value": ["#FF0000", "#FFA500", "#FFD700", "#FF6347", "#FF7F50", "#FF69B4", "#FF8C00"]
     },
     "shape": {
-      "type": "circle",
+      "type": "star",
       "stroke": {
         "width": 0,
         "color": "#000000"
