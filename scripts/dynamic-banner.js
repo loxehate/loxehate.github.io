@@ -7,7 +7,7 @@ hexo.extend.filter.register('theme_inject', function (injects) {
         if (!banner || !toggleBtn) return;
 
         function updateBannerByMode(mode) {
-          const newImg = mode === 'dark' ? '/img/dark.png' : '/img/light.jpg';
+          const newImg = mode === 'dark' ? '/img/light.jpg' : '/img/dark.png';
           banner.style.background = "url('" + newImg + "') center center / cover no-repeat";
         }
 
