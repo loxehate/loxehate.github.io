@@ -126,15 +126,15 @@ aiops-learning
 - 《DevOps A Software Architect’s Perspective》
 
 ### 🎥 视频课程：
-- [B站 - Prometheus 入门到实战](httpswww.bilibili.com)
-- [Coursera - Applied Data Science with Python](httpswww.coursera.org)
-- [CNCF 官方视频（YouTube）](httpswww.youtube.comcCloudNativeFdn)
+- [B站 - Prometheus 入门到实战](https://www.bilibili.com)
+- [Coursera - Applied Data Science with Python](https://www.coursera.org)
+- [CNCF 官方视频（YouTube）](https://www.youtube.comcCloudNativeFdn)
 
 ### 💻 开源项目参考：
-- [Prometheus + Alertmanager 示例](httpsgithub.comprometheusalertmanager)
-- [ELK Docker 部署模板](httpsgithub.comdeviantonydocker-elk)
-- [Scikit-learn 示例项目](httpsgithub.comscikit-learnscikit-learn)
-- [OpenTelemetry Collector](https//github.comopen-telemetryopentelemetry-collector)
+- [Prometheus + Alertmanager 示例](https://github.comprometheusalertmanager)
+- [ELK Docker 部署模板](https://github.comdeviantonydocker-elk)
+- [Scikit-learn 示例项目](https://github.comscikit-learnscikit-learn)
+- [OpenTelemetry Collector](https://github.comopen-telemetryopentelemetry-collector)
 - [keep](https://github.com/loxehate/keep)
 - [chaterm](https://github.com/chaterm/chaterm)
 
