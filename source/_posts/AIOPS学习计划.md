@@ -128,13 +128,13 @@ aiops-learning
 ### 🎥 视频课程：
 - [B站 - Prometheus 入门到实战](https://www.bilibili.com)
 - [Coursera - Applied Data Science with Python](https://www.coursera.org)
-- [CNCF 官方视频（YouTube）](https://www.youtube.comcCloudNativeFdn)
+- [CNCF 官方视频（YouTube）](https://www.youtube.com/cCloudNativeFdn)
 
 ### 💻 开源项目参考：
-- [Prometheus + Alertmanager 示例](https://github.comprometheusalertmanager)
-- [ELK Docker 部署模板](https://github.comdeviantonydocker-elk)
-- [Scikit-learn 示例项目](https://github.comscikit-learnscikit-learn)
-- [OpenTelemetry Collector](https://github.comopen-telemetryopentelemetry-collector)
+- [Prometheus + Alertmanager 示例](https://github.com/prometheus/alertmanager)
+- [ELK Docker 部署模板](https://github.com/deviantony/docker-elk)
+- [Scikit-learn 示例项目](https://github.com/scikit-learn/scikit-learn)
+- [OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector)
 - [keep](https://github.com/loxehate/keep)
 - [chaterm](https://github.com/chaterm/chaterm)
 
