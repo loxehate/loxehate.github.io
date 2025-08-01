@@ -68,7 +68,7 @@ date: 2025-08-01
 📚 **资源**
 
 - 《Python 自动化运维技术与最佳实践》
-- [paramiko 官方文档]([Welcome to Paramiko’s documentation! — Paramiko documentation](https://docs.paramiko.org/en/stable/))
+- [paramiko 官方文档](https://docs.paramiko.org/en/stable/)
 
 ------
 
