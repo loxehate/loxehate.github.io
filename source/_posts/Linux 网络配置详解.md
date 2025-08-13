@@ -1,6 +1,6 @@
 ---
 title: Linux 网络配置详解
-tags: [网络分析]
+tags: [网络管理]
 categories: [Linux]
 date: 2025-08-13
 ---
