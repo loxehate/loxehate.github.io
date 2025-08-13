@@ -15,7 +15,7 @@ date: 2025-05-09
 
 centos 7.6与centos 7.9 默认没有安装iptables-services，但是有iptables客户端，可以使用iptables命令设置规则以及不影响firewalld的调用。但是无法使用systemctl管理也无法使用/etc/sysconfig/iptables防火墙规则配置文件。
 
-## 一、[iptables](https://so.csdn.net/so/search?q=iptables&spm=1001.2101.3001.7020)防火墙基础
+## 一、iptables防火墙基础
 
 - 硬件防火墙：性能好，用图形化 管理，一般公司用硬件（华为E9000）
 - 软件防火墙：做辅助，做在服务器上，用命令管理
@@ -266,11 +266,11 @@ iptables [-t 表名] 管理选项 [链名] [匹配条件] [-j  控制类型]
 
 - 案例2 ：查看其他表
 
-![](图片/iptables案例2 ：查看其他表.png)
+![](图片/iptables案例2查看其他表.png)
 
 - 案例3：一键清空规则
 
-![](图片/iptables 案例3：一键清空规则.png)
+![](图片/iptables案例3一键清空规则.png)
 
 - 案例4：设置ping不可达
 
@@ -288,11 +288,11 @@ iptables [-t 表名] 管理选项 [链名] [匹配条件] [-j  控制类型]
 
 -  案例5：添加
 
-![](图片/iptables 案例5：添加.png)
+![](图片/iptables案例5：添加.png)
 
 -  案例6：插入
 
-![](图片/iptables 案例6：插入.png)
+![](图片/iptables案例6：插入.png)
 
 不指定默认是在第一行插入添加 
 
@@ -338,13 +338,13 @@ iptables -I INPUT -i ens33 -s 192.168.109.0/24 -j DROP
 
 -  案例2
 
-![](图片/iptables 案例2通用1.png)
+![](图片/iptables案例2通用1.png)
 
 ![](图片/iptables案例2通用2.png)
 
 ### 3.2 隐含匹配
 
-要求以特定的协议匹配作为前提，包括端口、TCP标记、[ICMP](https://so.csdn.net/so/search?q=ICMP&spm=1001.2101.3001.7020)类型等条件
+要求以特定的协议匹配作为前提，包括端口、TCP标记、ICMP类型等条件
 
 #### 3.2.1 端口匹配
 
@@ -358,7 +358,7 @@ iptables -I INPUT -i ens33 -s 192.168.109.0/24 -j DROP
 | --sport ：1000                                   | 匹配源端口是1000及以上的数据包 |
 | 注意：--sport和--dport必须配合-p <协议类型> 使用 |                                |
 
-![](图片/iptables 端口匹配.png)
+![](图片/iptables端口匹配.png)
 
 ####  3.2.2 TCP标记匹配
 
@@ -408,9 +408,9 @@ iptables -A INPUT -p icmp -j DROP
 #如果我们想要双标，别人ping不通自己，但是自己也能ping通别人，怎么操作呢
 ```
 
-![](图片/iptables ICMP类型匹配1.png)
+![](图片/iptablesICMP类型匹配1.png)
 
-![](图片/iptables ICMP类型匹配2.png)
+![](图片/iptablesICMP类型匹配2.png)
 
 ### 3.3 显示匹配
 
@@ -463,7 +463,7 @@ Chain OUTPUT (policy ACCEPT)
 target     prot opt source               destination  
 ```
 
-![](图片/iptables  IP范围匹配.png)
+![](图片/iptablesIP范围匹配.png)
 
 -  MAC地址匹配: （用的不多）
 
@@ -504,7 +504,6 @@ iptables -P INPUT DROP
  
 ```
 
-<<<<<<< HEAD
 ## 四、防火墙的备份与还原
 
 默认的 iptables 防火墙规则会立刻生效，但如果不保存，当计算机重启后所有的规则都会丢失，所以对防火墙规则进行及时保存的操作是非常必要的。
@@ -702,5 +701,4 @@ iptables  -t  表  -A 在末尾添加  -j  控制类型
 | ------------------ | ------------- |
 | 源IP    目的IP     | +协议 UDP/TCP |
 | 源端口    目的端口 |               |
-|                    |               |
 
