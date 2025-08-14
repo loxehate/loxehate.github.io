@@ -2,7 +2,7 @@
 title: Linux 网络配置详解
 tags: [网络管理]
 categories: [Linux]
-date: 2025-08-13
+date: 2025-08-14
 ---
 ### 一、网络地址配置
 
@@ -1089,4 +1089,184 @@ tcpdump -i eth0 -l -n port 80 | ngrep -c "GET /index.html"
 ```
 tcpdump -i eth0 -l -n port 80 | ngrep -x "GET /index.html"
 ```
+
+### 十二、ipset防火墙管理
+
+`ipset` 是 **iptables** 的一个扩展，可以高效管理大量 IP/网络/端口等规则。它最大的优点就是**批量匹配、高性能、规则动态更新而无需重载整个防火墙**。
+
+------
+
+#### 1、基本原理
+
+- **iptables 单规则匹配**：
+   传统 `iptables` 每条规则都会线性匹配，假设你要封 10 万个 IP，就会有 10 万条规则，效率非常低。
+- **ipset 批量匹配**：
+   `ipset` 使用 **哈希表** 或其他高效数据结构存储 IP 集合，只需 **1 条 iptables 规则** 就能匹配整个集合，极大提高性能。
+- **动态更新**：
+   `ipset` 集合的内容可以动态添加/删除，而 **iptables 不用重载**。
+
+------
+
+#### 2、支持的数据类型
+
+`ipset` 创建集合时，需要指定类型（`-T` 或 `--type`），常见有：
+
+| 类型              | 说明               | 示例                 |
+| ----------------- | ------------------ | -------------------- |
+| `hash:ip`         | 单个 IP 地址集合   | 1.2.3.4, 192.168.0.1 |
+| `hash:net`        | 网络段集合（CIDR） | 192.168.0.0/24       |
+| `hash:mac`        | MAC 地址集合       | 00:11:22:33:44:55    |
+| `hash:ip,port`    | IP + 端口组合      | 1.2.3.4,80           |
+| `hash:ip,port,ip` | 源IP+端口+目的IP   | 1.2.3.4,80,5.6.7.8   |
+| `hash:net,port`   | 网络段 + 端口      | 192.168.0.0/24,443   |
+| `bitmap:ip`       | 适合连续 IP 范围   | 10.0.0.1-10.0.0.255  |
+| `bitmap:port`     | 适合连续端口范围   | 0-65535              |
+
+------
+
+#### 3、基本命令
+
+```bash
+# 创建集合
+ipset create blacklist hash:ip
+
+# 添加成员
+ipset add blacklist 1.2.3.4
+
+# 从文件批量导入
+ipset restore < ips.txt
+
+# 查看集合内容
+ipset list blacklist
+
+# 删除集合中的某项
+ipset del blacklist 1.2.3.4
+
+#清空集合
+ipset flush blacklist
+
+# 销毁集合
+ipset destroy blacklist
+
+# 保存所有集合到文件
+ipset save > /etc/ipset.conf
+
+# 从文件恢复集合
+ipset restore < /etc/ipset.conf
+```
+
+------
+
+#### 4、iptables 配合使用
+
+`ipset` 本身不做包过滤，需要配合 `iptables`：
+
+```bash
+# 阻止 blacklist 中的 IP 访问 80 端口
+iptables -I INPUT -m set --match-set blacklist src -p tcp --dport 80 -j DROP
+
+# 阻止 blacklist 中的 IP 出站
+iptables -I OUTPUT -m set --match-set blacklist dst -j DROP
+```
+
+------
+
+#### 5、高级功能
+
+##### 5.1 带超时时间的黑名单
+
+```bash
+ipset create blacklist hash:ip timeout 3600
+ipset add blacklist 1.2.3.4 timeout 600  # 单独设置 10 分钟
+```
+
+> 超时后 IP 会自动从集合移除，适合防爆破场景。
+
+------
+
+##### 5.2 交换集合（热更新）
+
+可以先准备一个新集合，然后交换，避免中间状态不一致：
+
+```bash
+ipset swap blacklist blacklist_new
+```
+
+------
+
+##### 5.3 与 fail2ban 结合
+
+Fail2ban 可以直接写入 ipset：
+
+```ini
+banaction = iptables-multiport
+action = iptables-ipset-proto
+```
+
+这样封禁数万 IP 也能高效运行。
+
+------
+
+#### 6、持久化
+
+- CentOS/RHEL：
+
+  ```bash
+  yum install ipset
+  ipset save > /etc/sysconfig/ipset
+  systemctl enable ipset
+  ```
+
+- Debian/Ubuntu：
+
+  ```bash
+  apt install ipset
+  ipset save > /etc/ipset.conf
+  ```
+
+------
+
+#### 7、性能优势对比
+
+假设封禁 **100,000 个 IP**：
+
+| 方法             | 规则条数 | 匹配效率             |
+| ---------------- | -------- | -------------------- |
+| 直接 iptables    | 100,000  | 低（线性匹配）       |
+| ipset + iptables | 1        | 高（哈希查找，O(1)） |
+
+------
+
+#### 8、运维场景示例
+
+##### 8.1 大规模 IP 黑名单
+
+```bash
+ipset create blacklist hash:ip
+for ip in $(cat bad_ips.txt); do
+    ipset add blacklist $ip
+done
+iptables -I INPUT -m set --match-set blacklist src -j DROP
+```
+
+##### 8.2 防暴力破解（动态封禁）
+
+```bash
+ipset create banlist hash:ip timeout 600
+iptables -I INPUT -m set --match-set banlist src -j DROP
+# 检测到爆破后添加：
+ipset add banlist 1.2.3.4
+```
+
+##### 8.3 只允许白名单
+
+```bash
+ipset create whitelist hash:ip
+ipset add whitelist 10.0.0.1
+ipset add whitelist 192.168.0.0/24
+iptables -I INPUT -m set ! --match-set whitelist src -j DROP
+#iptables -I INPUT -m set --match-set whitelist src -j ACCEPT
+```
+
+------
 
