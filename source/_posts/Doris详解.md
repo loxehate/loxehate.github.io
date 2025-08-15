@@ -1193,6 +1193,50 @@ CANCEL BACKUP FROM db_name;
 
 ```
 https://doris.apache.org/zh-CN/docs/admin-manual/cluster-management/upgrade
+
+admin set frontend config("disable_balance" = "true");
+admin set frontend config("disable_colocate_balance" = "true");
+admin set frontend config("disable_tablet_scheduler" = "true");
+
+show backends;
+show frontends;
+
+admin set frontend config("disable_balance" = "false");
+admin set frontend config("disable_colocate_balance" = "false");
+admin set frontend config("disable_tablet_scheduler" = "false");
+
+
+supervisorctl stop doris-be
+
+DORIS_OLD_HOME=/data/apache-doris
+DORIS_NEW_HOME=/data/apache-doris-2.1.10-bin-x64
+
+mv ${DORIS_OLD_HOME}/be/bin ${DORIS_OLD_HOME}/be/bin_back0519
+mv ${DORIS_OLD_HOME}/be/lib ${DORIS_OLD_HOME}/be/lib_back0519
+
+cp -r ${DORIS_NEW_HOME}/be/bin ${DORIS_OLD_HOME}/be/bin
+cp -r ${DORIS_NEW_HOME}/be/lib ${DORIS_OLD_HOME}/be/lib
+
+#chown -R admin:admin /data 生产执行
+supervisorctl start doris-be && supervisorctl status doris-be
+
+
+
+supervisorctl stop doris-fe
+
+DORIS_OLD_HOME=/data/apache-doris
+DORIS_NEW_HOME=/data/apache-doris-2.1.10-bin-x64
+
+mv ${DORIS_OLD_HOME}/fe/bin ${DORIS_OLD_HOME}/fe/bin_back0519
+mv ${DORIS_OLD_HOME}/fe/lib ${DORIS_OLD_HOME}/fe/lib_back0519
+mv ${DORIS_OLD_HOME}/fe/mysql_ssl_default_certificate ${DORIS_OLD_HOME}/fe/mysql_ssl_default_certificate_back0519
+
+cp -r ${DORIS_NEW_HOME}/fe/bin ${DORIS_OLD_HOME}/fe/bin
+cp -r ${DORIS_NEW_HOME}/fe/lib ${DORIS_OLD_HOME}/fe/lib
+cp -r ${DORIS_NEW_HOME}/fe/mysql_ssl_default_certificate ${DORIS_OLD_HOME}/fe/mysql_ssl_default_certificate
+
+#chown -R admin:admin /data 生产执行
+supervisorctl start doris-fe && supervisorctl status doris-fe
 ```
 
 ### 六、Doris断电异常问题处理
