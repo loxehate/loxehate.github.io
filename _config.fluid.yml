@@ -990,7 +990,7 @@ about:
     - { class: "iconfont icon-youtube-fill", link: "https://www.youtube.com/channel/UCf5R5H9bmwhl2yCuYjY1FvQ", tip: "youtube" }
     - { class: "iconfont icon-steam", link: "https://steamcommunity.com/profiles/76561198864146636/", tip: "steam" }
     - { class: "iconfont icon-discord-fill", link: "https://discord.com/channels/1347161247157583982/1347161247157583984", tip: "discord" }
-
+    - { class: "iconfont icon-spotify", link: "https://open.spotify.com/user/31sqhuln6mecuwhamflbfxcuw4vm", tip: "spotify" }
 
 #---------------------------
 # 自定义页

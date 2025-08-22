@@ -1,0 +1,9 @@
+.iconfont.icon-spotify {
+  font-size: 0; /* 隐藏原字体图标 */
+  display: inline-block;
+  width: 24px;   /* 设置图标宽高 */
+  height: 24px;
+  background-image: url('/img/spotify.png'); /* 本地图片 */
+  background-size: cover;
+  background-position: center;
+}
