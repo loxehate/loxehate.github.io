@@ -6,4 +6,5 @@
   background-image: url('/img/spotify.png'); /* 本地图片 */
   background-size: cover;
   background-position: center;
+  vertical-align: middle;
 }
