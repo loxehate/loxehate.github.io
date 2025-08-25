@@ -1,24 +1,27 @@
-.iconfont.icon-spotify {
-  font-size: 0; /* 隐藏原字体图标 */
-  display: inline-block;
-  width: 24.33px;
-  height: 24px;
-  background-image: url('/img/spotify.png'); /* 本地图片 */
-  background-size: cover;
-  background-position: center;
-  vertical-align: -2px;
+@font-face {
+  font-family: "iconfont"; /* Project id 1736178 */
+  src: url('//at.alicdn.com/t/c/font_1736178_k526ubmyhba.woff2?t=1706680923648') format('woff2'),
+       url('//at.alicdn.com/t/c/font_1736178_k526ubmyhba.woff?t=1706680923648') format('woff'),
+       url('//at.alicdn.com/t/c/font_1736178_k526ubmyhba.ttf?t=1706680923648') format('truetype');
 }
 
-.iconfont.icon-tiktok {
-  font-size: 0; /* 隐藏原字体图标 */
-  display: inline-block;
-  width: 24.33px;
-  height: 24px;
-  background-image: url('/img/tiktok.png'); /* 本地图片 */
-  background-size: cover;
-  background-position: center;
-  vertical-align: -2px;
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+
+.icon-spotify:before {
+  background-image: url('/img/spotify.png'); 
+}
+
+.icon-tiktok:before {
+  background-image: url('/img/tiktok.png'); 
+}
+
 
 .iconfont.icon-binance {
   font-size: 0; /* 隐藏原字体图标 */
