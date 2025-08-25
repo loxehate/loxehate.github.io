@@ -20,6 +20,19 @@
   vertical-align: -2px;
 }
 
+
+.iconfont.icon-chatgpt {
+  font-size: 0; /* 隐藏原字体图标 */
+  display: inline-block;
+  width: 24.33px;
+  height: 24px;
+  background-image: url('/img/chatgpt.png'); /* 本地图片 */
+  background-size: cover;
+  background-position: center;
+  vertical-align: -2px;
+}
+
+
 .iconfont.icon-binance {
   font-size: 0; /* 隐藏原字体图标 */
   display: inline-block;

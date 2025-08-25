@@ -992,7 +992,7 @@ about:
     - { class: "iconfont icon-discord-fill", link: "https://discord.com/channels/1347161247157583982/1347161247157583984", tip: "discord" }
     - { class: "iconfont icon-spotify", link: "https://open.spotify.com/user/31sqhuln6mecuwhamflbfxcuw4vm", tip: "spotify" }
     - { class: "iconfont icon-tiktok", link: "https://www.tiktok.com/@loxehate", tip: "tiktok" }
-
+    - { class: "iconfont icon-chatgpt", link: "https://chatgpt.com/", tip: "chatgpt" }
 #---------------------------
 # 自定义页
 # Custom Page
