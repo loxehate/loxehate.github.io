@@ -976,7 +976,7 @@ tag:
 about:
   enable: true
   banner_img: /img/about.png
-  banner_img_height: 60
+  banner_img_height: 100
   banner_mask_alpha: 0.3
   avatar: /img/avatar.jpg
   name: "Loxehate"
