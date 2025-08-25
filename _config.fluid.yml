@@ -481,7 +481,7 @@ footer:
 index:
   # 首页 Banner 头图，可以是相对路径或绝对路径，以下相同
   # Path of Banner image, can be a relative path or an absolute path, the same on other pages
-  banner_img: /img/index.jpg
+  banner_img: /img/index.png
 
   # 头图高度，屏幕百分比
   # Height ratio of banner image
@@ -554,7 +554,7 @@ index:
 #---------------------------
 post:
   banner_img: /img/post.png
-  banner_img_height: 70
+  banner_img_height: 100
   banner_mask_alpha: 0.3
 
   # 文章在首页的默认封面图，当没有指定 index_img 时会使用该图片，若两者都为空则不显示任何图片
@@ -919,7 +919,7 @@ discuss:
 #---------------------------
 archive:
   banner_img: /img/light.jpg
-  banner_img_height: 60
+  banner_img_height: 100
   banner_mask_alpha: 0.3
 
 
@@ -930,7 +930,7 @@ archive:
 category:
   enable: true
   banner_img: /img/light.jpg
-  banner_img_height: 60
+  banner_img_height: 100
   banner_mask_alpha: 0.3
 
   # 分类的排序字段，前面带减号是倒序，不带减号是正序
@@ -958,8 +958,8 @@ category:
 #---------------------------
 tag:
   enable: true
-  banner_img: /img/tag.png
-  banner_img_height: 80
+  banner_img: /img/about.png
+  banner_img_height: 100
   banner_mask_alpha: 0.3
   tagcloud:
     min_font: 15
