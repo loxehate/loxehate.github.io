@@ -824,7 +824,30 @@ LimitNOFILE=65536
 WantedBy=multi-user.target
 EOF
 ```
+```
+sudo bash -c 'cat <<END >/etc/systemd/system/victoriametrics.service
+[Unit]
+Description=VictoriaMetrics service
+After=network.target
 
+[Service]
+Type=simple
+User=victoriametrics
+Group=victoriametrics
+ExecStart=/usr/local/bin/victoria-metrics-prod -storageDataPath=/var/lib/victoria-metrics -retentionPeriod=90d -selfScrapeInterval=10s
+SyslogIdentifier=victoriametrics
+Restart=always
+
+PrivateTmp=yes
+ProtectHome=yes
+NoNewPrivileges=yes
+
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target
+END'
+```
 ##### 7.2.4 启动
 
 ```
