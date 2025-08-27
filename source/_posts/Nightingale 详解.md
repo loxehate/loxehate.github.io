@@ -2,7 +2,7 @@
 title: Nightingale详解
 tags: [Nightingale]
 categories: [监控观测]
-date: 2025-05-29
+date: 2025-08-27
 ---
 ### 一、概述
 
