@@ -630,4 +630,85 @@ create 0777 root root //创建文件权限是777 主人是root 组也是root组
 发现它没有新生成转储日志，因为在编写yum的日志轮转时，设置了会保留4个转储日志，想要生成新的就得删除旧的转储日志；
 
 但你仔细观察就会发现，虽然它没有生成新的转储日志，但是它替换了原来的转储日志。
+### 4、logrotate管理
 
+#### 4.1、**手动启动**
+
+直接运行命令：
+
+```bash
+logrotate -f /etc/logrotate.conf   # 强制轮转
+logrotate /etc/logrotate.conf      # 正常轮转
+```
+
+常见参数：
+
+- `-d`：调试模式，不实际轮转
+- `-v`：显示详细信息
+- `-f`：强制轮转，即使未到时间
+
+------
+
+#### 4.2、**通过 cron 启动（RHEL7/Ubuntu18 及更早）**
+
+- 在基于 **cronie** 的系统（RHEL7、CentOS7、Ubuntu18 等）里：
+   `/etc/cron.daily/logrotate` 会每天运行一次 `logrotate`：
+
+  ```bash
+  cat /etc/cron.daily/logrotate
+  /usr/sbin/logrotate /etc/logrotate.conf
+  ```
+
+- cron 会每天调用一次 → logrotate 检查各日志文件的配置（如 daily/weekly/size 等），决定是否轮转。
+
+------
+
+#### 4.3、**通过 systemd timer 启动（RHEL8+/Ubuntu20+）**
+
+- 新系统大多数不再依赖 cron，而是使用 `systemd timer`：
+
+  ```bash
+  systemctl list-timers | grep logrotate
+  ```
+
+  你会看到：
+
+  ```
+  logrotate.timer  logrotate.service
+  ```
+
+- 触发逻辑：
+
+  - `logrotate.timer` 定义运行周期（通常是每天）
+
+  - 到期后触发 `logrotate.service`
+
+  - `logrotate.service` 里实际执行：
+
+    ```ini
+    ExecStart=/usr/sbin/logrotate /etc/logrotate.conf
+    ```
+
+------
+
+#### 4.4、**状态检查**
+
+- 查看是否启用（systemd 新式系统）：
+
+  ```bash
+  systemctl status logrotate.timer
+  ```
+
+- 查看 cron 是否配置（旧系统）：
+
+  ```bash
+  ls -l /etc/cron.daily/logrotate
+  ```
+
+------
+
+✅ 总结：
+
+- **logrotate 不常驻**，由 **cron 或 systemd timer** 定时调用
+- 配置在 `/etc/logrotate.conf` 和 `/etc/logrotate.d/`
+- 可以手动运行来强制轮转
