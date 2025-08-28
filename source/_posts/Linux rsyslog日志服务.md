@@ -35,7 +35,7 @@ date: 2025-08-28
 ps aux | grep "rsyslog" | grep -v "grep"
 ```
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-1.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-1.png)
 
 #有rsyslogd服务的进程，所以这个服务已经启动了
 
@@ -50,7 +50,7 @@ rsyslog 0：关闭 1：关闭 2：启用 3：启用 4：启用 5：启用 6：�
  1 unit files listed.
 ```
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-2.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-2.png)
 
 *   系统中的绝大多数日志文件是由 rsyslogd 服务来统一管理的，只要各个进程将信息 给予这个服务，它就会自动地把日志按照特定的格式记录到不同的日志文件中。也就 是说，采用 rsyslogd 服务管理的日志文件，它们的格式应该是统一的。
     
@@ -62,11 +62,11 @@ rsyslog 0：关闭 1：关闭 2：启用 3：启用 4：启用 5：启用 6：�
 
 日志文件是重要的系统信息文件，其中记录了许多重要的系统事件，包括用户的登录 信息、系统的启动信息、系统的安全信息、邮件相关信息、各种服务相关信息等。这 些信息有些非常敏感，所以在 Linux 中这些日志文件只有 root 用户可以读取。 那么，系统日志文件保存在什么地方呢？还记得 /var/ 目录吗？它是用来保存系统动 态数据的目录，那么 /var/log/ 目录就是系统日志文件的保存位置。我们通过表 1 来 说明一下系统中的重要日志文件。
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-3.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-3.png)
 
 除系统默认的日志之外，采用 RPM 包方式安装的系统服务也会默认把日志记录在 /var/log/ 目录中（源码包安装的服务日志存放在源码包指定的目录中）。不过这些 日志不是由 rsyslogd 服务来记录和管理的，而是各个服务使用自己的日志管理文档 来记录自身的日志。以下介绍的日志目录在你的 Linux 上不一定存在，只有安装了相应的服务，日志才会出现。服务日志如表 2 所示：
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-4.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-4.png)
 
 三、Linux日志文件的格式分析
 ----------------
@@ -113,7 +113,7 @@ Linux系统日志
 
 日期时间 主机进程\[pid\]：事件内容
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-5.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-5.png)
 
 * * *
 
@@ -137,14 +137,14 @@ authpriv.* /var/log/secure
 
 我们首先需要确定 rsyslogd 服务可以识别哪些服务的日志，也可以理解为以下这些 服务委托 rsyslogd 服务来代为管理日志。这些服务如表 1 所示。
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-6.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-6.png)
 
 *   这些日志服务名称是rsyslogd服务自己定义的，并不是实际的Linux的服务。当有服 务需要由rsyslogd服务来帮助管理日志时，只需要调用这些服务名称就可以实现日志 的委托管理。
     
 *   这些日志服务名称大家可以使用命令 "man 3 syslo" 来查看。虽然我们的日志管理服 务已经更新到rsyslogd，但是很多配置依然沿用了syslogd服务，在帮助文档中仍然 查看syslog服务的帮助信息。
     
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-7.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-7.png)
 
 * * *
 
@@ -174,7 +174,7 @@ authpriv.* /var/log/secure
 *   邮件的等级信息也可以使用“man 3 syslog”命令来查看。日志等级如表 2 所示，我们按照严重等级从低到高排列.
     
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-8.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-8.png)
 
 其中，panic、error、warn均为旧的标识符，不再建议使用。
 
@@ -185,7 +185,7 @@ authpriv.* /var/log/secure
 2.  低的优先级包含高优先级，例如，为某个应用程序定义info的日志导向，则涵盖 notice、warning、err、crit、alert、emerg等消息。（除非使用=号定义）
     
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-9.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-9.png)
 
 ### 5、日志记录位置
 
@@ -215,7 +215,7 @@ authpriv.* /var/log/secure
 *   RULES：定义了记录日志的设施以及等级等信息
     
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-10.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-10.png)
 
 * * *
 
@@ -346,7 +346,7 @@ optional #*•* @6remote-host:514
 2.  另外一种是就是可以配置为客户端，用来过滤和发送内部日志消息到本地文件夹 （如/var/log）或一台可以路由到的远程rsyslog服务器上。
     
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-11.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-11.png)
 
 项目主机规划
 
@@ -360,7 +360,7 @@ rsyslog Client：（发送端） IP：192.168.198.138
 
 在 GLOBAL DIRECTIVES 之前追加如下配置：
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-12.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-12.png)
 
 说明：
 
@@ -373,9 +373,9 @@ rsyslog 接收远程日志且去掉日志头配置如图所示：
 
 具体文件配置内容如下：
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-13.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-13.png)
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-14.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-14.png)
 
 修改配置后需要重启服务：systemctl restart rsyslog
 
@@ -406,7 +406,7 @@ logger 是一个shell 命令接口，可以通过该接口使用Syslog的系统�
 *   local5.\*对应，配置文件里没有.info。
     
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-15.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-15.png)
 
 使用示例：
 
@@ -416,13 +416,13 @@ logger -it error -p local5.info "hello world"
 
 客户端触发
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-16.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-16.png)
 
 服务端响应
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-17.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-17.png)
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-18.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-18.png)
 
 服务端可以查看到含有IP的日志名，并可以查看到我们之前触发的日志，这里测试完毕。
 
@@ -455,11 +455,11 @@ logger -it error -p local5.info "hello world"
 
 ### 2、logrotate配置文件
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-19.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-19.png)
 
 我们来查看一下 logrotate 的配置文件 /etc/logrotate.conf 的默认内容
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-20.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-20.png)
 
 ```csharp
 [root@localhost ~]# vi /etc/logrotate.conf
@@ -524,7 +524,7 @@ rotate 1
 
 logrotate 配置文件的主要参数如表 1 所示。
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-21.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-21.png)
 
 这些参数中较为难理解的应该是 prerotate/endscript 和 postrotate/endscript，我 们利用“man logrotate”中的例子来解释一下这两个参数。例如：
 
@@ -550,7 +550,7 @@ logrotate 配置文件的主要参数如表 1 所示。
 
 这个子配置文件，没有指定的参数都会以默认方式轮转
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-22.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-22.png)
 
 > 注意：-HUP 平滑重启 sharedscript（共享下列脚本） postrotate（日志轮转 完后执行以下共享脚本）kill -HUP 重读某个配置文件（重新加载）
 
@@ -593,39 +593,39 @@ create 0777 root root //创建文件权限是777 主人是root 组也是root组
 }
 ```
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-23.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-23.png)
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-24.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-24.png)
 
 ②先看看原本log目录下有哪些yum日志
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-25.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-25.png)
 
 ③给yum日志里追加内容，使它满足最小存储大小为3k的条件；
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-26.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-26.png)
 
 ④执行ll -h命令发现大小为45k，满足条件
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-27.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-27.png)
 
 ⑤执行下面的命令。使它重新加载；
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-28.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-28.png)
 
 ⑥这时我们进行查看，发现有一个日志yum.log.2；日志转储成功。
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-29.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-29.png)
 
 ⑦这时候你持续追加内容，一直生成了四个转储日志，这时你的yum.log日志也满足最小转储大小为3k的转储条件
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-30.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-30.png)
 
 执行重新加载命令
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-31.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-31.png)
 
-![](D:/%E5%AD%A6%E4%B9%A0/linux%E8%BF%90%E7%BB%B4/%E5%9B%BE%E7%89%87/rsyslog-32.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-32.png)
 
 发现它没有新生成转储日志，因为在编写yum的日志轮转时，设置了会保留4个转储日志，想要生成新的就得删除旧的转储日志；
 
