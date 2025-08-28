@@ -440,7 +440,7 @@ logger -it error -p local5.info "hello world"
 *   logrotate是一个日志文件管理工具。用来把旧文件轮转、压缩、删除，并且创建新 的日志文件。我们可以根据日志文件的大小、天数等来转储，便于对日志文件管理， 一般都是通过cron计划任务来完成的 。
     
 
-![](https://i-blog.csdnimg.cn/blog_migrate/69c7fcb359b40924f5924182c6b58aa0.png)
+![](%E5%9B%BE%E7%89%87/rsyslog-0.png)
 
 * * *
 
