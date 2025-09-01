@@ -746,7 +746,24 @@ n9e-edge服务器至数据源配置策略一定要开通，并且配置内网时
 
 ![](图片/n9e-数据源配置.png)
 
+#### 6.7、通用升级流程
 
+升级前需要备份数据库
+
+```
+supervisorctl stop n9e-v8 && supervisorctl status
+old_n9e=/data/program/n9e
+new_n9e=/data/program/n9e-v8.3
+
+cp -r ${old_n9e}/etc ${old_n9e}/etc_bak
+mv ${old_n9e}/integrations ${old_n9e}/integrations_bak
+
+\cp -rf ${new_n9e}/n9e ${old_n9e}/n9e
+\cp -rf ${new_n9e}/n9e-cli ${old_n9e}/n9e-cli
+\cp -rf ${new_n9e}/n9e-edge ${old_n9e}/n9e-edge
+
+supervisorctl start n9e-v8 && supervisorctl status
+```
 
 ### 七、VictoriaMetrics实战
 
