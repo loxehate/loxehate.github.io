@@ -2,7 +2,7 @@
 title: Mariadb-基于GTID的多主环复制
 tags: [Mariadb]
 categories: [数据库]
-date: 2025-07-08
+date: 2025-09-01
 ---
 ### 一、多主环复制
 
@@ -1193,13 +1193,66 @@ master-slave同步异常，如果slave服务器**不是最新的**，并且无�
 
 ```
 按照前面描述的方式正确设置，在多主环复制中应该永远不会出现重复键错误。任何重复键错误或数据不匹配通常都是应用程序错误，它插入/更新或删除了不该执行的操作
+1032错误
 ```
 
-问题处理：
+问题分析：
+
+因master1服务器宕机，服务器重启后，master1启动近60s内；slave1 从库,master2主库，同步报错1032。
 
 ```
-使用SET GLOBAL SQL_SLAVE_SKIP_COUNTER跳过错误。
-用于mariadb-binlog --base64-output=decode-rows --verbose --start-position=# binlog-name查看缺少什么并在服务器上应用缺少的更改（减去冲突）。
+[ERROR] Slave SQL: Could not execute Update_rows_v1 event on table chat_dong.chat_content; Can't find record in 'test', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log mysql-bin.000250, end_log_pos 251070, Gtid 1-8997-1750635, Internal MariaDB error code: 1032
+```
+
+master1 主库导出binlog，slave1和master2导出对应时间段的binlog和relaylog
+
+```
+mysqlbinlog --no-defaults --base64-output=decode-rows -v --start-datetime='2025-08-29 13:00:00' --stop-datetime='2025-08-29 16:00:00' mysql-bin.000250 > /root/a.log
+
+mysqlbinlog --no-defaults --base64-output=decode-rows -v --start-datetime='2025-08-29 13:00:00' --stop-datetime='2025-08-29 16:00:00' relay-bin.000005 > /root/b.log
+
+通过end_log_pos 251070,找到异常事物sql数据，master1和slave1,master2同时查询数据进行对比。
+```
+
+数据对比发现，master1存在该数据，但slave1和master2未存在该数据且binlog日志中未有数据记录。
+
+```
+由于多主环复制为异步复制，根据异步复制原理：主库提交事务时,只要写入本地 binlog成功,事务就算提交完成,立即返回客户端成功。
+从库通过 IO 线程 拉取 binlog 并写入 relay log，再由 SQL 线程（或多线程复制）回放事务。
+
+master1数据库重启后，slave1和master2可能通过IO线程拉取数据失败，导致数据缺失
+```
+
+处理方案：
+
+master1导出缺失数据，跳过gtid检查，手动补偿slave1和master2数据，恢复gtid检查
+
+```
+#停止同步
+stop slave;
+
+#跳过 GTID 检查(会话级别)
+SET SESSION sql_log_bin=0;
+
+#插入数据
+INSERT INTO *;
+
+#启用 GTID 检查
+SET SESSION sql_log_bin=1;
+
+#启动同步
+start slave;
+
+#查看同步状态
+SHOW SLAVE STATUS\G;
+```
+
+补偿成功后,master2和slave1的从同步，恢复正常。由于master2补偿数据未有gtid记录，所以在master2恢复成功后，slave2会报错相同错误，参考master2补偿方式，slave2进行相同数据补偿。
+
+总结：
+
+```
+master1数据库重启后，slave1和master2可能通过IO线程拉取数据失败（具体失败原因日志未有记录，可能因为服务器网络，负载，IO线程压力大问题导致），导致数据缺失。master1或master2之间主从同步异常后，会导致整个多主环复制，需要所有数据库进行数据修复。
 ```
 
 ##### 6.4、错误跳过
