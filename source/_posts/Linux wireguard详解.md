@@ -7,6 +7,7 @@ date: 2025-05-09
 ### 一、引言
 
 ```
+赔钱机场：https://dash.pqjc.site
 wireguard官网地址：https://www.wireguard.com
 wireguard配置文档：https://icloudnative.io/posts/wireguard-docs-practice
 ```
