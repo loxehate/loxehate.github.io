@@ -1,6 +1,6 @@
 ---
 title: GTID主从复制
-tags: [Mysql]
+tags: [Mariadb]
 categories: [数据库]
 date: 2025-05-08
 ---
