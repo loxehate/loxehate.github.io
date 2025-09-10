@@ -2761,7 +2761,17 @@ PUT _template/geonames
 
 接下来查看kibana索引信息，已创建指定分片和副本的测试数据。
 ![esrally.png](%E5%9B%BE%E7%89%87/esrally.png)
+测试集群比较
 
+```
+esrally race --track=geonames --target-hosts=172.16.20.136:9200,172.16.20.135:9200,172.16.20.134:9200 --pipeline=benchmark-only --client-options="verify_certs:true,basic_auth_user:'elastic',basic_auth_password:'elastic@123'"  --track-params="number_of_shards:3, number_of_replicas:1" --report-file=report.csv --report-format=csv
+
+esrally race --track=geonames --target-hosts=172.16.20.173:8000 --pipeline=benchmark-only --client-options="verify_certs:true,basic_auth_user:'elastic',basic_auth_password:'elastic@123'"  --track-params="number_of_shards:3, number_of_replicas:1"
+--report-file=gateway.csv --report-format=csv
+
+#baseline和contender分别为两个集群trace_id
+esrally compare --baseline=cb33b1b0-b002-416c-bd22-162490d20d14 --contender=9561965a-6e2d-41f8-a15e-33e4de5a1851
+```
 #### 4、压测对比实践
 
 ##### 4.1 测试环境
