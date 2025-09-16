@@ -2,7 +2,7 @@
 title: K8S-gitops详解
 tags: [kubernetes]
 categories: [云原生]
-date: 2025-06-12
+date: 2025-09-16
 ---
 ### 一、**GitOps**介绍
 
@@ -24,7 +24,7 @@ GitOps = 基础设施即代码(IaC) + 合并请求(MR) + 持续集成/持续交�
 
 与 `GitOps` 相比，传统的 `DevOps` 尽管在软件开发生命周期已实现自动化，但基础架构大体上仍然是一个需要专业团队进行手动操作的过程。随着对基础架构需求的不断增长，实现基础设施自动化变得越来越重要。现代化的基础设施需要弹性机制(速度和规模)，以便能有效地管理持续部署所需的云资源。
 
-![](图片/gitops架构.png)
+![](图片\gitops架构.png)
 
 **GitOps体系学习和理解**
 
@@ -68,7 +68,7 @@ GitOps 与代码和协作都有紧密联系
 在 issue 中，记录列出的任务列表的执行程度和进展(通过ME合并请求)。
 ```
 
-![](图片/GitOps代码和协作.png)
+![](图片\GitOps代码和协作.png)
 
 #### 3、GitOps 工作流
 
@@ -82,7 +82,7 @@ GitOps 与代码和协作都有紧密联系
 
 ##### 3.2 CI构建GitHub Action
 
-![](图片/GitOps工作流1.png)
+![](图片\GitOps 工作流1.png)
 
 完整的 GitOps 工作流分成三个部分
 
@@ -105,7 +105,7 @@ GitOps 与代码和协作都有紧密联系
 
 ##### 3.3 CI构建Jenkins
 
-![](图片/GitOps工作流2.png)
+![](图片\GitOps 工作流2.png)
 
 完整的流程
 
@@ -507,7 +507,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.pas
 
 登陆argocd
 
-![](图片/gitops-argocd.png)
+![](图片\gitops argocd.png)
 
 ##### 5.2 创建 ArgoCD 应用
 
@@ -569,7 +569,7 @@ kubectl apply -n argocd -f https://ghproxy.com/https://raw.githubusercontent.com
 ```
 kubectl create -n argocd secret docker-registry dockerhub-secret \
   --docker-username chengzh \
-  --docker-password test\
+  --docker-password dckr_pat_UxCRddCJXMg9_HNyHA0gsE3BSZA \
   --docker-server "https://registry-1.docker.io"
 ```
 
@@ -681,7 +681,7 @@ argocd-image-updater run --match-application-name python --registries-conf-path 
 
 修改python/app.py内容修改文件返回内容为`当前环境argocd`修改完成后，将代码推送到 GitHub 的 main 分支。此时会触发GitHub Action 工作流。当argocd-image-updater 工作流被触发时，它将构建 Tag 为 main 开头的镜像版本，并将其推送到镜像仓库中
 
-![](图片/gitops-image.png)
+![](图片\gitops image.png)
 
 
 
@@ -799,7 +799,7 @@ kubectl apply -f blue_ingress.yaml
 
 http://bluegreen.demo
 
-![](图片/gitops蓝色环境.png)
+![](图片\gitops 蓝色环境.png)
 
 在这个页面里，浏览器每秒钟会向后端发出 50 个请求，蓝色的方块代表后端返回接口的内容为 blue，对应 blue 版本的镜像，代表蓝色环境。
 
@@ -1191,7 +1191,7 @@ spec:
 
 使用浏览器访问 http://canary.demo 
 
-![](图片/argocd 金丝雀1.png)
+![](%E5%9B%BE%E7%89%87/argocd%E9%87%91%E4%B8%9D%E9%9B%801.png)
 
 在这个页面里，浏览器每秒钟会向后端发出 50 个请求，蓝色的方块代表后端返回接口的内容为 blue，对应的是 argoproj/rollouts-demo:blue 版本的镜像，用来模拟生产环境。
 
@@ -1305,7 +1305,7 @@ kubectl apply -f canary_ingress.yaml
 
 重新返回浏览器，将会看到生产环境（蓝色方块）和金丝雀环境（绿色方块）的流量比例将按照配置的 4:1 来分布，如下图右下角所示
 
-![](图片/argocd 金丝雀2.png)
+![](图片\argocd金丝雀2.png)
 
 只需要调整金丝雀环境的 Ingress 策略，分次提升 canary-weight 的值直到 100%，也就实现了一次完整的金丝雀发布过程。
 
@@ -1491,7 +1491,7 @@ kubectl apply -f canary-rollout.yaml
 
 现在，返回浏览器，等待十几秒后，应该能看到代表金丝雀环境的绿色方块开始出现，并大致占到总请求数的 20%，如下图右下角所示。
 
-![](图片/argocd 金丝雀3.png)
+![](图片\argocd金丝雀3.png)
 
 同时，在 Rollout 对象中还配置了 canary-by-header 参数，所以当使用特定的 Header 请求时，流量将被转发到金丝雀环境中，可以使用 curl 来验证。
 
@@ -1506,7 +1506,7 @@ $ for i in `seq 1 10`; do curl -H "X-Canary: always" http://canary.auto/color; d
 
 接下来，点击卡片进入 canary-demo 详情，在这里将看到金丝雀发布的完整步骤以及当前所处的阶段。
 
-![](图片/Argo Rollout Dashboard1.png)
+![](%E5%9B%BE%E7%89%87/ArgoRolloutDashboard1.png)
 
 从上面的截图可以看出，金丝雀发布一共有 6 个阶段，当前处于第二个暂停阶段，这和在 Rollout 里的定义是一致的。
 
@@ -1518,7 +1518,7 @@ rollout 'canary-demo' promoted
 ```
 
 之后，金丝雀发布将会按照预定的步骤运行。首先将金丝雀环境的流量比例设置为 50%，停留 30 秒，然后将金丝雀环境的流量比例设置为 70%，再停留 30 秒，最后将金丝雀环境提升为生产环境。当金丝雀发布完成之后，Argo Rollout 将同时自动对老的环境进行缩容操作，如下图所示。到这里，一次完整的自动化金丝雀发布就已经完成了。
-![](图片/Argo Rollout Dashboard2.png)
+![](图片\ArgoRolloutDashboard2.png)
 
 ##### 5.5 实现 ArgoCD 高级管理特性
 
@@ -1665,7 +1665,7 @@ kubectl apply -f applicationset.yaml
 
 从ArgoCD 界面中进行查看
 
-![](图片/argocd多环境.png)
+![](图片\argocd多环境.png)
 
 ### 三、  GitOps高级管理
 
@@ -1703,7 +1703,7 @@ Bitnami Sealed Secrets 是一个用于加密和管理敏感信息的工具，它
 
 ##### 1.2 Bitnami Sealed Secrets工作流程
 
-![](图片/Bitnami Sealed Secrets工作流程.png)
+![](%E5%9B%BE%E7%89%87/BitnamiSealedSecrets%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B.png)
 
 ```
 生成密钥对：首先，您需要生成公钥/私钥对，用于加密和解密敏感信息。这可以通过 Bitnami Sealed Secrets 提供的密钥管理工具完成。生成的公钥将用于加密敏感信息，并将其存储为 Sealed Secrets 对象。
@@ -1823,7 +1823,7 @@ image-pull-sealed-secret.yaml 文件更新至helm仓库中
 
 进入 ArgoCD 控制台的应用详情，手动点击“SYCN”按钮同步新增的 Secret 对象。此时，应用状态应变为 Healthy 健康状态。同时，Sealed-Secret 控制器会对刚才创建的 SealedSecret 对象进行解密，并重新创建原始的 Kubernetes Secret 对象以供 Deployment 工作负载使用。
 
-![](图片/验证 image pull secret.png)
+![](图片\验证imagepullsecret.png)
 
 ##### 1.6 手动解密 SealedSecret
 
@@ -1976,11 +1976,11 @@ Actions: get, create, update, delete, sync, override, action/<group/kind/action-
 
 我们知道 Argo CD 会自动检查到配置的应用变化，这是因为 Argo CD 会每隔三分钟去轮询一次 Git 存储库来检测清单的变化，为了消除这种轮询延迟，我们也可以将 API 服务端配置为接收 webhook 事件的方式，这样就能实时获取到 Git 存储库中的变化了。Argo CD 支持来着 GitHub、GitLab、Bitbucket、Bitbucket Server 和 Gogs 的 Git webhook 事件，这里我们仍然以上面的 GitLab 为例来说明如果配置 Webhook。
 
-![](图片/Webhook 触发 ArgoCD.png)
+![](图片\Webhook触发ArgoCD.png)
 
 进入到 GitLab 项目仓库 http://git.k8s.local/course/devops-demo-deploy 中配置 Webhooks：
 
-![](图片/webhook 配置.png)
+![](图片\webhook配置.png)
 
 配置 Webhooks
 
@@ -2079,13 +2079,13 @@ metadata:
 
 配置完成后正常就可以自动发现上面的几个指标任务了：
 
-![](图片/argocd metrics.png)
+![](%E5%9B%BE%E7%89%87/argocd%20metrics.png)
 
 如果你使用的是 Prometheus Operator 方式，则可以手动创建 ServiceMonitor 对象来创建指标对象。
 
 然后我们可以在 Grafana 中导入 Argo CD 的 Dashboard，地址：https://github.com/argoproj/argo-cd/blob/master/examples/dashboard.json
 
-![](图片/argocd grafana.png)
+![](图片\argocdgrafana.png)
 
 #### 5、Argo CD 消息通知
 
@@ -2121,7 +2121,7 @@ wget https://raw.githubusercontent.com/argoproj-labs/argocd-notifications/stable
 
 然后我们需要在钉钉群中创建一个机器人，现在的机器人安全认证有几种方式，这里我们就选择关键字的方式，配置包含 `ArgoCD` 关键字的机器人：
 
-![](图片/argocd robot.png)
+![](%E5%9B%BE%E7%89%87/argocd%20robot.png)
 
 然后我们需要修改 `install.yaml` 文件中的 `argocd-notifications-cm` 添加相关配置才能支持钉钉
 
@@ -2296,13 +2296,13 @@ Server: Tengine
 {"errcode":0,"errmsg":"ok"}  service=dingtalk
 ```
 
-![](图片/argocd 钉钉通知.png)
+![](%E5%9B%BE%E7%89%87/argocd%20%E9%92%89%E9%92%89%E9%80%9A%E7%9F%A5.png)
 
 #### 6、连接 GitOps 工作流
 
 在完成 ArgoCD 的应用配置之后，我们就已经将示例应用的 Helm Chart 定义和集群资源关联起来了，但整个 GitOps 工作流还缺少非常重要的一部分，就是上面提到的自动更新 Helm Chart values.yaml 文件镜像版本的部分，在下面这张示意图中用“❌”把这个环节标记了出来。
 
-![](图片/连接 GitOps 工作流.png)
+![](%E5%9B%BE%E7%89%87/%E8%BF%9E%E6%8E%A5%20GitOps%20%E5%B7%A5%E4%BD%9C%E6%B5%81.png)
 
 在这部分工作流没有打通之前，提交的新代码虽然会构建出新的镜像，但是 Helm Chart 定义的镜像版本并不会产生变化， 这会导致 ArgoCD 不能自动更新集群内工作负载的镜像版本。
 要解决这个问题，我们还需要在 GitHub Action 中添加自动修改 Helm Chart 并重新推送到仓库操作。
@@ -2402,7 +2402,7 @@ spec:
 
 这里 `{{cluster}}` 和 `{{url}}` 的每次迭代都将被上面的元素替换。这将产生 3 个应用程序。
 
-![](图片/argocd List Generator.png)
+![](%E5%9B%BE%E7%89%87/argocd%20List%20Generator.png)
 
 这些集群必须已经在 Argo CD 中定义，以便为这些值生成应用程序。ApplicationSet 控制器不创建集群。
 
@@ -2576,7 +2576,7 @@ applicationsets/git-dir-generator/apps
 
 表示为 `{{path}}` 的每个应用程序的路径将基于配置中 `.spec.generators.git.directories.path` 下定义的内容。应用此配置后，它将在 UI 中显示 3 个应用程序。
 
-![](图片/argocd Directory Generator.png)
+![](%E5%9B%BE%E7%89%87/argocd%20Directory%20Generator.png)
 
 **File Generator**
 
@@ -2658,4 +2658,4 @@ spec:
 
 此配置采用您存储的配置文件（在 .spec.generators.git.files.path 部分下表示），并读取配置文件以用作模板部分的参数。
 
-![](图片/argocd File Generator.png)
+![](%E5%9B%BE%E7%89%87/argocd%20File%20Generator.png)
