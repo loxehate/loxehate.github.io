@@ -2,7 +2,7 @@
 title: Mariadb-基于GTID的多主环复制
 tags: [Mariadb]
 categories: [数据库]
-date: 2025-09-01
+date: 2025-09-16
 ---
 ### 一、多主环复制
 
@@ -1260,7 +1260,23 @@ master1数据库重启后，slave1和master2可能通过IO线程拉取数据失�
 master节点可以进行错误跳过
 
 ```
-set global sql_slave_skip_counter=1;
+-- 1. 停止从库复制（可选，但推荐）
+STOP SLAVE;
+
+-- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
+SET SESSION GTID_NEXT = '0-1-123';
+
+-- 3. 执行一个空事务（模拟“已执行”该 GTID）
+BEGIN;
+COMMIT;
+
+-- 4. 重置 GTID_NEXT 回自动模式
+SET SESSION GTID_NEXT = 'AUTOMATIC';
+
+-- 5. 启动从库复制
+START SLAVE;
+
+SHOW SLAVE STATUS\G
 ```
 
 slave节点重新设置gtid_slave_pos，跳过错误

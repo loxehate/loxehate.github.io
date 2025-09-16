@@ -858,7 +858,23 @@ replica-skip-errors=1032,1062,1053,1146
 或
 
 ```
-set global sql_slave_skip_counter=1;
+-- 1. 停止从库复制（可选，但推荐）
+STOP SLAVE;
+
+-- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
+SET SESSION GTID_NEXT = '0-1-123';
+
+-- 3. 执行一个空事务（模拟“已执行”该 GTID）
+BEGIN;
+COMMIT;
+
+-- 4. 重置 GTID_NEXT 回自动模式
+SET SESSION GTID_NEXT = 'AUTOMATIC';
+
+-- 5. 启动从库复制
+START SLAVE;
+
+SHOW SLAVE STATUS\G
 ```
 
 #### 2、mysql：定位错误 1062
