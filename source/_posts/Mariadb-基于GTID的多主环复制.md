@@ -1266,14 +1266,7 @@ STOP SLAVE;
 -- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
 SET GLOBAL gtid_slave_pos = '当前GTID集（仅把出错domain_id的seq+1）';
 
--- 3. 执行一个空事务（模拟“已执行”该 GTID）
-BEGIN;
-COMMIT;
-
--- 4. 重置 GTID_NEXT 回自动模式
-SET SESSION GTID_NEXT = 'AUTOMATIC';
-
--- 5. 启动从库复制
+-- 3. 启动从库复制
 START SLAVE;
 
 SHOW SLAVE STATUS\G
