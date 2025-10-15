@@ -1264,7 +1264,7 @@ master节点可以进行错误跳过
 STOP SLAVE;
 
 -- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
-SET SESSION GTID_NEXT = '0-1-123';
+SET GLOBAL gtid_slave_pos = '当前GTID集（仅把出错domain_id的seq+1）';
 
 -- 3. 执行一个空事务（模拟“已执行”该 GTID）
 BEGIN;
@@ -1279,7 +1279,7 @@ START SLAVE;
 SHOW SLAVE STATUS\G
 ```
 
-slave节点重新设置gtid_slave_pos，跳过错误
+查看当前gtid_slave_pos为已执行的gtid，下一个gtid为待执行的。slave节点重新设置gtid_slave_pos，跳过错误
 
 ```
 SET GLOBAL gtid_slave_pos='0-2036-1184285,1-146-980';
