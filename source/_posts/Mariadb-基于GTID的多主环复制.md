@@ -1193,7 +1193,7 @@ master-slave同步异常，如果slave服务器**不是最新的**，并且无�
 
 ```
 按照前面描述的方式正确设置，在多主环复制中应该永远不会出现重复键错误。任何重复键错误或数据不匹配通常都是应用程序错误，它插入/更新或删除了不该执行的操作
-1032错误
+1032错误应优先补数据，按照binlog日志报错补偿数据，让mariadb自动按照binlog日志正常复制。如若补偿数据异常，再进行gtid错误跳过。
 ```
 
 问题分析：
@@ -1257,14 +1257,17 @@ master1数据库重启后，slave1和master2可能通过IO线程拉取数据失�
 
 ##### 6.4、错误跳过
 
-master节点可以进行错误跳过
+在多主环复制中，master和slave节点都可以进行gtid错误跳过
 
 ```
 -- 1. 停止从库复制（可选，但推荐）
 STOP SLAVE;
 
 -- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
-SET GLOBAL gtid_slave_pos = '当前GTID集（仅把出错domain_id的seq+1）';
+-- 若master1 -> master2之间主从中断，master2 -> master1之间正常。在master2执行gtid跳过，设置gtid_slave_pos master1的域gtid应和当前gtid_binlog_pos保持一致。master2的域gtid加+1
+-- 若master1->slave1之间中从中断，在slave1执行gtid跳过，设置gtid_slave_pos master2的域gtid应和当前gtid_binlog_pos保持一致。master1的域gtid加+1
+-- 当前GTID集（仅把出错domain_id的seq+1），其他domain_id保持与gtid_binlog_pos保持一致
+SET GLOBAL gtid_slave_pos = '0-2036-1184285,1-146-980';
 
 -- 3. 启动从库复制
 START SLAVE;
