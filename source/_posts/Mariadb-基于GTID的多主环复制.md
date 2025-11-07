@@ -1263,15 +1263,20 @@ master1数据库重启后，slave1和master2可能通过IO线程拉取数据失�
 -- 1. 停止从库复制（可选，但推荐）
 STOP SLAVE;
 
+SET @@GLOBAL.read_only = ON;
+
 -- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
 -- 若master1 -> master2之间主从中断，master2 -> master1之间正常。在master2执行gtid跳过，设置gtid_slave_pos master1的域gtid应和当前gtid_binlog_pos保持一致。master2的域gtid加+1
 -- 若master1->slave1之间中从中断，在slave1执行gtid跳过，设置gtid_slave_pos master2的域gtid应和当前gtid_binlog_pos保持一致。master1的域gtid加+1
--- 当前GTID集（仅把出错domain_id的seq+1），其他domain_id保持与gtid_binlog_pos保持一致
+-- 当前GTID集（仅把出错domain_id的seq+1），其他domain_id保持与gtid_binlog_pos保持一致。若其他domain_id的gtid变化过快，将其设置为只读模式，进行跳过
 SET GLOBAL gtid_slave_pos = '0-2036-1184285,1-146-980';
 
 -- 3. 启动从库复制
 START SLAVE;
 
+SET @@GLOBAL.read_only = OFF;
+
+-- 4. 查看主从复制状态
 SHOW SLAVE STATUS\G
 ```
 
