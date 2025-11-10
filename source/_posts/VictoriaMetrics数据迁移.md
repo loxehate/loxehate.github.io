@@ -2,7 +2,7 @@
 title: VictoriaMetrics数据迁移
 tags: [VictoriaMetrics]
 categories: [监控观测]
-date: 2025-05-29
+date: 2025-11-10
 ---
 
 VictoriaMetrics数据迁移最佳实践：零停机迁移
