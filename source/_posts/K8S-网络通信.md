@@ -98,45 +98,45 @@ Directrouting 直接路由，跨网段使用vxlan，同网段使用host-gw模式
 
 配置flannel
 
-![](图片\flannel1.png)
+![](图片/flannel1.png)
 
 server2查看所有pod，进入IP为10.244.1.59的pod ( node 在server3上) ，查看网关
 
-![](图片\flannel2.png)
+![](图片/flannel2.png)
 
 server3查看cni0网卡配置，IP地址为10.244.1.1
 
-![](图片\flannel3.png)
+![](图片/flannel3.png)
 
 查看server3的网关，Flannel .1的模式
 
-![](图片\flannel4.png)
+![](图片/flannel4.png)
 
 查询系统中缓存的ARP表
 
-![](图片\flannel5.png)
+![](图片/flannel5.png)
 
 查找并修改kube-flannel-cfg配置文件，将type由vxlan改为host-gw直连模式
 
-![](图片\flannel6.png)
+![](图片/flannel6.png)
 
-![](图片\flannel7.png)
+![](图片/flannel7.png)
 
 在查看pod信息的时候，flannel模式还在
 
-![](图片\flannel8.png)
+![](图片/flannel8.png)
 
 更新pod（删除节点副本，重新生成的节点会读取修改后的配置文件并生效）
 
-![](图片\flannel9.png)
+![](图片/flannel9.png)
 
 此时在server3上查看网关，发现方式变为了eth0（目的地是10.244.0.0/24网段的数据由server2作为网关）
 
-![](图片\flannel10.png)
+![](图片/flannel10.png)
 
 在server4上查看网关，也变为了eth0
 
-![](图片\flannel11.png)
+![](图片/flannel11.png)
 
 ## 三、calico网络插件
 
@@ -157,21 +157,21 @@ Felix：监听ECTD中心的存储获取事件，用户创建pod后，Felix负责
 BIRD：一个标准的路由程序，它会从内核里面获取哪一些IP的路由发生了变化，然后通过标准BGP的路由协议扩散到整个其他的宿主机上，让外界都知道这个IP在这里，路由的时候到这里来。
 ```
 
-![](图片\calico网络架构.png)
+![](图片/calico网络架构.png)
 
 ### 3.calico网络插件
 
 IPIP工作模式：适用于互相访问的pod不在同一个网段中，跨网段访问的场景。
 
-![](图片\calico网络插件-IPIP.png)
+![](图片/calico网络插件-IPIP.png)
 
 BGP工作模式：适用于互相访问的pod在同一个网段，适用于大型网络。
 
-![](图片\calico网络插件-BGP.png)
+![](图片/calico网络插件-BGP.png)
 
 网络策略：NetworkPolicy策略模型：控制某个namespace下的pod的网络出入站规则
 
-![](图片\calico网络策略.png)
+![](图片/calico网络策略.png)
 
 ### 4.calico组件安装
 
@@ -578,7 +578,7 @@ spec:
 支持管控更多的策略对象, Kubernetes 只支持管控 Pod
 ```
 
-## 五、calico网络策略
+## 五、cilium网络策略
 
 ###  1.什么是cilium
 
