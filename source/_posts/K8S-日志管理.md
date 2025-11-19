@@ -2372,9 +2372,9 @@ spec:
 ##### 4.3.访问验证
 
 查看数据流信息，已成功创建名为logs-myapp-elk的数据流。  
-![image.png](https://i-blog.csdnimg.cn/blog_migrate/a0cb0fd6a832b9135cc49dbfd9c9ecf8.png)  
+![](%E5%9B%BE%E7%89%87/kibana-11.png)  
 查看数据流详细内容，成功解析了日志相关字段数据。  
-![image.png](https://i-blog.csdnimg.cn/blog_migrate/a1df698915742191345440e0ad52f83d.png)
+![](%E5%9B%BE%E7%89%87/kibana-12.png)
 
 #### 5.注意事项
 
