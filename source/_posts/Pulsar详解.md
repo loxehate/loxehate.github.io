@@ -2,7 +2,7 @@
 title: Pulsar详解
 tags: [Pulsar]
 categories: [中间件]
-date: 2025-08-11
+date: 2025-12-2
 ---
 ### 一、Pulsar简介
 
@@ -1524,6 +1524,15 @@ bin/pulsar-admin brokers list pulsar-cluster-prod
 
 ### 九、跨集群复制
 
+```
+官方文档：https://pulsar.apache.org/docs/3.0.x/administration-geo/
+
+跨集群复制集群的注册名称，在源集群和目标集群需要保持一致
+#启用broker.conf参数
+systemTopicEnabled=true
+topicLevelPoliciesEnabled=true
+enableReplicatedSubscriptions=true
+```
 要在两个 Apache Pulsar 集群之间开启跨集群复制（Cross-Cluster Replication），需要按照以下步骤进行配置：
 
 #### 1、前提条件
