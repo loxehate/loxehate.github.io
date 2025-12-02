@@ -1,8 +1,8 @@
 ---
 title: SkyWalking详解
 tags: [SkyWalking]
-categories: [中间件]
-date: 2025-05-29
+categories: [监控观测]
+date: 2025-12-2
 ---
 ### 一、介绍
 
@@ -145,7 +145,7 @@ windows:
 
 访问网址：http://localhost:8902/
 
-![](图片/skywalking.png)
+![](图片\skywalking.png)
 
 即可成功访问，安装成功，若启动失败可到apache-skywalking-apm-bin/logs目录下查看错误日志。
 
@@ -183,11 +183,11 @@ nohup java -javaagent:/usr/local/skywalking-agent/skywalking-agent.jar -DSW_SERV
 
 启动成功后可以看到日志
 
-![](图片/skywalking-日志.png)
+![](图片\skywalking-日志.png)
 
 随意调用这个jar包的接口，或rpc请求，即可在skywalking中看到监控的数据。
 
-![](图片/skywalking-监控.png)
+![](图片\skywalking-监控.png)
 
 ### 四、配置钉钉机器人告警（可选）
 
@@ -285,7 +285,7 @@ apache-skywalking-apm-bin-es7/
 缺点：若elasticsearch集群节点故障且数据量庞大的情况下，elasticsearch节点完全恢复比较长
 ```
 
-![](图片/skywalking-集群架构.png)
+![](图片\skywalking-集群架构.png)
 
 #### 4、集群部署
 
@@ -579,7 +579,7 @@ configuration:
 参考：https://skywalking.apache.org/docs/main/v9.1.0/en/setup/backend/dynamic-config/
 ```
 
-![](图片/skywalking-nacos.png)
+![](图片\skywalking-nacos.png)
 
 注释：receiver-trace.default.slowDBAccessThreshold使用text格式，其余使用yml格式
 
@@ -653,8 +653,303 @@ collector:
 
 监控共分三层，服务、服务实例、端点，每个服务代表一个监控的集体，可以部署多个实例，每个实例包含多个端点，端点包含HTTP/RPC请求。每一层都监控分析，拓扑图，追踪，可逐层查看。
 
-![](图片/skywalking-1.png)
+![](图片\skywalking-1.png)
 
-![](图片/skywalking-2.png)
+![](图片\skywalking-2.png)
 
-![](图片/skywalking-3.png)
+![](图片\skywalking-3.png)
+
+### 七、skywalking版本升级
+
+```
+版本变更文档：https://skywalking.apache.org/docs/main/v10.3.0/en/changes/changes-10.3.0/
+```
+
+#### 1、升级前准备（必须执行）
+
+**环境检查清单**：
+
+```markdown
+- [ ] JDK版本 ≥ 11（推荐17）
+- [ ] 数据库兼容性：
+  - ElasticSearch ≥ 7.14（推荐8.x）
+  - MySQL ≥ 8.0
+  - PostgreSQL ≥ 13
+- [ ] 磁盘空间 ≥ 当前数据量的2倍
+- [ ] 备份所有配置文件和数据
+- [ ] 检查网络策略允许9200/11800/12800端口通信
+```
+
+**依赖项更新**：
+
+```bash
+# 克隆代码仓库
+git clone https://gitcode.com/gh_mirrors/sky/skywalking
+cd skywalking
+ 
+# 检查outdated依赖
+./mvnw versions:display-dependency-updates
+```
+
+#### 2、二进制部署升级步骤
+
+![](%E5%9B%BE%E7%89%87/skywalking%E5%8D%87%E7%BA%A7%E6%B5%81%E7%A8%8B.svg)
+
+**具体命令**：
+
+```bash
+# 停止现有服务
+systemctl stop skywalking-oap
+systemctl stop skywalking-ui
+ 
+# 备份配置
+cp -r /opt/skywalking/config /opt/skywalking/config-backup-8x
+ 
+# 部署新版本
+tar -zxvf apache-skywalking-apm-9.2.0.tar.gz -C /opt
+cd /opt/skywalking
+ 
+# 合并配置文件（重点关注以下配置）
+vim config/application.yml
+# 1. 更新存储配置（特别是ES 8.x需要添加ssl配置）
+# 2. 添加layer相关配置
+# 3. 检查所有接收器配置名称（如receiver_zipkin → receiver-zipkin）
+ 
+# 初始化模式启动（仅一次）
+bin/oapService.sh init
+ 
+# 正常启动
+systemctl start skywalking-oap
+systemctl start skywalking-ui
+```
+
+#### 3、Docker部署升级步骤
+
+```yaml
+# docker-compose.yml关键变更
+version: '3'
+services:
+  oap:
+    image: apache/skywalking-oap-server:9.2.0
+    environment:
+      - SW_STORAGE=elasticsearch
+      - SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200
+      - SW_STORAGE_ES_VERSION=8 # 添加ES版本声明
+      - SW_ENABLE_UPDATE_UI_TEMPLATE=true # 启用UI模板更新
+    volumes:
+      - ./config:/skywalking/config
+    command: oap --init # 首次启动添加--init参数
+
+  ui:
+    image: apache/skywalking-ui:9.2.0
+    environment:
+      - SW_OAP_ADDRESS=http://oap:12800
+      - SW_ENABLE_UPDATE_UI_TEMPLATE=true
+```
+
+启动命令：
+
+```bash
+# 备份数据卷
+docker volume ls | grep skywalking | xargs -I {} docker volume inspect {} > {}.json
+ 
+# 启动新版本
+docker-compose up -d
+```
+
+#### 5、核心配置变更对照表
+
+| 8.x配置                                | 9.x配置                                  | 说明                          |
+| -------------------------------------- | ---------------------------------------- | ----------------------------- |
+| SW\_RECEIVER\_SHARING\_JETTY\_PORT     | SW\_RECEIVER\_SHARING\_REST\_PORT        | REST端口配置重命名            |
+| SW\_STORAGE\_ES\_CLUSTER\_NODES        | SW\_STORAGE\_ES\_CLUSTER\_NODES          | 保持不变，但ES8需要添加认证   |
+| SW\_OTEL\_RECEIVER\_ENABLED\_OC\_RULES | SW\_OTEL\_RECEIVER\_ENABLED\_OTEL\_RULES | OpenTelemetry接收器配置重命名 |
+| SW\_CORE\_REST\_JETTY\_DELTA           | 移除                                     | 已由Armeria HTTP服务器替代    |
+
+#### 6、ElasticSearch 8.x配置示例
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:elasticsearch}
+  elasticsearch:
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_PROTOCOL:https}  # ES8默认启用HTTPS
+    user: ${SW_STORAGE_ES_USER:elastic}
+    password: ${SW_STORAGE_ES_PASSWORD:changeme}
+    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
+    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
+    version: ${SW_STORAGE_ES_VERSION:8}  # 必须显式声明版本
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1}
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1}
+    # 新增配置
+    logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}  # 合并索引提高性能
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:5}  # 修复性能问题
+```
+
+#### 7、告警规则迁移
+
+**关键变更**：`avg_resp_time`指标名称统一，可能影响现有告警规则：
+
+```yaml
+# 8.x告警规则
+rules:
+  service_resp_time_rule:
+    metrics-name: service_resp_time_avg
+    op: ">"
+    threshold: 1000
+    period: 10
+    count: 3
+    silence-period: 5
+
+# 9.x告警规则（名称变更）
+rules:
+  service_resp_time_rule:
+    metrics-name: service_avg_resp_time  # 名称已统一
+    op: ">"
+    threshold: 1000
+    period: 10
+    count: 3
+    silence-period: 5
+```
+
+#### 8、验证清单
+
+```markdown
+- [ ] 服务列表显示正常，包含layer信息
+- [ ] 拓扑图按layer正确分组
+- [ ] 追踪数据能正常查询（至少检查最近1小时）
+- [ ] 告警规则正确触发
+- [ ] 所有自定义仪表盘正常工作
+- [ ] 日志查询功能正常
+```
+
+#### 9、性能优化建议
+
+针对9.x版本的性能优化配置：
+
+```yaml
+# application.yml优化配置
+core:
+  metadataQueryBatchSize: 2000  # 提高元数据查询性能
+  
+storage:
+  elasticsearch:
+    logicSharding: true  # 合并索引，减少碎片
+    profileDataQueryBatchSize: 500  # 优化 profiling 查询
+    flushInterval: 5  # 减少ES刷新频率，提高吞吐量
+
+receiver-meter:
+  activeFiles: ${SW_RECEIVER_METER_ACTIVE_FILES:meter-default,spring-sleuth}  # 仅启用必要的MAL文件
+```
+
+### 八、客户端代理升级指南
+
+#### 1、Java代理升级
+
+**依赖变更**：
+
+```java
+<!-- Maven依赖 -->
+<dependency>
+    <groupId>org.apache.skywalking</groupId>
+    <artifactId>skywalking-agent</artifactId>
+    <version>9.2.0</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+**启动参数变更**：
+
+```bash
+# 8.x启动参数
+-javaagent:/path/to/skywalking-agent.jar
+-Dskywalking.agent.service_name=my-service
+-Dskywalking.collector.backend_service=oap:11800
+ 
+# 9.x启动参数（新增layer配置）
+-javaagent:/path/to/skywalking-agent.jar
+-Dskywalking.agent.service_name=my-service
+-Dskywalking.collector.backend_service=oap:11800
+-Dskywalking.agent.layer=GENERAL  # 新增layer配置
+```
+
+#### 2、其他语言代理注意事项
+
+| 语言    | 最低版本要求 | 特殊注意事项                     |
+| ------- | ------------ | -------------------------------- |
+| Python  | 0.7.0+       | 需更新skywalking-client-protocol |
+| Node.js | 0.10.0+      | 新增layer配置项                  |
+| Go      | 1.8.0+       | 重构了trace API                  |
+| .NET    | 1.1.0+       | 支持Layer和Process实体           |
+
+### 九、常见问题与解决方案
+
+#### 1、数据迁移问题
+
+**问题**：升级后服务拓扑图不显示数据 
+**解决方案**：
+
+```bash
+# 1. 确认OAP以init模式启动过
+# 2. 检查agent是否正确配置layer
+# 3. 手动触发元数据重建
+curl -X POST http://oap:12800/graphql -H "Content-Type: application/json" -d '{
+  "query": "mutation { rebuildMetadata }"
+}'
+```
+
+#### 2、ElasticSearch兼容性问题
+
+**问题**：ES8.x连接错误`No healthy endpoint` 
+**解决方案**：
+
+```yaml
+# 确保添加以下ES8必要配置
+storage:
+  elasticsearch:
+    protocol: https
+    user: elastic
+    password: changeme
+    ssl:
+      verifyHostnames: false  # 开发环境可禁用主机名验证
+```
+
+#### 3、UI模板问题
+
+**问题**：UI显示空白或模板加载失败 
+**解决方案**：
+
+```bash
+# 1. 检查UI日志
+tail -f logs/ui.log
+ 
+# 2. 确保UI模板已正确加载
+ls -l config/ui-initialized-templates/
+ 
+# 3. 启用模板更新
+export SW_ENABLE_UPDATE_UI_TEMPLATE=true
+```
+
+#### 4、webapp问题
+
+**问题**：webapp启动失败，无法找到健康检查接口
+
+**解决方案**：
+
+```
+health-checker:
+  selector: ${SW_HEALTH_CHECKER:default}
+  default:
+    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:300}
+    
+telemetry:
+  selector: ${SW_TELEMETRY:prometheus}
+  none:
+  prometheus:
+    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+    sslEnabled: ${SW_TELEMETRY_PROMETHEUS_SSL_ENABLED:false}
+    sslKeyPath: ${SW_TELEMETRY_PROMETHEUS_SSL_KEY_PATH:""}
+    sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}    
+```
+
