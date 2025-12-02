@@ -145,7 +145,7 @@ windows:
 
 访问网址：http://localhost:8902/
 
-![](图片\skywalking.png)
+![](图片/skywalking.png)
 
 即可成功访问，安装成功，若启动失败可到apache-skywalking-apm-bin/logs目录下查看错误日志。
 
@@ -183,11 +183,11 @@ nohup java -javaagent:/usr/local/skywalking-agent/skywalking-agent.jar -DSW_SERV
 
 启动成功后可以看到日志
 
-![](图片\skywalking-日志.png)
+![](图片/skywalking-日志.png)
 
 随意调用这个jar包的接口，或rpc请求，即可在skywalking中看到监控的数据。
 
-![](图片\skywalking-监控.png)
+![](图片/skywalking-监控.png)
 
 ### 四、配置钉钉机器人告警（可选）
 
@@ -285,7 +285,7 @@ apache-skywalking-apm-bin-es7/
 缺点：若elasticsearch集群节点故障且数据量庞大的情况下，elasticsearch节点完全恢复比较长
 ```
 
-![](图片\skywalking-集群架构.png)
+![](图片/skywalking-集群架构.png)
 
 #### 4、集群部署
 
@@ -579,7 +579,7 @@ configuration:
 参考：https://skywalking.apache.org/docs/main/v9.1.0/en/setup/backend/dynamic-config/
 ```
 
-![](图片\skywalking-nacos.png)
+![](图片/skywalking-nacos.png)
 
 注释：receiver-trace.default.slowDBAccessThreshold使用text格式，其余使用yml格式
 
@@ -653,11 +653,11 @@ collector:
 
 监控共分三层，服务、服务实例、端点，每个服务代表一个监控的集体，可以部署多个实例，每个实例包含多个端点，端点包含HTTP/RPC请求。每一层都监控分析，拓扑图，追踪，可逐层查看。
 
-![](图片\skywalking-1.png)
+![](图片/skywalking-1.png)
 
-![](图片\skywalking-2.png)
+![](图片/skywalking-2.png)
 
-![](图片\skywalking-3.png)
+![](图片/skywalking-3.png)
 
 ### 七、skywalking版本升级
 
