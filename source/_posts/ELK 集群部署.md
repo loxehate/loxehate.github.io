@@ -4315,3 +4315,140 @@ pipeline:
 ![](%E5%9B%BE%E7%89%87/es-gateway-6.jpg)
 
 双集群在线运行一段时间，待业务完全验证之后，再安全下线旧集群.
+### 十九、ELK优化
+
+#### 1、ES优化
+
+配置生命周期管理，增加温阶段, 在温阶段中, 合并 segement 和降低副本数
+
+```
+#app数据流生命周期
+PUT _ilm/policy/app_streamlogs_policy
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "min_age": "0ms",
+        "actions": {}
+      },
+      "warm": {
+        "min_age": "1d",
+        "actions": {
+          "forcemerge": {
+            "max_num_segments": 1,
+            "index_codec": "best_compression"
+          },
+          "allocate": {
+            "number_of_replicas": 0
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+配置数据流索引模板
+
+```
+#app日志数据流模板
+PUT _index_template/streamlog-jetty-template
+{
+  "index_patterns": ["logs-jetty*"],
+  "data_stream": {},
+  "template": {
+    "settings": {
+      "index.mode": "logsdb",
+      "index.lifecycle.name": "app_streamlogs_policy",
+      "index.lifecycle.rollover_alias": "rolljetty",
+      "refresh_interval": "30s",
+      "number_of_shards": 3,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "data_stream": {
+          "properties": {
+            "type": {
+              "type": "keyword"
+            },
+            "namespace": {
+              "type": "keyword"
+            },
+            "dataset": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  },
+  "priority": 102
+}
+```
+
+#### 2、logstash调优
+
+ 优化 logstash 配置参数, 提升每批次处理量 (优先)
+
+```
+# pipeline线程数，官方建议是等于CPU内核数
+pipeline.workers: 24
+# 实际output时的线程数
+pipeline.output.workers: 24
+# 每次发送的事件数
+pipeline.batch.size: 500
+# 发送延时
+pipeline.batch.delay: 200
+```
+
+Logstash持久化到磁盘
+
+```
+queue.type: persisted
+path.queue: /usr/share/logstash/data    #队列存储路径；如果队列类型为persisted，则生效
+queue.page_capacity: 64mb         #队列为持久化，单个队列大小
+queue.max_events: 0               #当启用持久化队列时，队列中未读事件的最大数量，0为不限制
+queue.max_bytes: 1024mb           #队列最大容量
+queue.checkpoint.acks: 1024       #在启用持久队列时强制执行检查点的最大数量,0为不限制
+queue.checkpoint.writes: 1024     #在启用持久队列时强制执行检查点之前的最大数量的写入事件，0为不限制
+queue.checkpoint.interval: 1000   #当启用持久队列时，在头页面上强制一个检查点的时间间隔
+```
+
+动态配置output
+
+```
+filter {
+  if "k8s" in [tags] {
+    mutate {
+      add_field => {
+        "[data_stream][dataset]" => "%{[kubernetes][namespace]}-%{[kubernetes][container][name]}"
+      }
+    }
+  }
+  if "service" in [tags] {
+    mutate {
+      add_field => {
+        "[data_stream][dataset]" => "%{[process][name]}"
+      }
+    }
+  }  
+}
+
+
+output {
+  if "k8s" in [tags] or "service" in [tags] {
+    elasticsearch {
+      hosts => ["http://192.16.20.92:9200","http://192.16.20.93:9200","http://192.16.20.41:9200"]
+      data_stream => true
+      data_stream_type => "logs"
+      # data_stream_dataset => "%{[kubernetes][namespace]}-%{[kubernetes][container][name]}"
+      data_stream_namespace => "kubernetes"
+      data_stream_auto_routing => true
+      user => "elastic"
+      password => "123"
+    }
+  }
+}
+```
+
