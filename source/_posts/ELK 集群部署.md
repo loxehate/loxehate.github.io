@@ -2,7 +2,7 @@
 title: ELK集群部署
 tags: [Elasticsearch]
 categories: [中间件]
-date: 2025-09-10
+date: 2025-12-03
 ---
 ### 一、环境信息
 
@@ -4316,7 +4316,9 @@ pipeline:
 
 双集群在线运行一段时间，待业务完全验证之后，再安全下线旧集群.
 ### 十九、ELK优化
-
+```
+参考文档：https://developer.aliyun.com/article/1646755
+```
 #### 1、ES优化
 
 配置生命周期管理，增加温阶段, 在温阶段中, 合并 segement 和降低副本数
