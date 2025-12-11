@@ -2,7 +2,7 @@
 title: Milvus详解
 tags: [Milvus]
 categories: [数据库]
-date: 2025-10-29
+date: 2025-12-11
 ---
 
 一、向量数据库
@@ -730,7 +730,9 @@ print(result)
 下载最新版 v0.5.7：
 
 ```
-wget https://github.com/zilliztech/milvus-backup/releases/download/v0.5.7/milvus-backup_Linux_x86_64.tar.gztar -xzf milvus-backup_Linux_x86_64.tar.gzchmod +x milvus-backupmv milvus-backup /usr/local/bin/
+wget https://github.com/zilliztech/milvus-backup/releases/download/v0.5.7/milvus-backup_Linux_x86_64.tar.gz
+tar -xzf milvus-backup_Linux_x86_64.tar.gz
+chmod +x milvus-backupmv milvus-backup /usr/local/bin/
 ```
 
 * * *
@@ -829,7 +831,7 @@ milvus-backup create --config backup.yaml --set BACKUP_NAME=backup_$(date +%Y%m%
 恢复备份：
 
 ```
-milvus-backup restore --config backup.yaml --set BACKUP_NAME=backup_20250723_153000
+milvus-backup restore --config backup.yaml -n backup_20250723_153000
 ```
 
 列出备份：
@@ -898,3 +900,59 @@ for name in collections:
 *   **对象存储参数必须与 Milvus 配置一致**
 
 *   **数据未 flush 只备份 meta**
+## 四、Milvus升级
+
+```
+参考文档：https://milvus.io/docs/upgrade_milvus_cluster-helm.md
+```
+
+注：升级前进行全量备份数据
+
+### 4.1 升级 Helm Chart
+
+Milvus Helm chart 升级到 5.0.0 版本：
+
+```
+helm repo add zilliztech https://zilliztech.github.io/milvus-helm
+helm repo update zilliztech
+```
+
+检查 Helm Chart 版本与 Milvus 版本的兼容性：
+
+```
+helm search repo zilliztech/milvus --versions
+```
+
+### 4.2 milvus 升级
+
+#### 4.2.1 在线升级
+
+```
+helm upgrade my-release zilliztech/milvus \
+  --set image.all.tag="v2.6.7" \
+  --set streaming.enabled=true \
+  --set indexNode.enabled=false \
+  --reset-then-reuse-values \
+  --version=5.0.0
+```
+
+#### 4.2.2 离线升级
+
+拉取升级组件版本镜像
+
+同步比对旧版本milvus values.yaml参数至新版本milvus values.yaml参数
+
+```
+helm upgrade my-release ./milvus --reset-then-reuse-values
+```
+
+### 4.3 验证升级
+
+确认集群正在运行新版本：
+
+```
+kubectl get pods
+
+helm list
+```
+
