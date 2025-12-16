@@ -668,3 +668,21 @@ bin/kafka-preferred-replica-election.sh --bootstrap-server localhost:9092
 bin/kafka-producer-perf-test.sh --topic test --num-records 100 --record-size 1 --throughput 100 --producer-props bootstrap.servers=localhost:9092 
 ```
 
+### 9.kafka参数调优
+
+#### 9.1 Brokers参数
+
+单条消息大小
+
+```
+message.max.bytes=5242880
+```
+
+#### 9.2 Topic参数
+
+| 参数          | 含义                     | 值                  | 说明                                                         |
+| ------------- | ------------------------ | ------------------- | ------------------------------------------------------------ |
+| segment.bytes | 单个日志段文件的最大大小 | `104857600` (100MB) | 当段文件达到该大小后会切换到新的段。影响磁盘文件的拆分粒度。 |
+| segment.ms    | 日志段的最大保留时间     | `1200000` (20分钟)  | 即使没到 `segment.bytes` 大小，也会在 20 分钟后滚动新段。    |
+| retention.ms  | Topic 数据的保留时间     | `600000` (10分钟)   | 超过 10 分钟的旧消息将被删除。若设置过短可能导致消费者读取不到历史数据。 |
+
