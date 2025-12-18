@@ -4392,6 +4392,11 @@ PUT _index_template/streamlog-jetty-template
 
 #### 2、logstash调优
 
+```
+官方文档：https://www.elastic.co/guide/en/logstash/8.17/tuning-logstash.html
+```
+
+
  优化 logstash 配置参数, 提升每批次处理量 (优先)
 
 ```
@@ -4454,4 +4459,34 @@ output {
   }
 }
 ```
+### 二十、常见问题
+
+#### 1、logstash问题
+
+##### 1.1 日志文档过大问题
+
+错误日志
+
+```
+Bulk request rejected: 413 Payload Too Large[2025-12-18T09:15:18,137][INFO ][logstash.outputs.elasticsearch][main][400e30e65ada202eb67287a01634ee7a6acc918b7ccbffe2e031006ce680a26d] Retrying individual bulk actions that failed or were rejected by the previous bulk request {:count=>1} 
+
+[2025-12-18T09:16:25,821][WARN ][logstash.outputs.elasticsearch][main][400e30e65ada202eb67287a01634ee7a6acc918b7ccbffe2e031006ce680a26d] Bulk request rejected: 413 Payload Too Large {:action_count=>1, :content_length=>25396907}
+```
+
+问题分析
+
+单条日志文档超过20mb会单独event发送
+
+```
+https://github.com/logstash-plugins/logstash-output-elasticsearch/pull/1199
+
+https://github.com/logstash-plugins/logstash-output-elasticsearch/blob/v11.22.13/lib/logstash/outputs/elasticsearch/http_client.rb
+```
+
+解决方案
+
+```
+控制单条日志文档大小最好小于20mb,不超过100mb
+```
+
 
