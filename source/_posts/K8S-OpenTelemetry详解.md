@@ -3111,4 +3111,12 @@ gateway处理过滤日志，实现动态数据流，日志字段优化
 ```
 参考文档：https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.135.0/processor/transformprocessor/README.md
 ```
+#### 2.2 日志内容解析
+
+filelogreceiver中[operators](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/v0.135.0/pkg/stanza/docs/operators)的regex_parser
+
+```
+正则验证：https://regex101.com/?spm=a2ty_o01.29997173.0.0.23be5171q4v856（go语言）
+```
+
 
