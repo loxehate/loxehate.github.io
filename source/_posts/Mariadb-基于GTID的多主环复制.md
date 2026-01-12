@@ -1261,9 +1261,9 @@ master1数据库重启后，slave1和master2可能通过IO线程拉取数据失�
 
 ```
 -- 1. 停止从库复制（可选，但推荐）
+-- master之间错误跳过关闭复制需要设置为只读 SET @@GLOBAL.read_only = ON;
 STOP SLAVE;
-
-SET @@GLOBAL.read_only = ON;
+SET GLOBAL gtid_strict_mode = OFF;
 
 -- 2. 设置会话 GTID_NEXT 为要跳过的事务 GTID
 -- 若master1 -> master2之间主从中断，master2 -> master1之间正常。在master2执行gtid跳过，设置gtid_slave_pos master1的域gtid应和当前gtid_binlog_pos保持一致。master2的域gtid加+1
@@ -1272,11 +1272,9 @@ SET @@GLOBAL.read_only = ON;
 SET GLOBAL gtid_slave_pos = '0-2036-1184285,1-146-980';
 
 -- 3. 启动从库复制
+-- master之间错误跳过关闭复制需要设置为写入 SET @@GLOBAL.read_only = OFF;
+SET GLOBAL gtid_strict_mode = ON;
 START SLAVE;
-
-SET @@GLOBAL.read_only = OFF;
-
--- 4. 查看主从复制状态
 SHOW SLAVE STATUS\G
 ```
 
@@ -1326,4 +1324,30 @@ start slave;
 #查看同步状态
 SHOW SLAVE STATUS\G;
 ```
+##### 6.7、从库误写入
+
+数据库版本：10.1.46-MariaDB。从库确认开启只读，依旧数据写入
+
+```
+--查看gtid，确认从库gtid新增，数据写入
+show variables like '%gtid%';
+--根据主从复制报错信息，确认错误gtid值，导出二进制文件确认执行语句
+--通过sql语句确认业务，dba误操作从库写入导致，查看dba执行用户权限
+--发现存在super权限
+SHOW GRANTS FOR 'test'@'%';
+```
+
+官方文档：
+
+```
+https://mariadb.com/docs/server/ha-and-performance/standard-replication/read-only-replicas
+```
+
+解决方案：
+
+```
+确认主从数据库数据一致，从库错误执行的sql语句未影响到主从其他数据的一致性，确认无影响后，临时关闭严格模式，跳过该错误。
+参考 6.4错误跳过
+```
+
 
