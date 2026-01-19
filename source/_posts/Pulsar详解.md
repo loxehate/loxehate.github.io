@@ -2655,4 +2655,57 @@ bin/pulsar-admin clusters update cluster-1 \
     --url http://my-cluster.org.com:4081 \
     --broker-url pulsar://my-cluster.org.com:3350
 ```
+### 十一、pulsar集成kop协议
+
+#### 1、参考文档
+
+```
+https://github.com/streamnative/kop/blob/master/docs/kop.md
+```
+
+#### 2、参考配置
+
+broker.conf（集群节点都需要配置）
+
+```
+#KOP
+messagingProtocols=kafka
+protocolHandlerDirectory=./protocols
+narExtractionDirectory=./nar
+kafkaListeners=PLAINTEXT://172.16.20.97:9092
+allowAutoTopicCreationType=non-partitioned
+brokerEntryMetadataInterceptors=org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor
+entryFormat=kafka
+kafkaTransactionCoordinatorEnabled=true
+kafkaTenant=skywalkings
+kafkaNamespace=skywalking_replication
+kafkaMetadataTenant=skywalkings
+maxQueuedRequests=500
+requestTimeoutMs=30000
+connectionMaxIdleMs=600000
+failedAuthenticationDelayMs=300
+brokerLookupTimeoutMs=30000
+```
+
+#### 3、kop常见问题
+
+##### 3.1、broker日志告警 Namespace bundle for topic
+
+```
+WARN  org.apache.pulsar.broker.service.BrokerService - Namespace bundle for topic (persistent://skywalkings/skywalking_replication/skywalking-meters-partition-0) not served by this instance:172.16.20.218:8080. Please redo the lookup. Request is denied: namespace=skywalkings/skywalking_replication
+```
+
+参考文档：
+
+```
+https://github.com/streamnative/kop/issues/1308
+```
+
+##### 3.2、broker日志ERROR错误
+
+```
+ERROR io.streamnative.pulsar.handlers.kop.KafkaCommandDecoder - Kafka API (DESCRIBE_LOG_DIRS) Not supported.
+```
+
+未找到解决方案，怀疑kafka和pulsar兼容性问题导致
 
