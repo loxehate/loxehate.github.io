@@ -2,7 +2,7 @@
 title: SkyWalking详解
 tags: [SkyWalking]
 categories: [监控观测]
-date: 2025-12-2
+date: 2026-1-19
 ---
 ### 一、介绍
 
@@ -882,7 +882,72 @@ receiver-meter:
 | Go      | 1.8.0+       | 重构了trace API                  |
 | .NET    | 1.1.0+       | 支持Layer和Process实体           |
 
-### 九、常见问题与解决方案
+### 九、skywalking跨云同步
+
+#### 1、同步架构
+
+![](%E5%9B%BE%E7%89%87/skywalking%E8%B7%A8%E4%BA%91%E5%90%8C%E6%AD%A5.png)
+
+架构一：
+
+```
+skywalking_oap和skywalking_agent支持kakfa消息队列写入和消费，pulsar使用kop协议代替kafka，进行跨云消息同步，完成traces数据同步
+```
+
+架构二：
+
+```
+通过opentelemetry skywalking receiver采集数据，pulsar recevier/exporter来处理消息，进行跨云消息同步，最后通过otel exporter同步至skywalking oap中
+```
+
+注意：skywalking-nginx-lua不支持kafka消息写入，只能使用skywalking receiver采集数据
+
+#### 2、kafka数据同步
+
+skywalking-agent
+
+```
+参考文档：https://skywalking.apache.org/docs/skywalking-java/v9.5.0/en/setup/service-agent/java-agent/advanced-reporters/
+```
+
+注：pulsar需要提前配置好kop协议
+
+skywalking-oap
+
+```
+参考文档：https://skywalking.apache.org/docs/main/next/en/setup/backend/kafka-fetcher/
+```
+
+#### 3、opentelemetry数据同步
+
+OpenTelemetry to skywalking 
+
+```
+参考文档：
+https://skywalking.apache.org/docs/main/v10.3.0/en/setup/backend/otlp-trace/
+                              https://skywalking.apache.org/docs/main/v10.3.0/en/setup/backend/opentelemetry-receiver/
+```
+
+skywalkingReceiver
+
+```
+https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/skywalkingreceiver
+```
+
+PulsarReceiver
+
+```
+https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/pulsarreceiver
+```
+
+PulsarExporter
+
+```
+https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/pulsarexporter
+```
+
+注：oap需要启用zipkin和otlp-trace才行，trace数据信息只能使用zipkin查看
+### 十、常见问题与解决方案
 
 #### 1、数据迁移问题
 
