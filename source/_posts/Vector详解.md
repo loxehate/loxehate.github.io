@@ -1068,7 +1068,7 @@ spec:
 #### 2、管道名称全局唯一
 
 ```
-sources、transforms、sinks的自定义名称，全局必须唯一，尤其是多个vector配置文件时，唯一名称尤为重要
+sources、transforms、sinks的自定义名称，全局必须唯一，尤其是多个vector配置文件时，唯一名称尤为重要.
 ```
 
 ### 九、vector日志采集架构
