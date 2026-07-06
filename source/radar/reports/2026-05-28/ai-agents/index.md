@@ -1119,7 +1119,4 @@ CoPaw 项目在过去24小时内保持高度活跃，共处理 **38条 Issues**�
 
 </details>
 
----
-*本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
-
 </div>

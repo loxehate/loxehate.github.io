@@ -130,7 +130,4 @@ OpenAI 虽未披露具体技术细节，但单日新增 **263 篇页面更新**�
 > 数据来源：[Anthropic](https://www.anthropic.com/) | [OpenAI](https://openai.com/)  
 > 分析视角：技术产品化、安全治理、生态竞争
 
----
-*本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
-
 </div>

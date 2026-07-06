@@ -69,7 +69,4 @@ tags:
 - **graphify 知识图谱化**：将异构数据统一为可查询图结构，极大提升 RAG 精度与可解释性。
 - **ruflo 多智能体编排**：企业若想部署复杂工作流（如研发+测试+部署协同），此为领先参考架构。
 
----
-*本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
-
 </div>

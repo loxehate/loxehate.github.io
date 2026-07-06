@@ -80,7 +80,7 @@ jobs:
         run: pnpm manifest
 
       - name: Export Radar Markdown into Hexo source
-        run: bash scripts/sync-radar-static.sh
+        run: bash tools/sync-radar-static.sh
 
       - name: Commit Radar output
         run: |

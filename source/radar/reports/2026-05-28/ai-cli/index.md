@@ -659,7 +659,4 @@ OpenCode 今日发布 v1.15.11，重点优化了请求超时机制与实验性�
 
 </details>
 
----
-*本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
-
 </div>

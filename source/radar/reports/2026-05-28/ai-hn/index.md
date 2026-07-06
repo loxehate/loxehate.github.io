@@ -91,7 +91,4 @@ tags:
 3. **[Show HN: Demon – open-source real-time music diffusion engine, 25Hz local GPU](https://daydreamlive.github.io/DEMON/)**  
    理由：在云端音乐生成主导的背景下，Demon 展示本地实时生成的可能性，其架构设计对边缘 AI 音频应用具有启发意义。
 
----
-*本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
-
 </div>

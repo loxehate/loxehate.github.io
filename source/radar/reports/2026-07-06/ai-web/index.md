@@ -315,7 +315,4 @@ https://openai.com/index/chatgpt-shopping-research/
 - **安全与治理议题**：Anthropic 明显主导。Fable 5 出口管制事件、Glasswing 项目、越狱严重性框架的提出，使其成为政府、行业对话中的安全议程设置者。OpenAI 在安全技术上有储备（Safe Completions、Model Spec），但缺乏类似的“系统性框架”发布，舆论上处于回应者位置。
 - **Agent 与产品落地**：OpenAI 的 Codex 发布节奏更快、覆盖更广。GPT-5-2/3
 
----
-*本日报由 [Big Model Radar](https://github.com/loxehate/loxemodel.github.io) 自动生成。*
-
 </div>

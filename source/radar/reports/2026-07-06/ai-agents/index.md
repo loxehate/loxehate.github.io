@@ -423,7 +423,4 @@ tags:
 
 </details>
 
----
-*本日报由 [Big Model Radar](https://github.com/loxehate/loxemodel.github.io) 自动生成。*
-
 </div>
