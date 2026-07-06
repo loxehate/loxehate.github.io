@@ -1,0 +1,97 @@
+name: Radar Monthly Digest
+
+on:
+  schedule:
+    - cron: "0 2 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: radar-digest-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  monthly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: radar/pnpm-lock.yaml
+
+      - name: Install Radar dependencies
+        working-directory: radar
+        run: pnpm install --frozen-lockfile
+
+      - name: Resolve Radar Pages URL
+        env:
+          RADAR_PAGES_URL: ${{ vars.RADAR_PAGES_URL || secrets.RADAR_PAGES_URL }}
+          PAGES_BASE_URL: ${{ vars.PAGES_URL || secrets.PAGES_URL }}
+        run: |
+          owner="${GITHUB_REPOSITORY%%/*}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [[ -n "${RADAR_PAGES_URL}" ]]; then
+            site_url="${RADAR_PAGES_URL%/}"
+          elif [[ -n "${PAGES_BASE_URL}" ]]; then
+            site_url="${PAGES_BASE_URL%/}/radar"
+          elif [[ "${repo}" == "${owner}.github.io" ]]; then
+            site_url="https://${owner}.github.io/radar"
+          else
+            site_url="https://${owner}.github.io/${repo}/radar"
+          fi
+          echo "PAGES_URL=${site_url}" >> "${GITHUB_ENV}"
+          echo "Radar Pages URL: ${site_url}"
+
+      - name: Run monthly rollup
+        working-directory: radar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL || secrets.ANTHROPIC_BASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.ANTHROPIC_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL || secrets.ANTHROPIC_MODEL }}
+          REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
+          DIGEST_REPO: ${{ github.repository }}
+        run: pnpm monthly
+
+      - name: Update Radar manifest and feed
+        working-directory: radar
+        env:
+          DIGEST_REPO: ${{ github.repository }}
+          REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
+        run: pnpm manifest
+
+      - name: Sync Radar static assets into Hexo source
+        run: bash scripts/sync-radar-static.sh
+
+      - name: Commit Radar output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add radar/digests radar/manifest.json radar/feed.xml source/radar
+          if git diff --cached --quiet; then
+            echo "No Radar monthly changes to commit"
+          else
+            month_str="$(date -u +%Y-%m)"
+            git commit -m "digest: ${month_str} radar monthly"
+            git pull --rebase
+            git push
+          fi
