@@ -440,9 +440,22 @@ ${sections}
 }
 
 export function buildTrendingPrompt(data: TrendingData, dateStr: string, lang: "zh" | "en" = "zh"): string {
+  const MAX_TRENDING_INPUT_REPOS = 20;
+  const MAX_SEARCH_INPUT_REPOS = 30;
+  const MAX_DESC_CHARS = 160;
+  const trendingReposForPrompt = data.trendingRepos.slice(0, MAX_TRENDING_INPUT_REPOS);
+  const searchReposForPrompt = data.searchRepos.slice(0, MAX_SEARCH_INPUT_REPOS);
+
+  const compactDescription = (desc: string | null | undefined): string => {
+    if (!desc) return "";
+    const oneLine = desc.replace(/\s+/g, " ").trim();
+    if (oneLine.length <= MAX_DESC_CHARS) return oneLine;
+    return `${oneLine.slice(0, MAX_DESC_CHARS - 1)}…`;
+  };
+
   const trendingSection =
-    data.trendingFetchSuccess && data.trendingRepos.length > 0
-      ? data.trendingRepos
+    data.trendingFetchSuccess && trendingReposForPrompt.length > 0
+      ? trendingReposForPrompt
           .map(
             (r) =>
               `- [${r.fullName}](${r.url})` +
@@ -450,7 +463,7 @@ export function buildTrendingPrompt(data: TrendingData, dateStr: string, lang: "
               ` ⭐${r.totalStars.toLocaleString()}` +
               (r.todayStars > 0 ? ` (+${r.todayStars} today)` : "") +
               (r.forks > 0 ? ` 🍴${r.forks.toLocaleString()}` : "") +
-              (r.description ? `\n  ${r.description}` : ""),
+              (compactDescription(r.description) ? `\n  ${compactDescription(r.description)}` : ""),
           )
           .join("\n")
       : lang === "en"
@@ -458,15 +471,15 @@ export function buildTrendingPrompt(data: TrendingData, dateStr: string, lang: "
         : "（未能抓取今日 GitHub Trending 榜单）";
 
   const searchSection =
-    data.searchRepos.length > 0
-      ? data.searchRepos
+    searchReposForPrompt.length > 0
+      ? searchReposForPrompt
           .map(
             (r) =>
               `- [${r.fullName}](${r.url})` +
               (r.language ? ` [${r.language}]` : "") +
               ` ⭐${r.stargazersCount.toLocaleString()}` +
               ` [topic:${r.searchQuery}]` +
-              (r.description ? `\n  ${r.description}` : ""),
+              (compactDescription(r.description) ? `\n  ${compactDescription(r.description)}` : ""),
           )
           .join("\n")
       : lang === "en"
@@ -482,12 +495,12 @@ export function buildTrendingPrompt(data: TrendingData, dateStr: string, lang: "
 
 ---
 
-## GitHub Today's Trending (${data.trendingRepos.length} repositories)
+## GitHub Today's Trending (showing ${trendingReposForPrompt.length} of ${data.trendingRepos.length})
 ${trendingSection}
 
 ---
 
-## AI Topic Search Results (${data.searchRepos.length} repositories, deduplicated)
+## AI Topic Search Results (showing ${searchReposForPrompt.length} of ${data.searchRepos.length}, deduplicated)
 ${searchSection}
 
 ---
@@ -531,12 +544,12 @@ Style: English, professional and concise, must include GitHub links for every pr
 
 ---
 
-## GitHub 今日 Trending 榜单（共 ${data.trendingRepos.length} 个仓库）
+## GitHub 今日 Trending 榜单（展示 ${trendingReposForPrompt.length} / ${data.trendingRepos.length} 个仓库）
 ${trendingSection}
 
 ---
 
-## AI 主题搜索结果（共 ${data.searchRepos.length} 个仓库，已去重）
+## AI 主题搜索结果（展示 ${searchReposForPrompt.length} / ${data.searchRepos.length} 个仓库，已去重）
 ${searchSection}
 
 ---
