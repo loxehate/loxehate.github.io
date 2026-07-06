@@ -126,16 +126,20 @@ export async function callLlm(prompt: string, maxTokens = 4096): Promise<string>
           message?: {
             content?: unknown;
           };
+          finish_reason?: string | null;
         }>;
       };
-      const content = data.choices?.[0]?.message?.content;
-      return extractTextContent(content);
+      const choice = data.choices?.[0];
+      const content = choice?.message?.content;
+      const text = extractTextContent(content);
+      if (!text) throw new Error(`LLM returned empty content; finish_reason=${choice?.finish_reason ?? "unknown"}`);
+      return text;
     } catch (err) {
-      if (attempt < MAX_RETRIES && is429(err)) {
+      if (attempt < MAX_RETRIES && (is429(err) || String(err).includes("empty content"))) {
         releaseSlot();
         released = true;
         const wait = RETRY_BASE_MS * 2 ** attempt;
-        console.error(`[llm] 429 — retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s...`);
+        console.error(`[llm] retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s: ${err}`);
         await sleep(wait);
         continue;
       }

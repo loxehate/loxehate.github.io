@@ -237,7 +237,7 @@ async function generateSummaries(
         return await callLlm(buildTrendingPrompt(trendingData, dateStr, lang), 6144);
       } catch (err) {
         console.error(`  [trending] LLM call failed: ${err}`);
-        return trendingFailed;
+        return buildTrendingFallbackReport(trendingData, lang) || trendingFailed;
       }
     })(),
   ]);
@@ -453,6 +453,76 @@ async function saveWebReport(
   }
 }
 
+function buildTrendingFallbackReport(data: TrendingData, lang: "zh" | "en" = "zh"): string {
+  const trending = data.trendingRepos.slice(0, 10);
+  const searched = data.searchRepos.slice(0, 15);
+
+  if (trending.length === 0 && searched.length === 0) return "";
+
+  if (lang === "en") {
+    const lines = [
+      "⚠️ LLM summary generation failed. Below is the collected source data.",
+      "",
+      "## GitHub Trending",
+      ...trending.map(
+        (repo, index) =>
+          `${index + 1}. [${repo.fullName}](${repo.url})${repo.language ? ` [${repo.language}]` : ""} — ⭐ ${repo.totalStars.toLocaleString()}${repo.todayStars ? ` (+${repo.todayStars} today)` : ""}${repo.description ? `\n   ${repo.description}` : ""}`,
+      ),
+      "",
+      "## GitHub AI Search",
+      ...searched.map(
+        (repo, index) =>
+          `${index + 1}. [${repo.fullName}](${repo.url})${repo.language ? ` [${repo.language}]` : ""} — ⭐ ${repo.stargazersCount.toLocaleString()} [topic:${repo.searchQuery}]${repo.description ? `\n   ${repo.description}` : ""}`,
+      ),
+    ];
+    return lines.join("\n");
+  }
+
+  const lines = [
+    "⚠️ LLM 摘要生成失败。以下为本次已采集到的原始趋势数据。",
+    "",
+    "## GitHub Trending",
+    ...trending.map(
+      (repo, index) =>
+        `${index + 1}. [${repo.fullName}](${repo.url})${repo.language ? ` [${repo.language}]` : ""} — ⭐ ${repo.totalStars.toLocaleString()}${repo.todayStars ? `（今日 +${repo.todayStars}）` : ""}${repo.description ? `\n   ${repo.description}` : ""}`,
+    ),
+    "",
+    "## GitHub AI 搜索",
+    ...searched.map(
+      (repo, index) =>
+        `${index + 1}. [${repo.fullName}](${repo.url})${repo.language ? ` [${repo.language}]` : ""} — ⭐ ${repo.stargazersCount.toLocaleString()} [topic:${repo.searchQuery}]${repo.description ? `\n   ${repo.description}` : ""}`,
+    ),
+  ];
+  return lines.join("\n");
+}
+
+function buildHnFallbackReport(data: HnData, lang: "zh" | "en" = "zh"): string {
+  const stories = data.stories.slice(0, 15);
+  if (stories.length === 0) return "";
+
+  if (lang === "en") {
+    return [
+      "⚠️ LLM summary generation failed. Below are the collected Hacker News stories.",
+      "",
+      "## Collected Stories",
+      ...stories.map(
+        (story, index) =>
+          `${index + 1}. [${story.title}](${story.url}) ([HN](${story.hnUrl})) — ${story.points} points, ${story.comments} comments, by ${story.author}`,
+      ),
+    ].join("\n");
+  }
+
+  return [
+    "⚠️ LLM 摘要生成失败。以下为本次已采集到的 Hacker News 原始条目。",
+    "",
+    "## 已采集条目",
+    ...stories.map(
+      (story, index) =>
+        `${index + 1}. [${story.title}](${story.url})（[HN 讨论](${story.hnUrl})）— ${story.points} 分，${story.comments} 条评论，作者 ${story.author}`,
+    ),
+  ].join("\n");
+}
+
 async function saveTrendingReport(
   trendingData: TrendingData,
   trendingSummary: string,
@@ -502,7 +572,10 @@ async function saveHnReport(
 
   console.log(`  [hn/${lang}] Calling LLM for HN report...`);
   try {
-    const hnSummary = await callLlm(buildHnPrompt(hnData, dateStr, lang));
+    const hnSummary = await callLlm(buildHnPrompt(hnData, dateStr, lang)).catch((err): string => {
+      console.error(` [hn/${lang}] LLM call failed: ${err}`);
+      return buildHnFallbackReport(hnData, lang) || (lang === "en" ? "⚠️ Summary generation failed." : "⚠️ 摘要生成失败。");
+    });
     const fileName = lang === "en" ? "ai-hn-en.md" : "ai-hn.md";
     const header =
       lang === "en"

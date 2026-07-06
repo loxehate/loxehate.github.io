@@ -12,4 +12,6 @@ tags:
 
 > 数据来源: [Hacker News](https://news.ycombinator.com/) | 共 30 条 | 生成时间: 2026-07-06 08:58 UTC
 
+⚠️ 摘要生成失败或返回了空内容。
+
 </div>
