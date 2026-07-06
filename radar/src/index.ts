@@ -234,7 +234,7 @@ async function generateSummaries(
       if (!hasData) return trendingNoData;
       console.log("  [trending] Calling LLM for trending report...");
       try {
-        return await callLlm(buildTrendingPrompt(trendingData, dateStr, lang), 6144);
+        return await callLlm(buildTrendingPrompt(trendingData, dateStr, lang), 8192);
       } catch (err) {
         console.error(`  [trending] LLM call failed: ${err}`);
         return buildTrendingFallbackReport(trendingData, lang) || trendingFailed;
@@ -572,7 +572,7 @@ async function saveHnReport(
 
   console.log(`  [hn/${lang}] Calling LLM for HN report...`);
   try {
-    const hnSummary = await callLlm(buildHnPrompt(hnData, dateStr, lang)).catch((err): string => {
+    const hnSummary = await callLlm(buildHnPrompt(hnData, dateStr, lang), 8192).catch((err): string => {
       console.error(` [hn/${lang}] LLM call failed: ${err}`);
       return buildHnFallbackReport(hnData, lang) || (lang === "en" ? "⚠️ Summary generation failed." : "⚠️ 摘要生成失败。");
     });

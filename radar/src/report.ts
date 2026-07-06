@@ -97,6 +97,7 @@ function extractTextContent(content: unknown): string {
 }
 
 export async function callLlm(prompt: string, maxTokens = 4096): Promise<string> {
+  let tokenBudget = maxTokens;
   for (let attempt = 0; ; attempt++) {
     await acquireSlot();
     let released = false;
@@ -114,7 +115,7 @@ export async function callLlm(prompt: string, maxTokens = 4096): Promise<string>
           model: getLlmModel(),
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
-          max_tokens: maxTokens,
+          max_tokens: tokenBudget,
         }),
       });
       if (!resp.ok) {
@@ -138,8 +139,11 @@ export async function callLlm(prompt: string, maxTokens = 4096): Promise<string>
       if (attempt < MAX_RETRIES && (is429(err) || String(err).includes("empty content"))) {
         releaseSlot();
         released = true;
+        if (String(err).includes("finish_reason=length")) {
+          tokenBudget = Math.min(tokenBudget * 2, 32768);
+        }
         const wait = RETRY_BASE_MS * 2 ** attempt;
-        console.error(`[llm] retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s: ${err}`);
+        console.error(`[llm] retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s with max_tokens=${tokenBudget}: ${err}`);
         await sleep(wait);
         continue;
       }
