@@ -122,13 +122,11 @@ async function fetchAllData(
         return { site: "openai", siteName: "OpenAI", isFirstRun: false, newItems: [], totalDiscovered: 0 };
       }),
     ]),
-    fetchTrendingData().catch(
-      (): TrendingData => ({
-        trendingRepos: [],
-        searchRepos: [],
-        trendingFetchSuccess: false,
-      }),
-    ),
+    fetchTrendingData().catch((): TrendingData => ({
+      trendingRepos: [],
+      searchRepos: [],
+      trendingFetchSuccess: false,
+    })),
     fetchHnData().catch((): HnData => ({ stories: [], fetchSuccess: false })),
   ]);
 
@@ -574,7 +572,10 @@ async function saveHnReport(
   try {
     const hnSummary = await callLlm(buildHnPrompt(hnData, dateStr, lang), 8192).catch((err): string => {
       console.error(` [hn/${lang}] LLM call failed: ${err}`);
-      return buildHnFallbackReport(hnData, lang) || (lang === "en" ? "⚠️ Summary generation failed." : "⚠️ 摘要生成失败。");
+      return (
+        buildHnFallbackReport(hnData, lang) ||
+        (lang === "en" ? "⚠️ Summary generation failed." : "⚠️ 摘要生成失败。")
+      );
     });
     const fileName = lang === "en" ? "ai-hn-en.md" : "ai-hn.md";
     const header =
