@@ -1,13 +1,3 @@
----
-title: "OpenClaw 生态日报 2026-07-06"
-date: 2026-07-06
-categories:
-  - AI
-tags:
-  - radar
----
-<div class="markdown-body">
-
 # OpenClaw 生态日报 2026-07-06
 
 > Issues: 500 | PRs: 500 | 覆盖项目: 12 个 | 生成时间: 2026-07-06 08:58 UTC
@@ -307,5 +297,3 @@ _无。_ 今日无新版本发布。
 过去24小时无活动。
 
 </details>
-
-</div>
