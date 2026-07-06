@@ -40,8 +40,10 @@ function releaseSlot(): void {
 // LLM
 // ---------------------------------------------------------------------------
 
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 1;
 const RETRY_BASE_MS = 5_000; // 5 s, 10 s, 20 s
+const MIN_TOKEN_BUDGET = 16_384;
+const MAX_TOKEN_BUDGET = 32_768;
 
 function is429(err: unknown): boolean {
   return (err as { status?: number })?.status === 429 || String(err).includes("429");
@@ -71,6 +73,11 @@ export function hasLlmCredentials(): boolean {
   return getLlmApiKey().length > 0;
 }
 
+function normalizeTokenBudget(maxTokens: number): number {
+  if (!Number.isFinite(maxTokens) || maxTokens <= 0) return MIN_TOKEN_BUDGET;
+  return maxTokens >= MAX_TOKEN_BUDGET ? MAX_TOKEN_BUDGET : MIN_TOKEN_BUDGET;
+}
+
 function extractTextContent(content: unknown): string {
   if (typeof content === "string") return content.trim();
   if (Array.isArray(content)) {
@@ -97,7 +104,7 @@ function extractTextContent(content: unknown): string {
 }
 
 export async function callLlm(prompt: string, maxTokens = 4096): Promise<string> {
-  let tokenBudget = maxTokens;
+  let tokenBudget = normalizeTokenBudget(maxTokens);
   for (let attempt = 0; ; attempt++) {
     await acquireSlot();
     let released = false;
@@ -141,7 +148,7 @@ export async function callLlm(prompt: string, maxTokens = 4096): Promise<string>
         releaseSlot();
         released = true;
         if (String(err).includes("finish_reason=length")) {
-          tokenBudget = Math.min(tokenBudget * 2, 32768);
+          tokenBudget = MAX_TOKEN_BUDGET;
         }
         const wait = RETRY_BASE_MS * 2 ** attempt;
         console.error(
