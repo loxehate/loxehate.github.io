@@ -125,7 +125,7 @@ function listReports(date) {
 
 function writeReport(date, report) {
   const sourcePath = path.join(digestsRoot, date, `${report}.md`);
-  const targetPath = path.join(reportsRoot, date, `${report}.md`);
+  const targetPath = path.join(reportsRoot, date, report, "index.md");
   assertInside(targetRoot, targetPath);
 
   const raw = fs.readFileSync(sourcePath, "utf-8");
