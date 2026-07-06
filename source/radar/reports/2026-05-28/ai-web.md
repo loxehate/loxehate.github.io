@@ -1,3 +1,13 @@
+---
+title: "AI 官方内容追踪报告 2026-05-28"
+date: 2026-05-28
+categories:
+  - AI
+tags:
+  - radar
+---
+<div class="markdown-body">
+
 # AI 官方内容追踪报告 2026-05-28
 
 > 今日更新 | 新增内容: 267 篇 | 生成时间: 2026-05-28 01:43 UTC
@@ -122,3 +132,5 @@ OpenAI 虽未披露具体技术细节，但单日新增 **263 篇页面更新**�
 
 ---
 *本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
+
+</div>

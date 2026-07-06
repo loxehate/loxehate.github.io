@@ -1,3 +1,13 @@
+---
+title: "OpenClaw 生态日报 2026-05-28"
+date: 2026-05-28
+categories:
+  - AI
+tags:
+  - radar
+---
+<div class="markdown-body">
+
 # OpenClaw 生态日报 2026-05-28
 
 > Issues: 381 | PRs: 500 | 覆盖项目: 12 个 | 生成时间: 2026-05-28 01:43 UTC
@@ -1111,3 +1121,5 @@ CoPaw 项目在过去24小时内保持高度活跃，共处理 **38条 Issues**�
 
 ---
 *本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
+
+</div>

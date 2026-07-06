@@ -1,3 +1,13 @@
+---
+title: "Hacker News AI 社区动态日报 2026-05-28"
+date: 2026-05-28
+categories:
+  - AI
+tags:
+  - radar
+---
+<div class="markdown-body">
+
 # Hacker News AI 社区动态日报 2026-05-28
 
 > 数据来源: [Hacker News](https://news.ycombinator.com/) | 共 30 条 | 生成时间: 2026-05-28 01:43 UTC
@@ -83,3 +93,5 @@
 
 ---
 *本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
+
+</div>

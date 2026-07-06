@@ -1,3 +1,13 @@
+---
+title: "AI 官方内容追踪报告 2026-07-06"
+date: 2026-07-06
+categories:
+  - AI
+tags:
+  - radar
+---
+<div class="markdown-body">
+
 # AI 官方内容追踪报告 2026-07-06
 
 > 今日更新 | 新增内容: 784 篇 | 生成时间: 2026-07-06 03:44 UTC
@@ -307,3 +317,5 @@ https://openai.com/index/chatgpt-shopping-research/
 
 ---
 *本日报由 [Big Model Radar](https://github.com/loxehate/loxemodel.github.io) 自动生成。*
+
+</div>

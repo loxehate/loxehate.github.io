@@ -1,3 +1,13 @@
+---
+title: "AI CLI 工具社区动态日报 2026-05-28"
+date: 2026-05-28
+categories:
+  - AI
+tags:
+  - radar
+---
+<div class="markdown-body">
+
 # AI CLI 工具社区动态日报 2026-05-28
 
 > 生成时间: 2026-05-28 01:43 UTC | 覆盖工具: 7 个
@@ -651,3 +661,5 @@ OpenCode 今日发布 v1.15.11，重点优化了请求超时机制与实验性�
 
 ---
 *本日报由 [Big Model Radar](https://github.com/gsscsd/big_model_radar) 自动生成。*
+
+</div>

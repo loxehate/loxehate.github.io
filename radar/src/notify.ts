@@ -84,11 +84,11 @@ function buildMessage(date: string, reports: string[]): string {
 
   for (const r of ordered) {
     const zhLabel = ZH_LABELS[r] ?? r;
-    const zhUrl = `${PAGES_URL}/#${date}/${r}`;
+    const zhUrl = `${PAGES_URL}/reports/${date}/${r}/`;
     const enKey = `${r}-en`;
     if (reports.includes(enKey)) {
       const enLabel = EN_LABELS[r] ?? "EN";
-      const enUrl = `${PAGES_URL}/#${date}/${enKey}`;
+      const enUrl = `${PAGES_URL}/reports/${date}/${enKey}/`;
       lines.push(`• <a href="${zhUrl}">${zhLabel}</a>  ·  <a href="${enUrl}">${enLabel}</a>`);
     } else {
       lines.push(`• <a href="${zhUrl}">${zhLabel}</a>`);

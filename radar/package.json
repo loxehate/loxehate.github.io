@@ -13,7 +13,8 @@
     "manifest": "tsx src/generate-manifest.ts",
     "weekly": "tsx src/weekly.ts",
     "monthly": "tsx src/monthly.ts",
-    "notify": "tsx src/notify.ts"
+    "notify": "tsx src/notify.ts",
+    "export:hexo": "node scripts/export-hexo.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.1"

@@ -115,7 +115,7 @@ const itemsXml = feedItems
   .map(({ date, report }) => {
     const label = REPORT_LABELS[report] ?? report;
     const title = `${label} ${date}`;
-    const link = `${SITE_URL}/#${date}/${report}`;
+    const link = `${SITE_URL}/reports/${date}/${report}/`;
     const parts = date.split("-").map(Number);
     const pubDate = toRfc822(new Date(Date.UTC(parts[0]!, parts[1]! - 1, parts[2]!)));
     return [
