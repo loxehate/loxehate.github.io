@@ -1,5 +1,5 @@
 ---
-title: "Hacker News AI 社区动态日报 2026-07-06"
+title: "Hacker News AI 社区动态日报"
 date: 2026-07-06
 categories:
   - AI

@@ -1,5 +1,5 @@
 ---
-title: "OpenClaw 生态日报 2026-07-06"
+title: "OpenClaw 生态日报"
 date: 2026-07-06
 categories:
   - AI

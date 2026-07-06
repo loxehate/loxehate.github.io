@@ -1,5 +1,5 @@
 ---
-title: "AI 官方内容追踪报告 2026-05-28"
+title: "AI 官方内容追踪报告"
 date: 2026-05-28
 categories:
   - AI

@@ -1,5 +1,5 @@
 ---
-title: "AI CLI 工具社区动态日报 2026-07-06"
+title: "AI CLI 工具社区动态日报"
 date: 2026-07-06
 categories:
   - AI

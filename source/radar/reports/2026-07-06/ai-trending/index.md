@@ -1,5 +1,5 @@
 ---
-title: "AI 开源趋势日报 2026-07-06"
+title: "AI 开源趋势日报"
 date: 2026-07-06
 categories:
   - AI
