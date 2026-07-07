@@ -17,18 +17,18 @@ cli_repos:
   - id: gemini-cli
     repo: google-gemini/gemini-cli
     name: Gemini CLI
-  - id: copilot-cli
-    repo: github/copilot-cli
-    name: GitHub Copilot CLI
-  - id: kimi-cli
-    repo: MoonshotAI/kimi-cli
-    name: Kimi Code CLI
+  - id: deepSeek-reasonix
+    repo: esengine/DeepSeek-Reasonix
+    name: DeepSeek Reasonix
   - id: opencode
     repo: anomalyco/opencode
     name: OpenCode
   - id: qwen-code
     repo: QwenLM/qwen-code
     name: Qwen Code
+  - id: hermes-agent
+    repo: NousResearch/hermes-agent
+    name: Hermes
 
 # ── Claude Code Skills ────────────────────────────────────────────────────────
 # Tracked separately without a date filter, sorted by community engagement.
@@ -68,18 +68,10 @@ openclaw_peers:
   - id: lobsterai
     repo: netease-youdao/LobsterAI
     name: LobsterAI
-  - id: tinyclaw
-    repo: TinyAGI/tinyclaw
-    name: TinyClaw
   - id: moltis
     repo: moltis-org/moltis
     name: Moltis
   - id: copaw
     repo: agentscope-ai/CoPaw
     name: CoPaw
-  - id: zeptoclaw
-    repo: qhkm/zeptoclaw
-    name: ZeptoClaw
-  - id: easyclaw
-    repo: gaoyangz77/easyclaw
-    name: EasyClaw
+
