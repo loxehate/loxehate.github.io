@@ -516,6 +516,26 @@ function buildTrendingFallbackReport(data: TrendingData, lang: "zh" | "en" = "zh
   return lines.join("\n");
 }
 
+function buildTrendingTopSection(data: TrendingData, lang: "zh" | "en" = "zh"): string {
+  const topTrending = data.trendingRepos.slice(0, 10);
+  if (topTrending.length === 0) return "";
+
+  const title = lang === "en" ? "## Trending Top 10 Projects" : "## Trending top10项目";
+  const lines = topTrending.map((repo, index) => {
+    const stats =
+      lang === "en"
+        ? `⭐ ${repo.totalStars.toLocaleString()}${repo.todayStars ? ` | +${repo.todayStars} today` : ""}${repo.forks ? ` | Forks ${repo.forks.toLocaleString()}` : ""}`
+        : `⭐ ${repo.totalStars.toLocaleString()}${repo.todayStars ? ` | 今日 +${repo.todayStars}` : ""}${repo.forks ? ` | Forks ${repo.forks.toLocaleString()}` : ""}`;
+    return [
+      `${index + 1}. [${repo.fullName}](${repo.url})${repo.language ? ` [${repo.language}]` : ""}`,
+      `   ${stats}`,
+      ...(repo.description ? [`   ${repo.description}`] : []),
+    ].join("\n");
+  });
+
+  return [title, "", ...lines].join("\n");
+}
+
 function buildHnFallbackReport(data: HnData, lang: "zh" | "en" = "zh"): string {
   const stories = data.stories.slice(0, 15);
   if (stories.length === 0) return "";
@@ -564,7 +584,12 @@ async function saveTrendingReport(
       ? `# AI Open Source Trends ${dateStr}\n\n> Sources: GitHub Trending + GitHub Search API | Generated: ${utcStr} UTC\n\n---\n\n`
       : `# AI 开源趋势日报 ${dateStr}\n\n> 数据来源: GitHub Trending + GitHub Search API | 生成时间: ${utcStr} UTC\n\n---\n\n`;
 
-  const trendingContent = header + trendingSummary + footer;
+  const trendingTopSection = buildTrendingTopSection(trendingData, lang);
+  const trendingContent =
+    header +
+    trendingSummary +
+    (trendingTopSection ? `\n\n---\n\n${trendingTopSection}` : "") +
+    footer;
 
   console.log(`  Saved ${saveFile(trendingContent, dateStr, fileName)}`);
 
