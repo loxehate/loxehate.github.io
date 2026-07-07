@@ -122,11 +122,13 @@ async function fetchAllData(
         return { site: "openai", siteName: "OpenAI", isFirstRun: false, newItems: [], totalDiscovered: 0 };
       }),
     ]),
-    fetchTrendingData().catch((): TrendingData => ({
-      trendingRepos: [],
-      searchRepos: [],
-      trendingFetchSuccess: false,
-    })),
+    fetchTrendingData().catch(
+      (): TrendingData => ({
+        trendingRepos: [],
+        searchRepos: [],
+        trendingFetchSuccess: false,
+      }),
+    ),
     fetchHnData().catch((): HnData => ({ stories: [], fetchSuccess: false })),
   ]);
 
@@ -586,10 +588,7 @@ async function saveTrendingReport(
 
   const trendingTopSection = buildTrendingTopSection(trendingData, lang);
   const trendingContent =
-    header +
-    trendingSummary +
-    (trendingTopSection ? `\n\n---\n\n${trendingTopSection}` : "") +
-    footer;
+    header + trendingSummary + (trendingTopSection ? `\n\n---\n\n${trendingTopSection}` : "") + footer;
 
   console.log(`  Saved ${saveFile(trendingContent, dateStr, fileName)}`);
 
