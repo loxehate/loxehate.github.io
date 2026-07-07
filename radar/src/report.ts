@@ -103,8 +103,9 @@ function extractTextContent(content: unknown): string {
   throw new Error("Unexpected response type from LLM");
 }
 
-export async function callLlm(prompt: string, maxTokens = 4096): Promise<string> {
+export async function callLlm(prompt: string, maxTokens = 4096, contextTag = ""): Promise<string> {
   let tokenBudget = normalizeTokenBudget(maxTokens);
+  const retryPrefix = contextTag ? `[llm/${contextTag}]` : "[llm]";
   for (let attempt = 0; ; attempt++) {
     await acquireSlot();
     let released = false;
@@ -141,7 +142,9 @@ export async function callLlm(prompt: string, maxTokens = 4096): Promise<string>
       const content = choice?.message?.content;
       const text = extractTextContent(content);
       if (!text)
-        throw new Error(`LLM returned empty content; finish_reason=${choice?.finish_reason ?? "unknown"}`);
+        throw new Error(
+          `LLM returned empty content; finish_reason=${choice?.finish_reason ?? "unknown"}${contextTag ? `; context=${contextTag}` : ""}`,
+        );
       return text;
     } catch (err) {
       if (attempt < MAX_RETRIES && (is429(err) || String(err).includes("empty content"))) {
@@ -152,7 +155,7 @@ export async function callLlm(prompt: string, maxTokens = 4096): Promise<string>
         }
         const wait = RETRY_BASE_MS * 2 ** attempt;
         console.error(
-          `[llm] retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s with max_tokens=${tokenBudget}: ${err}`,
+          `${retryPrefix} retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s with max_tokens=${tokenBudget}: ${err}`,
         );
         await sleep(wait);
         continue;

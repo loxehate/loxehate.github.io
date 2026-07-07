@@ -171,7 +171,11 @@ async function generateSummaries(
         }
         console.log(`  [${cfg.id}] Calling LLM for summary...`);
         try {
-          const summary = await callLlm(buildCliPrompt(cfg, issues, prs, releases, dateStr, lang));
+          const summary = await callLlm(
+            buildCliPrompt(cfg, issues, prs, releases, dateStr, lang),
+            4096,
+            `ai-cli${lang === "en" ? "-en" : ""}.md/${cfg.id}`,
+          );
           return { config: cfg, issues, prs, releases, summary };
         } catch (err) {
           console.error(`  [${cfg.id}] LLM call failed: ${err}`);
@@ -188,7 +192,11 @@ async function generateSummaries(
       }
       console.log(`  [openclaw] Calling LLM for OpenClaw report...`);
       try {
-        return await callLlm(buildPeerPrompt(cfg, issues, prs, releases, dateStr, 50, 30, lang));
+        return await callLlm(
+          buildPeerPrompt(cfg, issues, prs, releases, dateStr, 50, 30, lang),
+          4096,
+          `ai-agents${lang === "en" ? "-en" : ""}.md/openclaw`,
+        );
       } catch (err) {
         console.error(`  [openclaw] LLM call failed: ${err}`);
         return summaryFailed;
@@ -197,7 +205,11 @@ async function generateSummaries(
     (async () => {
       console.log("  [claude-code-skills] Calling LLM for skills report...");
       try {
-        return await callLlm(buildSkillsPrompt(skillsData.prs, skillsData.issues, dateStr, lang));
+        return await callLlm(
+          buildSkillsPrompt(skillsData.prs, skillsData.issues, dateStr, lang),
+          4096,
+          `ai-cli${lang === "en" ? "-en" : ""}.md/claude-code-skills`,
+        );
       } catch (err) {
         console.error(`  [claude-code-skills] LLM call failed: ${err}`);
         return skillsFailed;
@@ -219,6 +231,8 @@ async function generateSummaries(
             releases,
             summary: await callLlm(
               buildPeerPrompt(cfg, issues, prs, releases, dateStr, undefined, undefined, lang),
+              4096,
+              `ai-agents${lang === "en" ? "-en" : ""}.md/${cfg.id}`,
             ),
           };
         } catch (err) {
@@ -232,7 +246,11 @@ async function generateSummaries(
       if (!hasData) return trendingNoData;
       console.log("  [trending] Calling LLM for trending report...");
       try {
-        return await callLlm(buildTrendingPrompt(trendingData, dateStr, lang), 8192);
+        return await callLlm(
+          buildTrendingPrompt(trendingData, dateStr, lang),
+          8192,
+          `ai-trending${lang === "en" ? "-en" : ""}.md`,
+        );
       } catch (err) {
         console.error(`  [trending] LLM call failed: ${err}`);
         return buildTrendingFallbackReport(trendingData, lang) || trendingFailed;
@@ -393,7 +411,11 @@ async function saveWebReport(
   if (hasNewContent) {
     console.log(`  [web/${lang}] Calling LLM for web content report...`);
     try {
-      const webSummary = await callLlm(buildWebReportPrompt(webResults, dateStr, lang), 8192);
+      const webSummary = await callLlm(
+        buildWebReportPrompt(webResults, dateStr, lang),
+        8192,
+        `ai-web${lang === "en" ? "-en" : ""}.md`,
+      );
       const isFirstRun = webResults.some((r) => r.isFirstRun);
       const totalNew = webResults.reduce((sum, r) => sum + r.newItems.length, 0);
 
@@ -570,7 +592,11 @@ async function saveHnReport(
 
   console.log(`  [hn/${lang}] Calling LLM for HN report...`);
   try {
-    const hnSummary = await callLlm(buildHnPrompt(hnData, dateStr, lang), 8192).catch((err): string => {
+    const hnSummary = await callLlm(
+      buildHnPrompt(hnData, dateStr, lang),
+      8192,
+      `ai-hn${lang === "en" ? "-en" : ""}.md`,
+    ).catch((err): string => {
       console.error(` [hn/${lang}] LLM call failed: ${err}`);
       return (
         buildHnFallbackReport(hnData, lang) ||
@@ -683,8 +709,12 @@ async function main(): Promise<void> {
       summary: zhSummaries.openclawSummary,
     };
     [comparison, peersComparison] = await Promise.all([
-      callLlm(buildComparisonPrompt(zhSummaries.cliDigests, dateStr, "zh")),
-      callLlm(buildPeersComparisonPrompt(openclawDigest, zhSummaries.peerDigests, dateStr, "zh")),
+      callLlm(buildComparisonPrompt(zhSummaries.cliDigests, dateStr, "zh"), 4096, "ai-cli.md/comparison"),
+      callLlm(
+        buildPeersComparisonPrompt(openclawDigest, zhSummaries.peerDigests, dateStr, "zh"),
+        4096,
+        "ai-agents.md/comparison",
+      ),
     ]);
   }
   if (genEn && enSummaries) {
@@ -696,8 +726,12 @@ async function main(): Promise<void> {
       summary: enSummaries.openclawSummary,
     };
     [enComparison, enPeersComparison] = await Promise.all([
-      callLlm(buildComparisonPrompt(enSummaries.cliDigests, dateStr, "en")),
-      callLlm(buildPeersComparisonPrompt(enOpenclawDigest, enSummaries.peerDigests, dateStr, "en")),
+      callLlm(buildComparisonPrompt(enSummaries.cliDigests, dateStr, "en"), 4096, "ai-cli-en.md/comparison"),
+      callLlm(
+        buildPeersComparisonPrompt(enOpenclawDigest, enSummaries.peerDigests, dateStr, "en"),
+        4096,
+        "ai-agents-en.md/comparison",
+      ),
     ]);
   }
 
