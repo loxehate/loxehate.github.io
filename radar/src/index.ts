@@ -34,7 +34,7 @@ import {
 } from "./prompts.ts";
 import { callLlm, saveFile, autoGenFooter, getLlmBaseUrl, hasLlmCredentials } from "./report.ts";
 import { loadWebState, saveWebState, fetchSiteContent, type WebFetchResult, type WebState } from "./web.ts";
-import { fetchTrendingData, type TrendingData } from "./trending.ts";
+import { fetchTrendingData, type TrendingData, type TrendingRepo } from "./trending.ts";
 import { fetchHnData, type HnData } from "./hn.ts";
 import { loadConfig } from "./config.ts";
 
@@ -518,9 +518,56 @@ function buildTrendingFallbackReport(data: TrendingData, lang: "zh" | "en" = "zh
   return lines.join("\n");
 }
 
-function buildTrendingTopSection(data: TrendingData, lang: "zh" | "en" = "zh"): string {
+function parseJsonObject(raw: string): Record<string, string> | null {
+  const trimmed = raw.trim();
+  const candidates = [trimmed];
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced?.[1]) candidates.push(fenced[1].trim());
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate) as Record<string, unknown>;
+      const asStrings = Object.fromEntries(
+        Object.entries(parsed)
+          .filter((entry): entry is [string, unknown] => typeof entry[0] === "string")
+          .map(([key, value]) => [key, typeof value === "string" ? value.trim() : ""]),
+      );
+      return asStrings;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+async function translateTrendingTopDescriptionsToZh(repos: TrendingRepo[]): Promise<Record<string, string>> {
+  const withDescription = repos.filter((repo) => repo.description.trim().length > 0);
+  if (withDescription.length === 0) return {};
+
+  const source = withDescription
+    .map((repo, index) => `${index + 1}. ${repo.fullName}: ${repo.description}`)
+    .join("\n");
+
+  const prompt =
+    "Translate each repository description below into concise Simplified Chinese.\n" +
+    "Return ONLY valid JSON object with repo fullName as key and translated text as value.\n\n" +
+    source;
+
+  try {
+    const raw = await callLlm(prompt, 4096, "ai-trending.md/top10-translation");
+    const parsed = parseJsonObject(raw);
+    if (!parsed) throw new Error("Translator returned non-JSON content");
+    return parsed;
+  } catch (err) {
+    console.error(`  [trending/zh] Top10 description translation failed: ${err}`);
+    return {};
+  }
+}
+
+async function buildTrendingTopSection(data: TrendingData, lang: "zh" | "en" = "zh"): Promise<string> {
   const topTrending = data.trendingRepos.slice(0, 10);
   if (topTrending.length === 0) return "";
+  const translatedDescriptions = lang === "zh" ? await translateTrendingTopDescriptionsToZh(topTrending) : {};
 
   const title = lang === "en" ? "## Trending Top 10 Projects" : "## Trending top10项目";
   const lines = topTrending.map((repo, index) => {
@@ -531,7 +578,11 @@ function buildTrendingTopSection(data: TrendingData, lang: "zh" | "en" = "zh"): 
     return [
       `${index + 1}. [${repo.fullName}](${repo.url})${repo.language ? ` [${repo.language}]` : ""}`,
       `   ${stats}`,
-      ...(repo.description ? [`   ${repo.description}`] : []),
+      ...(repo.description
+        ? [
+            `   ${lang === "zh" ? translatedDescriptions[repo.fullName] || repo.description : repo.description}`,
+          ]
+        : []),
     ].join("\n");
   });
 
@@ -586,7 +637,7 @@ async function saveTrendingReport(
       ? `# AI Open Source Trends ${dateStr}\n\n> Sources: GitHub Trending + GitHub Search API | Generated: ${utcStr} UTC\n\n---\n\n`
       : `# AI 开源趋势日报 ${dateStr}\n\n> 数据来源: GitHub Trending + GitHub Search API | 生成时间: ${utcStr} UTC\n\n---\n\n`;
 
-  const trendingTopSection = buildTrendingTopSection(trendingData, lang);
+  const trendingTopSection = await buildTrendingTopSection(trendingData, lang);
   const trendingContent =
     header + trendingSummary + (trendingTopSection ? `\n\n---\n\n${trendingTopSection}` : "") + footer;
 
