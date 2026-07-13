@@ -2,7 +2,7 @@
 
 English | [中文](./README.zh.md)
 
-A GitHub Actions workflow that runs every morning at 08:00 CST. It tracks GitHub activity from AI CLI tools, OpenClaw and its peer projects in the AI agent ecosystem, scrapes official news and research from Anthropic and OpenAI, and monitors the GitHub AI trending repos daily — then publishes bilingual (Chinese + English) daily digests as GitHub Issues and committed Markdown files. Weekly and monthly rollup reports are also generated automatically.
+A GitHub Actions workflow that runs every morning at 08:00 CST. It tracks GitHub activity from AI CLI tools, OpenClaw and its peer projects in the AI agent ecosystem, scrapes official news and research from Anthropic and OpenAI, and monitors the GitHub AI trending repos daily — then publishes bilingual (Chinese + English) daily digests as committed Markdown files and static Radar pages. Weekly and monthly rollup reports are also generated automatically.
 
 ## Web UI
 
@@ -159,7 +159,7 @@ New articles are detected by comparing sitemap `lastmod` timestamps against a pe
 - Scrapes official Anthropic and OpenAI web content via sitemaps; detects new articles incrementally
 - Monitors GitHub Trending daily + searches 6 AI topic tags; classifies repos by dimension and extracts trend signals
 - Fetches top-30 AI stories from Hacker News (last 24h, ranked by points); generates community sentiment report
-- Publishes GitHub Issues for each report type; commits Markdown files to `digests/YYYY-MM-DD/`
+- Commits Markdown files to `digests/YYYY-MM-DD/` and exports static Radar pages
 - Runs on a daily schedule via GitHub Actions; supports manual triggering
 - All tracked repositories are configurable via `config.yml` — no code changes needed
 
@@ -231,7 +231,6 @@ export OPENAI_BASE_URL=https://api.openai.com/v1
 export OPENAI_API_KEY=sk-xxxxxxxx
 export OPENAI_MODEL=gpt-4.1-mini
 export REPORT_LANGS=zh
-export DIGEST_REPO=your-username/big_model_radar  # optional; omit to only write files
 
 pnpm start
 ```
@@ -240,13 +239,13 @@ pnpm start
 
 Files are written to `digests/YYYY-MM-DD/`:
 
-| File | Content | GitHub Issue label |
-|------|---------|-------------------|
-| `ai-cli.md` | CLI digest — cross-tool comparison + per-tool details | `digest` |
-| `ai-agents.md` | OpenClaw deep report + cross-ecosystem comparison + 10 peer details | `openclaw` |
-| `ai-web.md` | Official web content report (only written when new content exists) | `web` |
-| `ai-trending.md` | GitHub AI trending report — repos classified by dimension + trend signals (only written when data is available) | `trending` |
-| `ai-hn.md` | Hacker News AI community digest — top stories + sentiment analysis (only written when fetch succeeds) | `hn` |
+| File | Content |
+|------|---------|
+| `ai-cli.md` | CLI digest - cross-tool comparison + per-tool details |
+| `ai-agents.md` | OpenClaw deep report + cross-ecosystem comparison + 10 peer details |
+| `ai-web.md` | Official web content report (only written when new content exists) |
+| `ai-trending.md` | GitHub AI trending report - repos classified by dimension + trend signals (only written when data is available) |
+| `ai-hn.md` | Hacker News AI community digest - top stories + sentiment analysis (only written when fetch succeeds) |
 
 A shared state file `digests/web-state.json` tracks which web URLs have been seen; it is committed alongside the daily digests.
 
@@ -360,7 +359,7 @@ Top projects & releases
 Looking ahead
 ```
 
-Historical digests are stored in [`digests/`](./digests/). Published issues are tagged by type: [`digest`](../../issues?label=digest) · [`openclaw`](../../issues?label=openclaw) · [`web`](../../issues?label=web) · [`trending`](../../issues?label=trending) · [`hn`](../../issues?label=hn) · [`weekly`](../../issues?label=weekly) · [`monthly`](../../issues?label=monthly).
+Historical digests are stored in [`digests/`](./digests/) and exported to the static Radar pages.
 
 ## Schedule
 

@@ -8,8 +8,8 @@
  *   ANTHROPIC_API_KEY   - Backward-compatible alias for OPENAI_API_KEY
  *   ANTHROPIC_BASE_URL  - Backward-compatible alias for OPENAI_BASE_URL
  *   ANTHROPIC_MODEL     - Backward-compatible alias for OPENAI_MODEL
- *   GITHUB_TOKEN        - GitHub token for API access and issue creation
- *   DIGEST_REPO         - owner/repo where digest issues are posted (optional)
+ *   GITHUB_TOKEN        - GitHub token for API reads
+ *   DIGEST_REPO         - deprecated; issue publishing is disabled
  */
 
 import {

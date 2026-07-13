@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
 
 concurrency:
   group: radar-digest-${{ github.ref }}
@@ -69,13 +68,11 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.ANTHROPIC_API_KEY }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL || secrets.ANTHROPIC_MODEL }}
           REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
-          DIGEST_REPO: ${{ github.repository }}
         run: pnpm monthly
 
       - name: Update Radar manifest and feed
         working-directory: radar
         env:
-          DIGEST_REPO: ${{ github.repository }}
           REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
         run: pnpm manifest
 

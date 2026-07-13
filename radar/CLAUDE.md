@@ -2,7 +2,7 @@
 
 ## Project overview
 
-agents-radar is a daily digest generator for the AI open-source ecosystem. A GitHub Actions cron job runs at 00:00 UTC (08:00 CST) and produces five Chinese-language reports, published as GitHub Issues and committed Markdown files.
+agents-radar is a daily digest generator for the AI open-source ecosystem. A GitHub Actions cron job runs at 00:00 UTC (08:00 CST) and produces reports as committed Markdown files and static Radar pages.
 
 ## Commands
 
@@ -21,7 +21,6 @@ Required env vars for local runs:
 export GITHUB_TOKEN=ghp_xxxxx
 export ANTHROPIC_API_KEY=sk-ant-xxxxx
 export ANTHROPIC_BASE_URL=https://api.kimi.com/coding/  # omit for Anthropic
-export DIGEST_REPO=owner/repo   # omit to skip GitHub issue creation
 ```
 
 ## Architecture
@@ -31,7 +30,7 @@ The pipeline runs in four sequential phases, each implemented as a named async f
 1. **`fetchAllData`** — all network I/O in parallel: GitHub API (issues/PRs/releases) for 17 repos, Claude Code Skills, Anthropic/OpenAI sitemaps, GitHub Trending HTML + Search API, Hacker News Algolia API.
 2. **`generateSummaries`** — per-repo LLM calls, all in parallel, rate-limited to 5 concurrent requests by a queue in `src/report.ts`.
 3. **Comparisons** — two LLM calls: cross-tool CLI comparison and OpenClaw cross-ecosystem comparison.
-4. **Save phase** — `buildCliReportContent` / `buildOpenclawReportContent` build Markdown strings; `saveWebReport` / `saveTrendingReport` / `saveHnReport` call LLM + write file + create GitHub Issue.
+4. **Save phase** — `buildCliReportContent` / `buildOpenclawReportContent` build Markdown strings; `saveWebReport` / `saveTrendingReport` / `saveHnReport` call LLM and write files.
 
 ## Source files
 
@@ -73,7 +72,6 @@ Files written to `digests/YYYY-MM-DD/`:
 - `callLlm(prompt, maxTokens?)` defaults to 4096 tokens. Web report uses 8192, trending uses 6144. HN report uses the default 4096.
 - On 429 rate-limit errors `callLlm` retries up to 3 times with exponential backoff (5 s / 10 s / 20 s); the concurrency slot is released during the wait.
 - The concurrency limiter (`LLM_CONCURRENCY = 5`) prevents 429s when many parallel LLM calls fire. Do not bypass it by calling the Anthropic SDK directly.
-- GitHub issue label colors are defined in `LABEL_COLORS` in `src/github.ts`. Add new labels there.
 - `sampleNote(total, sampled)` in `src/prompts.ts` formats the "(共 N 条，展示前 M 条)" note. Reuse it — do not inline the same string format.
 - Web state (`digests/web-state.json`) is committed to git on every run. It is the source of truth for which URLs have been seen.
 

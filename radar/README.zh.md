@@ -2,7 +2,7 @@
 
 [English](./README.md) | 中文
 
-每天早上 08:00 CST 自动运行的 GitHub Actions 工作流。追踪主流 AI CLI 工具的 GitHub 动态、OpenClaw 及其同赛道项目的生态活动、Anthropic 和 OpenAI 官网最新资讯，并每日监测 GitHub AI 热门仓库趋势，以中英双语每日简报的形式发布为 GitHub Issues 并提交为 Markdown 文件。每周和每月自动生成汇总报告。
+每天早上 08:00 CST 自动运行的 GitHub Actions 工作流。追踪主流 AI CLI 工具的 GitHub 动态、OpenClaw 及其同赛道项目的生态活动、Anthropic 和 OpenAI 官网最新资讯，并每日监测 GitHub AI 热门仓库趋势，以中英双语每日简报的形式提交为 Markdown 文件并导出为 Radar 静态页面。每周和每月自动生成汇总报告。
 
 ## Web UI
 
@@ -159,7 +159,7 @@ LLM 负责过滤非 AI 项目，将结果按维度分类（AI 基础工具 / AI 
 - 通过 Sitemap 抓取 Anthropic 和 OpenAI 官网内容，增量检测新文章
 - 每日监测 GitHub Trending + 搜索 6 个 AI 主题标签，按维度分类并提炼趋势信号
 - 抓取 Hacker News 过去 24 小时 AI 热门帖子（top 30，按分数排序），生成社区情绪报告
-- 以 GitHub Issues 形式发布报告，同时提交 Markdown 文件至 `digests/YYYY-MM-DD/`
+- 提交 Markdown 文件至 `digests/YYYY-MM-DD/`，并导出 Radar 静态页面
 - 每日通过 GitHub Actions 定时运行，支持手动触发
 - 所有追踪仓库均可通过 `config.yml` 配置，无需修改代码
 
@@ -231,7 +231,6 @@ export OPENAI_BASE_URL=https://api.openai.com/v1
 export OPENAI_API_KEY=sk-xxxxxxxx
 export OPENAI_MODEL=gpt-4.1-mini
 export REPORT_LANGS=zh
-export DIGEST_REPO=your-username/big_model_radar  # 可选，留空则仅写入本地文件
 
 pnpm start
 ```
@@ -240,13 +239,13 @@ pnpm start
 
 文件写入 `digests/YYYY-MM-DD/`：
 
-| 文件 | 内容 | GitHub Issue 标签 |
-|------|------|------------------|
-| `ai-cli.md` | CLI 简报 — 跨工具横向对比 + 各工具详细报告 | `digest` |
-| `ai-agents.md` | OpenClaw 深度报告 + 横向生态对比 + 10 个同赛道项目详情 | `openclaw` |
-| `ai-web.md` | 官网内容报告（仅在有新内容时生成） | `web` |
-| `ai-trending.md` | GitHub AI 趋势热榜 — 按维度分类 + 趋势信号分析（仅在有数据时生成） | `trending` |
-| `ai-hn.md` | Hacker News AI 社区动态 — 热门帖子分类 + 情绪分析（仅在抓取成功时生成） | `hn` |
+| 文件 | 内容 |
+|------|------|
+| `ai-cli.md` | CLI 简报 - 跨工具横向对比 + 各工具详细报告 |
+| `ai-agents.md` | OpenClaw 深度报告 + 横向生态对比 + 10 个同赛道项目详情 |
+| `ai-web.md` | 官网内容报告（仅在有新内容时生成） |
+| `ai-trending.md` | GitHub AI 趋势热榜 - 按维度分类 + 趋势信号分析（仅在有数据时生成） |
+| `ai-hn.md` | Hacker News AI 社区动态 - 热门帖子分类 + 情绪分析（仅在抓取成功时生成） |
 
 `digests/web-state.json` 用于记录已处理的 URL，随每日简报一并提交。
 
@@ -335,7 +334,7 @@ OpenAI 内容精选            (research / release / company / safety / ...)
 值得深读
 ```
 
-历史简报存储在 [`digests/`](./digests/)。已发布的 Issues 按类型打标签：[`digest`](../../issues?label=digest) · [`openclaw`](../../issues?label=openclaw) · [`web`](../../issues?label=web) · [`trending`](../../issues?label=trending) · [`hn`](../../issues?label=hn)。
+历史简报存储在 [`digests/`](./digests/)，并导出到 Radar 静态页面。
 
 ## 定时计划
 

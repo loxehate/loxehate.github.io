@@ -1,6 +1,6 @@
 /**
  * GitHub API types and fetch helpers.
- * Reads GITHUB_TOKEN and DIGEST_REPO from environment at call time.
+ * Reads GITHUB_TOKEN from environment at call time.
  */
 
 // ---------------------------------------------------------------------------
@@ -147,15 +147,7 @@ export async function fetchRecentReleases(repo: string, since: Date): Promise<Gi
 }
 
 export async function ensureLabel(name: string, color: string): Promise<void> {
-  const digestRepo = process.env["DIGEST_REPO"] ?? "";
-  const resp = await fetch(`https://api.github.com/repos/${digestRepo}/labels`, {
-    method: "POST",
-    headers: { ...headers(), "Content-Type": "application/json" },
-    body: JSON.stringify({ name, color }),
-  });
-  if (!resp.ok && resp.status !== 422) {
-    throw new Error(`Failed to create label "${name}": ${await resp.text()}`);
-  }
+  console.log(`[github] Issue label publishing disabled; skipped "${name}" (${color}).`);
 }
 
 /**
@@ -181,33 +173,7 @@ export async function fetchSkillsData(repo: string): Promise<{ prs: GitHubItem[]
   return { prs, issues: issuesRaw.filter((i) => !i.pull_request) };
 }
 
-const GITHUB_ISSUE_BODY_LIMIT = 65536;
-const TRUNCATION_NOTICE = "\n\n---\n> ⚠️ 内容超过 GitHub Issue 上限，完整报告见提交的 Markdown 文件。";
-
 export async function createGitHubIssue(title: string, body: string, label: string): Promise<string> {
-  const digestRepo = process.env["DIGEST_REPO"] ?? "";
-  if (body.length > GITHUB_ISSUE_BODY_LIMIT) {
-    body = body.slice(0, GITHUB_ISSUE_BODY_LIMIT - TRUNCATION_NOTICE.length) + TRUNCATION_NOTICE;
-  }
-  const LABEL_COLORS: Record<string, string> = {
-    openclaw: "e11d48",
-    trending: "f9a825",
-    hn: "ff6600",
-    weekly: "7c3aed",
-    monthly: "0d9488",
-    "digest-en": "1d76db",
-    "openclaw-en": "f472b6",
-    "web-en": "6366f1",
-    "trending-en": "fbbf24",
-    "hn-en": "fb923c",
-  };
-  await ensureLabel(label, LABEL_COLORS[label] ?? "0075ca");
-  const resp = await fetch(`https://api.github.com/repos/${digestRepo}/issues`, {
-    method: "POST",
-    headers: { ...headers(), "Content-Type": "application/json" },
-    body: JSON.stringify({ title, body, labels: [label] }),
-  });
-  if (!resp.ok) throw new Error(`Failed to create issue: ${await resp.text()}`);
-  const data = (await resp.json()) as { html_url: string };
-  return data.html_url;
+  console.log(`[github] Issue publishing disabled; skipped "${title}" (${label}, ${body.length} chars).`);
+  return "";
 }
