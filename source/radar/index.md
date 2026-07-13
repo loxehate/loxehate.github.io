@@ -1,7 +1,7 @@
 ---
 title: "Big Model Radar"
 subtitle: AI 生态追踪报告
-date: 2026-07-08
+date: 2026-07-13
 categories:
   - AI
 tags:
@@ -15,6 +15,46 @@ banner_mask_alpha: 0.3
 # Big Model Radar
 
 AI 生态自动追踪报告，覆盖 AI CLI、Agents、官方资讯、开源趋势和 Hacker News 社区动态。
+
+## 2026-07-13
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-07-13/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-07-13/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-07-13/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-07-13/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-07-13/ai-hn/)
+- [AI 工具生态周报 2026-W29](/radar/reports/2026-07-13/ai-weekly/)
+
+## 2026-07-12
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-07-12/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-07-12/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-07-12/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-07-12/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-07-12/ai-hn/)
+
+## 2026-07-11
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-07-11/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-07-11/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-07-11/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-07-11/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-07-11/ai-hn/)
+
+## 2026-07-10
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-07-10/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-07-10/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-07-10/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-07-10/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-07-10/ai-hn/)
+
+## 2026-07-09
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-07-09/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-07-09/ai-agents/)
+- [AI 开源趋势日报](/radar/reports/2026-07-09/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-07-09/ai-hn/)
 
 ## 2026-07-08
 
