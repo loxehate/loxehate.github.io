@@ -1,7 +1,7 @@
 ---
 title: "Big Model Radar"
 subtitle: AI 生态追踪报告
-date: 2026-08-04
+date: 2026-08-05
 categories:
   - AI
 tags:
@@ -15,6 +15,14 @@ banner_mask_alpha: 0.3
 # Big Model Radar
 
 AI 生态自动追踪报告，覆盖 AI CLI、Agents、官方资讯、开源趋势和 Hacker News 社区动态。
+
+## 2026-08-05
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-08-05/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-08-05/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-08-05/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-08-05/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-08-05/ai-hn/)
 
 ## 2026-08-04
 
