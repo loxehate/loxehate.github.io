@@ -18,6 +18,11 @@ AI 生态自动追踪报告，覆盖 AI CLI、Agents、官方资讯、开源趋�
 
 ## 2026-08-10
 
+- [AI CLI 工具社区动态日报](/radar/reports/2026-08-10/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-08-10/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-08-10/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-08-10/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-08-10/ai-hn/)
 - [AI 工具生态周报 2026-W33](/radar/reports/2026-08-10/ai-weekly/)
 
 ## 2026-08-09
