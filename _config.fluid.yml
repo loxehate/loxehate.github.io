@@ -997,6 +997,7 @@ about:
     - { class: "iconfont icon-spotify", link: "https://open.spotify.com/user/31sqhuln6mecuwhamflbfxcuw4vm", tip: "spotify" }
     - { class: "iconfont icon-tiktok", link: "https://www.tiktok.com/@loxehate", tip: "tiktok" }
     - { class: "iconfont icon-chatgpt", link: "https://chatgpt.com/", tip: "chatgpt" }
+    - { class: "iconfont icon-dota", link: "https://www.opendota.com/players/903880908", tip: "dota" }
 #---------------------------
 # 自定义页
 # Custom Page
