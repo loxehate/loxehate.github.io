@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const DIGESTS_DIR = "digests";
+const PUBLISHED_REPORTS_DIR = path.resolve("..", "source", "radar", "reports");
 const MANIFEST_PATH = "manifest.json";
 const FEED_PATH = "feed.xml";
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -80,16 +81,27 @@ function escapeXml(s: string): string {
 
 const SITE_URL = resolveSiteUrl();
 
-const entries = fs
-  .readdirSync(DIGESTS_DIR)
-  .filter((name) => DATE_RE.test(name) && fs.statSync(path.join(DIGESTS_DIR, name)).isDirectory())
-  .sort()
-  .reverse()
-  .map((date) => {
-    const reports = REPORT_FILES.filter((r) => fs.existsSync(path.join(DIGESTS_DIR, date, `${r}.md`)));
-    return { date, reports };
-  })
-  .filter((e) => e.reports.length > 0);
+function collectDates(): string[] {
+  const dates = new Set<string>();
+  for (const root of [DIGESTS_DIR, PUBLISHED_REPORTS_DIR]) {
+    if (!fs.existsSync(root)) continue;
+    for (const name of fs.readdirSync(root)) {
+      if (DATE_RE.test(name) && fs.statSync(path.join(root, name)).isDirectory()) dates.add(name);
+    }
+  }
+  return [...dates].sort().reverse();
+}
+
+function reportExists(date: string, report: string): boolean {
+  return (
+    fs.existsSync(path.join(DIGESTS_DIR, date, `${report}.md`)) ||
+    fs.existsSync(path.join(PUBLISHED_REPORTS_DIR, date, report, "index.md"))
+  );
+}
+
+const entries = collectDates()
+  .map((date) => ({ date, reports: REPORT_FILES.filter((report) => reportExists(date, report)) }))
+  .filter((entry) => entry.reports.length > 0);
 
 const manifest: Manifest = {
   generated: new Date().toISOString(),

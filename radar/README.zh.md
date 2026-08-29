@@ -159,7 +159,7 @@ LLM 负责过滤非 AI 项目，将结果按维度分类（AI 基础工具 / AI 
 - 通过 Sitemap 抓取 Anthropic 和 OpenAI 官网内容，增量检测新文章
 - 每日监测 GitHub Trending + 搜索 6 个 AI 主题标签，按维度分类并提炼趋势信号
 - 抓取 Hacker News 过去 24 小时 AI 热门帖子（top 30，按分数排序），生成社区情绪报告
-- 提交 Markdown 文件至 `digests/YYYY-MM-DD/`，并导出 Radar 静态页面
+- 将生成的 Markdown 移动至 `source/radar/reports/YYYY-MM-DD/`，直接作为 Radar 静态页面的唯一报告副本
 - 每日通过 GitHub Actions 定时运行，支持手动触发
 - 所有追踪仓库均可通过 `config.yml` 配置，无需修改代码
 
@@ -237,7 +237,7 @@ pnpm start
 
 ## 输出格式
 
-文件写入 `digests/YYYY-MM-DD/`：
+报告生成后会移动到 `source/radar/reports/YYYY-MM-DD/<报告类型>/index.md`：
 
 | 文件 | 内容 |
 |------|------|
@@ -247,7 +247,7 @@ pnpm start
 | `ai-trending.md` | GitHub AI 趋势热榜 - 按维度分类 + 趋势信号分析（仅在有数据时生成） |
 | `ai-hn.md` | Hacker News AI 社区动态 - 热门帖子分类 + 情绪分析（仅在抓取成功时生成） |
 
-`digests/web-state.json` 用于记录已处理的 URL，随每日简报一并提交。
+`digests/web-state.json` 仅用于记录已处理的 URL；日期报告不会在 `digests/` 中保留副本。
 
 ---
 
@@ -334,7 +334,7 @@ OpenAI 内容精选            (research / release / company / safety / ...)
 值得深读
 ```
 
-历史简报存储在 [`digests/`](./digests/)，并导出到 Radar 静态页面。
+历史简报只存储在 [`source/radar/reports/`](../source/radar/reports/)，周报和月报会直接读取该发布目录。
 
 ## 定时计划
 

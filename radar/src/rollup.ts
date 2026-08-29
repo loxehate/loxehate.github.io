@@ -10,6 +10,7 @@ import { buildWeeklyPrompt, buildMonthlyPrompt } from "./prompts.ts";
 import { createGitHubIssue } from "./github.ts";
 
 const DIGESTS_DIR = "digests";
+const PUBLISHED_REPORTS_DIR = path.resolve("..", "source", "radar", "reports");
 const MAX_CHARS_PER_REPORT = 2500;
 
 // Source report types to read for rollups (in priority order)
@@ -20,20 +21,43 @@ const ROLLUP_SOURCES = ["ai-cli", "ai-agents", "ai-trending", "ai-hn", "ai-web"]
 // ---------------------------------------------------------------------------
 
 function getDateDirs(): string[] {
-  if (!fs.existsSync(DIGESTS_DIR)) return [];
-  return fs
-    .readdirSync(DIGESTS_DIR)
-    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && fs.statSync(path.join(DIGESTS_DIR, d)).isDirectory())
-    .sort()
-    .reverse();
+  const dates = new Set<string>();
+  for (const root of [DIGESTS_DIR, PUBLISHED_REPORTS_DIR]) {
+    if (!fs.existsSync(root)) continue;
+    for (const name of fs.readdirSync(root)) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(name) && fs.statSync(path.join(root, name)).isDirectory()) {
+        dates.add(name);
+      }
+    }
+  }
+  return [...dates].sort().reverse();
+}
+
+function reportPath(date: string, report: string): string | null {
+  const pending = path.join(DIGESTS_DIR, date, `${report}.md`);
+  if (fs.existsSync(pending)) return pending;
+  const published = path.join(PUBLISHED_REPORTS_DIR, date, report, "index.md");
+  return fs.existsSync(published) ? published : null;
+}
+
+function stripPublishedWrapper(content: string): string {
+  let result = content;
+  if (result.startsWith("---\n")) {
+    const end = result.indexOf("\n---", 4);
+    if (end !== -1) result = result.slice(end + 4).replace(/^\s+/, "");
+  }
+  return result
+    .replace(/^<div class="markdown-body">\s*/u, "")
+    .replace(/\s*<\/div>\s*$/u, "")
+    .trim();
 }
 
 /** Read and truncate a daily digest file. Returns null if not found. */
 function readDailyDigest(date: string): string | null {
   for (const type of ROLLUP_SOURCES) {
-    const p = path.join(DIGESTS_DIR, date, `${type}.md`);
-    if (fs.existsSync(p)) {
-      const content = fs.readFileSync(p, "utf-8");
+    const p = reportPath(date, type);
+    if (p) {
+      const content = stripPublishedWrapper(fs.readFileSync(p, "utf-8"));
       const truncated = content.slice(0, MAX_CHARS_PER_REPORT);
       return truncated.length < content.length ? truncated + "\n...[摘要截断]" : truncated;
     }
@@ -43,9 +67,9 @@ function readDailyDigest(date: string): string | null {
 
 /** Read a weekly report file. Returns null if not found. */
 function readWeeklyDigest(date: string): string | null {
-  const p = path.join(DIGESTS_DIR, date, "ai-weekly.md");
-  if (!fs.existsSync(p)) return null;
-  const content = fs.readFileSync(p, "utf-8");
+  const p = reportPath(date, "ai-weekly");
+  if (!p) return null;
+  const content = stripPublishedWrapper(fs.readFileSync(p, "utf-8"));
   return content.slice(0, 3000) + (content.length > 3000 ? "\n...[截断]" : "");
 }
 
@@ -163,7 +187,7 @@ export async function runMonthlyRollup(): Promise<void> {
 
   // Prefer weekly reports from the target month
   const monthDates = allDates.filter((d) => d.startsWith(monthStr));
-  const weeklyDates = monthDates.filter((d) => fs.existsSync(path.join(DIGESTS_DIR, d, "ai-weekly.md")));
+  const weeklyDates = monthDates.filter((d) => reportPath(d, "ai-weekly") !== null);
 
   let sourceDigests: Record<string, string>;
   let sourceLabel: { zh: string; en: string };

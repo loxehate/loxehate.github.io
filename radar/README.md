@@ -159,7 +159,7 @@ New articles are detected by comparing sitemap `lastmod` timestamps against a pe
 - Scrapes official Anthropic and OpenAI web content via sitemaps; detects new articles incrementally
 - Monitors GitHub Trending daily + searches 6 AI topic tags; classifies repos by dimension and extracts trend signals
 - Fetches top-30 AI stories from Hacker News (last 24h, ranked by points); generates community sentiment report
-- Commits Markdown files to `digests/YYYY-MM-DD/` and exports static Radar pages
+- Moves generated Markdown into `source/radar/reports/YYYY-MM-DD/` as the single report copy used by the static Radar pages
 - Runs on a daily schedule via GitHub Actions; supports manual triggering
 - All tracked repositories are configurable via `config.yml` — no code changes needed
 
@@ -237,7 +237,7 @@ pnpm start
 
 ## Output format
 
-Files are written to `digests/YYYY-MM-DD/`:
+Reports are moved to `source/radar/reports/YYYY-MM-DD/<report-type>/index.md` after generation:
 
 | File | Content |
 |------|---------|
@@ -247,7 +247,7 @@ Files are written to `digests/YYYY-MM-DD/`:
 | `ai-trending.md` | GitHub AI trending report - repos classified by dimension + trend signals (only written when data is available) |
 | `ai-hn.md` | Hacker News AI community digest - top stories + sentiment analysis (only written when fetch succeeds) |
 
-A shared state file `digests/web-state.json` tracks which web URLs have been seen; it is committed alongside the daily digests.
+A shared state file `digests/web-state.json` tracks which web URLs have been seen. Dated reports are not retained as duplicate files under `digests/`.
 
 Each report is generated in both Chinese (`ai-cli.md`) and English (`ai-cli-en.md`). The Web UI sidebar shows ZH / EN toggle buttons for reports that have both variants.
 
@@ -359,7 +359,7 @@ Top projects & releases
 Looking ahead
 ```
 
-Historical digests are stored in [`digests/`](./digests/) and exported to the static Radar pages.
+Historical digests are stored only in [`source/radar/reports/`](../source/radar/reports/); weekly and monthly rollups read directly from that published directory.
 
 ## Schedule
 

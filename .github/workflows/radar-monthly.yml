@@ -76,7 +76,7 @@ jobs:
           REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
         run: pnpm manifest
 
-      - name: Export Radar Markdown into Hexo source
+      - name: Move Radar Markdown into Hexo source
         run: bash tools/sync-radar-static.sh
 
       - name: Commit Radar output
