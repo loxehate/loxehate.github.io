@@ -8,6 +8,7 @@ const repoRoot = path.resolve(radarRoot, "..");
 const digestsRoot = path.join(radarRoot, "digests");
 const targetRoot = path.join(repoRoot, "source", "radar");
 const reportsRoot = path.join(targetRoot, "reports");
+const archiveRoot = path.join(targetRoot, "archive");
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 const reportLabels = {
@@ -27,6 +28,7 @@ const reportLabels = {
   "ai-monthly-en": "AI Tools Monthly Digest",
 };
 const maxFeedItems = 30;
+const recentDays = 30;
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -210,13 +212,52 @@ function listPublishedEntries() {
     .filter(([, reports]) => reports.length > 0);
 }
 
+function parseReportDate(date) {
+  const [year, month, day] = date.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function recentCutoff(now = new Date()) {
+  const cutoff = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  cutoff.setUTCDate(cutoff.getUTCDate() - (recentDays - 1));
+  return cutoff;
+}
+
+function recentEntries(entries, now = new Date()) {
+  const cutoff = recentCutoff(now);
+  return entries.filter(([date]) => parseReportDate(date) >= cutoff);
+}
+
+function groupEntriesByMonth(entries) {
+  const groups = new Map();
+  for (const entry of entries) {
+    const month = entry[0].slice(0, 7);
+    if (!groups.has(month)) groups.set(month, []);
+    groups.get(month).push(entry);
+  }
+  return groups;
+}
+
+function archiveMetadata(entries) {
+  return [...groupEntriesByMonth(entries)].map(([month, monthEntries]) => ({
+    month,
+    dateCount: monthEntries.length,
+    reportCount: monthEntries.reduce((total, [, reports]) => total + reports.length, 0),
+    url: `/radar/archive/${month}/`,
+  }));
+}
+
 function writeIndex(entries, latestDate) {
   const lines = [
     "# Big Model Radar",
     "",
     "AI 生态自动追踪报告，覆盖 AI CLI、Agents、官方资讯、开源趋势和 Hacker News 社区动态。",
     "",
+    `首页展示最近 ${recentDays} 个自然日的报告。更早内容请前往 [报告归档](/radar/archive/)。`,
+    "",
   ];
+
+  if (entries.length === 0) lines.push("近期暂无报告。", "");
 
   for (const [date, reports] of entries) {
     lines.push(`## ${date}`, "");
@@ -247,14 +288,65 @@ function writeIndex(entries, latestDate) {
   fs.writeFileSync(indexPath, content, "utf-8");
 }
 
-function writeManifestAndFeed(entries) {
+function writeArchivePages(entries, latestDate) {
+  assertInside(targetRoot, archiveRoot);
+  fs.rmSync(archiveRoot, { recursive: true, force: true });
+  fs.mkdirSync(archiveRoot, { recursive: true });
+
+  const groups = groupEntriesByMonth(entries);
+  const archiveLines = ["# Radar 报告归档", "", "全部历史报告按月份归档，当前月份也包含在内。", ""];
+
+  if (groups.size === 0) archiveLines.push("暂无归档报告。", "");
+  for (const [month, monthEntries] of groups) {
+    const reportCount = monthEntries.reduce((total, [, reports]) => total + reports.length, 0);
+    archiveLines.push(
+      `- [${month} 月度归档](/radar/archive/${month}/) — ${monthEntries.length} 个日期，${reportCount} 份报告`,
+    );
+  }
+
+  fs.writeFileSync(
+    path.join(archiveRoot, "index.md"),
+    frontMatter({ title: "Radar 报告归档", date: latestDate ?? new Date().toISOString().slice(0, 10) }) +
+      markdownBody(archiveLines.join("\n")),
+    "utf-8",
+  );
+
+  for (const [month, monthEntries] of groups) {
+    const lines = [
+      `# ${month} Radar 报告归档`,
+      "",
+      "[返回全部归档](/radar/archive/) · [返回 Radar 首页](/radar/)",
+      "",
+    ];
+    for (const [date, reports] of monthEntries) {
+      lines.push(`## ${date}`, "");
+      for (const report of reports) lines.push(`- [${report.title}](${report.link})`);
+      lines.push("");
+    }
+
+    const monthRoot = path.join(archiveRoot, month);
+    fs.mkdirSync(monthRoot, { recursive: true });
+    fs.writeFileSync(
+      path.join(monthRoot, "index.md"),
+      frontMatter({ title: `${month} Radar 报告归档`, date: monthEntries[0]?.[0] ?? latestDate }) +
+        markdownBody(lines.join("\n")),
+      "utf-8",
+    );
+  }
+}
+
+function writeManifestAndFeed(entries, recent) {
   const siteUrl = resolveSiteUrl();
-  const manifest = {
-    generated: new Date().toISOString(),
-    dates: entries.map(([date, reports]) => ({
+  const toManifestDates = (dateEntries) =>
+    dateEntries.map(([date, reports]) => ({
       date,
       reports: reports.map((report) => report.report),
-    })),
+    }));
+  const manifest = {
+    generated: new Date().toISOString(),
+    dates: toManifestDates(entries),
+    recentDates: toManifestDates(recent),
+    archives: archiveMetadata(entries),
   };
   fs.writeFileSync(path.join(targetRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
 
@@ -311,9 +403,13 @@ function main() {
   }
 
   const entries = listPublishedEntries();
-  writeIndex(entries, entries[0]?.[0]);
-  writeManifestAndFeed(entries);
-  console.log(`Moved ${moved} Radar reports to ${reportsRoot}; ${entries.length} published dates indexed.`);
+  const recent = recentEntries(entries);
+  writeIndex(recent, entries[0]?.[0]);
+  writeArchivePages(entries, entries[0]?.[0]);
+  writeManifestAndFeed(entries, recent);
+  console.log(
+    `Moved ${moved} Radar reports to ${reportsRoot}; ${recent.length} recent dates shown, ${entries.length} dates archived.`,
+  );
 }
 
 main();

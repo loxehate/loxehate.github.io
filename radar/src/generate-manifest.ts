@@ -23,6 +23,7 @@ const REPORT_FILES = [
   "ai-monthly-en",
 ] as const;
 const MAX_FEED_ITEMS = 30;
+const RECENT_DAYS = 30;
 
 const REPORT_LABELS: Record<string, string> = {
   "ai-cli": "AI CLI 工具社区动态日报",
@@ -49,6 +50,15 @@ interface DateEntry {
 interface Manifest {
   generated: string;
   dates: DateEntry[];
+  recentDates: DateEntry[];
+  archives: ArchiveEntry[];
+}
+
+interface ArchiveEntry {
+  month: string;
+  dateCount: number;
+  reportCount: number;
+  url: string;
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -103,9 +113,37 @@ const entries = collectDates()
   .map((date) => ({ date, reports: REPORT_FILES.filter((report) => reportExists(date, report)) }))
   .filter((entry) => entry.reports.length > 0);
 
+function recentCutoff(now = new Date()): Date {
+  const cutoff = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  cutoff.setUTCDate(cutoff.getUTCDate() - (RECENT_DAYS - 1));
+  return cutoff;
+}
+
+function parseReportDate(date: string): Date {
+  const parts = date.split("-").map(Number);
+  return new Date(Date.UTC(parts[0]!, parts[1]! - 1, parts[2]!));
+}
+
+const recentDates = entries.filter((entry) => parseReportDate(entry.date) >= recentCutoff());
+const archiveGroups = new Map<string, DateEntry[]>();
+for (const entry of entries) {
+  const month = entry.date.slice(0, 7);
+  const group = archiveGroups.get(month) ?? [];
+  group.push(entry);
+  archiveGroups.set(month, group);
+}
+const archives: ArchiveEntry[] = [...archiveGroups].map(([month, monthEntries]) => ({
+  month,
+  dateCount: monthEntries.length,
+  reportCount: monthEntries.reduce((total, entry) => total + entry.reports.length, 0),
+  url: `/radar/archive/${month}/`,
+}));
+
 const manifest: Manifest = {
   generated: new Date().toISOString(),
   dates: entries,
+  recentDates,
+  archives,
 };
 
 fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + "\n");

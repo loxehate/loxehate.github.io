@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-29T03:31:55.623Z",
+  "generated": "2026-08-29T03:47:48.789Z",
   "dates": [
     {
       "date": "2026-08-29",
@@ -390,6 +390,181 @@
         "ai-trending",
         "ai-hn"
       ]
+    }
+  ],
+  "recentDates": [
+    {
+      "date": "2026-08-29",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-17",
+      "reports": [
+        "ai-weekly"
+      ]
+    },
+    {
+      "date": "2026-08-12",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-10",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn",
+        "ai-weekly"
+      ]
+    },
+    {
+      "date": "2026-08-09",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-08",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-07",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-06",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-05",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-04",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-03",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn",
+        "ai-weekly"
+      ]
+    },
+    {
+      "date": "2026-08-02",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
+      "date": "2026-08-01",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn",
+        "ai-monthly"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "reports": [
+        "ai-cli",
+        "ai-agents",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    }
+  ],
+  "archives": [
+    {
+      "month": "2026-08",
+      "dateCount": 15,
+      "reportCount": 74,
+      "url": "/radar/archive/2026-08/"
+    },
+    {
+      "month": "2026-07",
+      "dateCount": 24,
+      "reportCount": 121,
+      "url": "/radar/archive/2026-07/"
     }
   ]
 }
