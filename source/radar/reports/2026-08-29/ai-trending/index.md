@@ -10,144 +10,95 @@ tags:
 
 # AI 开源趋势日报 2026-08-29
 
-> 数据来源: GitHub Trending + GitHub Search API | 生成时间: 2026-08-29 03:04 UTC
+> 数据来源: GitHub Trending + GitHub Search API | 生成时间: 2026-08-29 06:51 UTC
 
 ---
 
-# AI 开源趋势日报 — 2026-08-29
+# 🤖 AI 开源趋势日报 · 2026-08-29
 
 ---
 
-## 第一步：AI 相关性过滤
+## ⚡ 今日速览
 
-### ✅ 保留项目（AI 相关）
-
-#### Trending 榜单中 AI 相关项目：
-- [tt-a1i/archify](https://github.com/tt-a1i/archify)
-- [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills)
-- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official)
-- [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view)
-- [abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus)
-- [JetBrains/go-modern-guidelines](https://github.com/JetBrains/go-modern-guidelines)
-- [calesthio/OpenMontage](https://github.com/calesthio/OpenMontage)
-- [abi/screenshot-to-code](https://github.com/abi/screenshot-to-code)
-- [cursor/plugins](https://github.com/cursor/plugins)
-- [freestylefly/awesome-gpt-image-2](https://github.com/freestylefly/awesome-gpt-image-2)
-- [marin-community/marin](https://github.com/marin-community/marin)
-- [tashfeenahmed/freellmapi](https://github.com/tashfeenahmed/freellmapi)
-- [ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp)
-- [rohitg00/ai-engineering-from-scratch](https://github.com/rohitg00/ai-engineering-from-scratch)
-- [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)
-- [livekit/agents](https://github.com/livekit/agents)
-
-#### 主题搜索中 AI 相关项目：
-- [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
-- [Panniantong/Agent-Reach](https://github.com/Panniantong/Agent-Reach)
-- [shareAI-lab/learn-claude-code](https://github.com/shareAI-lab/learn-claude-code)
-- [santifer/career-ops](https://github.com/santifer/career-ops)
-- [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis)
-- [CherryHQ/cherry-studio](https://github.com/CherryHQ/cherry-studio)
-- [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master)
-- [HKUDS/nanobot](https://github.com/HKUDS/nanobot)
-- [zhayujie/CowAgent](https://github.com/zhayujie/CowAgent)
-- [siyuan-note/siyuan](https://github.com/siyuan-note/siyuan)
-- [bojieli/ai-agent-book](https://github.com/bojieli/ai-agent-book)
-- [Hmbown/CodeWhale](https://github.com/Hmbown/CodeWhale)
-- [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit)
-- [esengine/DeepSeek-Reasonix](https://github.com/esengine/DeepSeek-Reasonix)
-- [agentscope-ai/QwenPaw](https://github.com/agentscope-ai/QwenPaw)
-- [f/prompts.chat](https://github.com/f/prompts.chat)
-- [huggingface/transformers](https://github.com/huggingface/transformers)
-- [rasbt/LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch)
-- [pytorch/pytorch](https://github.com/pytorch/pytorch)
-- [roboflow/supervision](https://github.com/roboflow/supervision)
-- [rohitg00/ai-engineering-from-scratch](https://github.com/rohitg00/ai-engineering-from-scratch)
+**Agent Skills 生态全面爆发**——今日 Trending 榜单中超过 40% 的 AI 相关项目聚焦于"AI Agent 的技能/插件/MCP 工具"方向，从 Archify 的图表生成到 K-Dense-AI 的科学发现，Anthropic 官方插件目录的上线更确立了"技能即模块"的新范式。**大厂全面入局 Coding Agent 工具链**：JetBrains 推出 Go 编码规范、Cursor 发布插件规范、Chrome DevTools 上线 MCP，三者共同指向"让 AI 写好代码"这一核心场景。**轻量化、效率优化与幻觉控制**成为新热点，caveman、headroom、ponytail 通过极致 Token 压缩和工程哲学降本增效。
 
 ---
 
-## 第二步：分类
+## 📊 各维度热门项目
 
 ### 🔧 AI 基础工具
-- [JetBrains/go-modern-guidelines](https://github.com/JetBrains/go-modern-guidelines) — Go 语言 AI 编程指南
-- [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) — 官方 Claude 插件库
-- [cursor/plugins](https://github.com/cursor/plugins) — Cursor 插件规范与官方插件
-- [ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) — 面向 AI 编程代理的 DevTools 集成
-- [freellmapi](https://github.com/tashfeenahmed/freellmapi) — 聚合 34 个免费 LLM 提供商的统一接口
-- [rohitg00/ai-engineering-from-scratch](https://github.com/rohitg00/ai-engineering-from-scratch) — AI 工程入门教程
-- [bojieli/ai-agent-book](https://github.com/bojieli/ai-agent-book) — 《深入理解 AI Agent》开源图书
+
+| 项目 | Stars | 一句话 |
+|---|---|---|
+| [JetBrains/go-modern-guidelines](https://github.com/JetBrains/go-modern-guidelines) | ⭐0 (+574) | JetBrains 官方推出的现代 Go 编码规范，专门为 AI 编程 Agent 优化生成质量 |
+| [ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) | ⭐0 (+67) | 谷歌官方推出的 Chrome DevTools MCP，让 Coding Agent 拥有真实浏览器调试能力 |
+| [cursor/plugins](https://github.com/cursor/plugins) | ⭐0 (+246) | Cursor 官方插件规范与首批插件，确立 IDE 时代 Agent 扩展标准 |
+| [tashfeenahmed/freellmapi](https://github.com/tashfeenahmed/freellmapi) | ⭐0 (+433) | 统一 34 家免费 LLM 提供商、635 个端点的 OpenAI 兼容网关，降低开发成本 |
+| [ollama/ollama](https://github.com/ollama/ollama) | ⭐179,679 | 本地大模型运行事实标准，已支持 Kimi-K2.6、GLM-5.2、DeepSeek 等前沿模型 |
+| [tensorflow/tensorflow](https://github.com/tensorflow/tensorflow) | ⭐197,767 | 经典 ML 框架，生态长青，跨平台部署首选 |
+| [huggingface/transformers](https://github.com/huggingface/transformers) | ⭐164,589 | 覆盖文本/视觉/音频/多模态的模型定义与推理标准框架 |
 
 ### 🤖 AI 智能体/工作流
-- [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) — 科学领域智能体技能库
-- [bilalalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view) — 浏览器内的空间情报模拟器
-- [calesthio/OpenMontage](https://github.com/calesthio/OpenMontage) — 开源智能视频制作系统
-- [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) — 让 AI 更懒惰的智能体工具
-- [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) — 个性化成长型智能体
-- [Panniantong/Agent-Reach](https://github.com/Panniantong/Agent-Reach) — 多平台网络爬虫智能体
-- [shareAI-lab/learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) — 类似 Claude Code 的轻量级智能体框架
-- [santifer/career-ops](https://github.com/santifer/career-ops) — AI 职位搜索与简历优化智能体
-- [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis) — 股票分析智能体
-- [CherryHQ/cherry-studio](https://github.com/CherryHQ/cherry-studio) — 集成 300+ 助手的 AI 工作室
-- [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master) — 文档转 PPT 智能体
-- [HKUDS/nanobot](https://github.com/HKUDS/nanobot) — 轻量级自托管个人智能体框架
-- [zhayujie/CowAgent](https://github.com/zhayujie/CowAgent) — 多模型多渠道 AI 助手
-- [siyuan-note/siyuan](https://github.com/siyuan-note/siyuan) — 隐私优先的知识协作平台
-- [Hmbown/CodeWhale](https://github.com/Hmbown/CodeWhale) — Rust 构建的终端编码智能体
-- [esengine/DeepSeek-Reasonix](https://github.com/esengine/DeepSeek-Reasonix) — DeepSeek 原生终端编码智能体
-- [agentscope-ai/QwenPaw](https://github.com/agentscope-ai/QwenPaw) — 个人 AI 助手框架
-- [livekit/agents](https://github.com/livekit/agents) — 实时语音 AI 智能体框架
+
+| 项目 | Stars | 一句话 |
+|---|---|---|
+| [tt-a1i/archify](https://github.com/tt-a1i/archify) | ⭐0 (+4562) | **今日 AI 趋势冠军**——为 Agent 提供自包含、可验证的架构图/时序图/数据流图生成能力 |
+| [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) | ⭐0 (+720) | 将任意 AI Agent 改造为"AI 科学家"，163 个即用型科研技能，17.5 万科学家使用 |
+| [calesthio/OpenMontage](https://github.com/calesthio/OpenMontage) | ⭐0 (+1144) | 全球首个开源智能体视频生产系统，12 条流水线、100+ 工具、700+ 技能文件 |
+| [affaan-m/ECC](https://github.com/affaan-m/ECC) | ⭐244,018 [topic:llm] | Agent Harness 性能优化系统，Claude Code / Codex / Cursor 全平台通用 |
+| [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) | ⭐237,836 [topic:llm] | 主张"与用户共同成长"的自进化 Agent 框架 |
+| [Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT) | ⭐186,966 [topic:llm] | 老牌自主 Agent 标杆，"让每个人都能用 AI"愿景的代表性项目 |
+| [browser-use/browser-use](https://github.com/browser-use/browser-use) | ⭐111,598 [topic:llm] | 让网站对 AI Agent 可访问，浏览器自动化的事实标准 |
+| [livekit/agents](https://github.com/livekit/agents) | ⭐0 (+22) | 实时多模态语音/视频 AI Agent 框架，工业级稳定性 |
 
 ### 📦 AI 应用
-- [tt-a1i/archify](https://github.com/tt-a1i/archify) — 架构图生成智能体技能
-- [abi/screenshot-to-code](https://github.com/abi/screenshot-to-code) — 截图转代码工具
-- [freestylefly/awesome-gpt-image-2](https://github.com/freestylefly/awesome-gpt-image-2) — GPT-Image2 提示词引擎
-- [marin-community/marin](https://github.com/marin-community/marin) — 基础模型研发框架
-- [f/prompts.chat](https://github.com/f/prompts.chat) — 社区提示词分享平台
+
+| 项目 | Stars | 一句话 |
+|---|---|---|
+| [freestylefly/awesome-gpt-image-2](https://github.com/freestylefly/awesome-gpt-image-2) | ⭐0 (+1687) | GPT-Image-2 工业级提示词引擎，530+ 逆向案例 + 20+ 模板 + Skills 提炼 |
+| [abi/screenshot-to-code](https://github.com/abi/screenshot-to-code) | ⭐0 (+326) | 截图一键转 Tailwind/React/Vue 干净代码，前端 AI 编程经典 |
+| [open-webui/open-webui](https://github.com/open-webui/open-webui) | ⭐150,269 [topic:llm] | 最用户友好的本地 LLM Web 界面，兼容 Ollama 与 OpenAI API |
+| [harry0703/MoneyPrinterTurbo](https://github.com/harry0703/MoneyPrinterTurbo) | ⭐118,254 [topic:llm] | 一键根据主题/关键词生成高清短视频的 AI 自动化生产线 |
+| [f/prompts.chat](https://github.com/f/prompts.chat) | ⭐168,134 [topic:ml] | 前 Awesome ChatGPT Prompts，社区驱动的提示词分享与协作平台 |
 
 ### 🧠 大模型/训练
-- [tensorflow/tensorflow](https://github.com/tensorflow/tensorflow) — 通用 ML 框架
-- [huggingface/transformers](https://github.com/huggingface/transformers) — 多模态模型框架
-- [rasbt/LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch) — 从零实现 LLM 教程
-- [pytorch/pytorch](https://github.com/pytorch/pytorch) — 动态神经网络框架
-- [ultralytics/ultralytics](https://github.com/ultralytics/ultralytics) — YOLO 目标检测框架
-- [roboflow/supervision](https://github.com/roboflow/supervision) — 计算机视觉工具库
+
+| 项目 | Stars | 一句话 |
+|---|---|---|
+| [marin-community/marin](https://github.com/marin-community/marin) | ⭐0 (+236) | 开源基础模型研究与开发框架，专注训练流程透明化 |
+| [rasbt/LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch) | ⭐103,969 [topic:ml] | 从零手写 ChatGPT 式 LLM，PyTorch 教学典范，超 10 万星 |
+| [pytorch/pytorch](https://github.com/pytorch/pytorch) | ⭐102,653 [topic:ml] | 深度学习基础设施，GPU 加速动态图框架 |
+| [langchain-ai/langchain](https://github.com/langchain-ai/langchain) | ⭐145,221 [topic:llm] | 自我定位升级为"Agent 工程平台"，LLM 应用编排核心 |
+| [langgenius/dify](https://github.com/langgenius/dify) | ⭐153,792 [topic:llm] | 国产开源 Agent 工作流/RAG 一体化平台，支持云端与本地部署 |
+| [firecrawl/firecrawl](https://github.com/firecrawl/firecrawl) | ⭐173,735 [topic:llm] | 为 LLM 提供规模化搜索/爬取/交互的上下文 API |
 
 ### 🔍 RAG/知识库
-- [abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus) — 客户端知识图谱构建工具
+
+| 项目 | Stars | 一句话 |
+|---|---|---|
+| [abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus) | ⭐0 (+202) | 零服务端代码知识图谱引擎，浏览器内为 Git 仓库构建可查询图谱 |
+| [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) | ⭐112,084 [topic:llm] | 将代码库/SQL Schema/文档/PDF 转为可查询知识图谱的 Claude Code 技能 |
+| [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | ⭐92,528 [topic:rag] | 跨会话持久化 Agent 记忆，AI 自动压缩并注入相关上下文 |
+| [infiniflow/ragflow](https://github.com/infiniflow/ragflow) | ⭐89,555 [topic:rag] | 领先的开源 RAG 引擎，融合检索增强与 Agent 能力 |
+| [headroomlabs-ai/headroom](https://github.com/headroomlabs-ai/headroom) | ⭐67,947 [topic:rag] | 在送入 LLM 前压缩工具输出/日志/文件，节省 20%-95% Token |
 
 ---
 
-## 第三步：趋势信号分析
+## 📈 趋势信号分析
 
-今日热榜呈现出 **AI 智能体生态快速扩张** 的明显趋势，尤其在 **科学研究、职场应用、内容创作** 等垂直领域涌现出大量专用智能体技能与工具。例如 `K-Dense-AI/scientific-agent-skills` 和 `ZhuLinsen/daily_stock_analysis` 分别代表了科学与金融领域的智能体应用落地。
+**第一，Agent Skills 范式正式确立为行业标准。** 今日 Trending 中"Agent 技能库"相关项目占据绝对主导地位，Archify（+4562）、OpenMontage（+1144）、K-Dense-AI（+720）三箭齐发，标志着 Agent 能力建设正从"训练更好的模型"向"组装更好的技能"转移。Anthropic 官方插件目录的上线（+457）进一步将这一范式从社区探索升级为厂商背书，Claude Code 生态正快速从工具演变为"技能市场"。
 
-值得注意的是，**开发者工具方向持续火热**：如 `JetBrains/go-modern-guidelines`、`ChromeDevTools/chrome-devtools-mcp` 和 `cursor/plugins` 等项目，反映出越来越多的企业开始围绕 **AI 编程助手的插件化与标准化** 展开布局。
-
-此外，**开源大模型训练与推理框架** 仍旧保持活跃，如 `transformers`、`pytorch` 和 `tensorflow` 继续稳居榜单；而 `LLMs-from-scratch` 则体现出社区对理解与掌控底层技术的浓厚兴趣。
-
-新兴方向包括 **浏览器端空间智能**（如 `gods-eye-view`）和 **多模态内容生成**（如 `OpenMontage`），这些项目结合了 Web 技术与 AI，展示了未来智能体可能的发展形态。
+**第二，IDE 与浏览器厂商集体拥抱 MCP 协议。** JetBrains 推出 Go 编码规范（+574）瞄准 AI 生成质量、Cursor 发布官方插件规范（+246）、Chrome DevTools 上线 MCP（+67）——三家头部工具厂商在同一天围绕"让 AI 写好代码"集中发力，表明 MCP 正在从协议走向基础设施层。**第三，Token 经济学驱动效率优化项目走热。** Caveman 通过简化语言风格节省 65% Token、Headroom 压缩工具输出节省 20%-95% Token、Ponytail 以"少写代码"哲学为 Agent 减负，三者共同反映了 Agent 大规模落地后成本控制正在成为下一个竞争焦点。**第四，Ollama 已支持 Kimi-K2.6、GLM-5.2、DeepSeek** 等国产前沿模型，结合 freellmapi 整合 34 家免费 LLM 提供商，本地+免费的 LLM 普惠路径正快速成熟。
 
 ---
 
-## 社区关注热点
+## 🎯 社区关注热点
 
-- **[K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills)**  
-  科学领域智能体技能库，已被 175,000+ 科学家使用，代表 AI 在科研中的深入应用。
-
-- **[bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view)**  
-  实时空间情报模拟器，结合真实数据与 3D 渲染技术，探索 AI 在地理信息领域的潜力。
-
-- **[JetBrains/go-modern-guidelines](https://github.com/JetBrains/go-modern-guidelines)**  
-  Go 语言 AI 编程指南，有助于提升 AI 编程代理在 Go 项目中的代码质量。
-
-- **[ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp)**  
-  将 Chrome DevTools 引入 AI 编程代理，提升调试与开发效率。
-
-- **[freestylefly/awesome-gpt-image-2](https://github.com/freestylefly/awesome-gpt-image-2)**  
-  工业级 GPT-Image2 提示词引擎，聚合 530+ 案例，适用于图像生成领域的开发者。
-
----
-
-> 📌 **结语**：AI 智能体正从通用对话走向专业化应用，开发者工具也正变得更加模块化与可插拔。关注垂直场景的创新项目，有助于把握未来的发展方向。
+- 🔥 **[tt-a1i/archify](https://github.com/tt-a1i/archify)** — 今日 AI 领域 Stars 增速第一（+4562），Agent 必备的图表生成技能，**强烈建议收藏作为 Claude Code / Cursor 扩展**
+- 🔥 **[JetBrains/go-modern-guidelines](https://github.com/JetBrains/go-modern-guidelines)** — JetBrains 首次官方下场为 AI 编程 Agent 制定规范，**预示着 AI 代码生成从"能跑"向"专业"演进**
+- 🔥 **[ChromeDevTools/chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp)** — 谷歌将浏览器调试能力以 MCP 暴露给 Agent，**Coding Agent 可观测性的关键拼图**
+- 🔥 **[calesthio/OpenMontage](https://github.com/calesthio/OpenMontage)** — 开源智能体视频生产的开创性项目，**AI 视频工作流值得关注**
+- 🔥 **[headroomlabs-ai/headroom](https://github.com/headroomlabs-ai/headroom)** — LLM Token 压缩工具，**Agent 落地成本优化的实用利器**
 
 ---
 
@@ -155,33 +106,33 @@ tags:
 
 1. [tt-a1i/archify](https://github.com/tt-a1i/archify) [JavaScript]
    ⭐ 0 | 今日 +4562
-   提供美观、可验证的架构、工作流、序列、数据流和生命周期图的 Agent 技能，自包含 HTML，支持动画并可精确导出。
+   Agent技能，用于生成美观且可验证的架构、工作流程、时序、数据流和生命周期图——自包含的HTML，支持动效和高清导出。
 2. [K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills) [Python]
    ⭐ 0 | 今日 +720
-   将任何 AI Agent 转化为 AI 科学家。全球超过 175,000 名科学家使用的科学领域首屈一指的 Agent 技能库，包含 163 种已验证的即用技能和 100 多个涵盖生物、化学、医学和药物发现的科学数据库。兼容 Cursor、Claude Code、Codex、Pi、Antigravity 以及开放的 Agent Skills 标准。
+   将任何AI代理转化为AI科学家。全球17.5万+科学家使用的科学#1 Agent Skills库。包含163个即插即用的验证技能，以及覆盖生物学、化学、医学和药物发现的100+科学数据库。支持Cursor、Claude Code、Codex、Pi、Antigravity及开放Agent Skills标准。
 3. [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) [Python]
    ⭐ 0 | 今日 +457
-   Anthropic 官方管理的高质量 Claude 代码插件目录。
+   官方、Anthropic运营的高质量Claude Code插件目录。
 4. [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view) [JavaScript]
    ⭐ 0 | 今日 +3829
-   浏览器中的间谍卫星模拟器，数据真实。提供基于开源的实时空间情报，展现在逼真的 3D 地球上。
+   浏览器中的间谍卫星模拟器，数据真实可信。以逼真的3D地球呈现实时开源空间智能。
 5. [abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus) [TypeScript]
    ⭐ 0 | 今日 +202
-   GitNexus：零服务器代码智能引擎，纯客户端知识图谱生成器，运行于浏览器。支持导入 GitHub、GitLab、Azure、本地仓库或 ZIP 包，生成交互式知识图谱并内置 Graph RAG Agent，适合代码探索。
+   GitNexus：零服务器代码智能引擎。完全运行在浏览器中的客户端知识图谱创建器。输入Git仓库（GitHub、GitLab、Azure、本地）或ZIP文件，即可生成内置图RAG智能体的交互式知识图谱。完美适用于代码探索。
 6. [JetBrains/go-modern-guidelines](https://github.com/JetBrains/go-modern-guidelines) [Go]
    ⭐ 0 | 今日 +574
-   帮助 AI 编程助手编写现代 Go 代码。
+   帮助AI编码代理编写现代Go代码。
 7. [calesthio/OpenMontage](https://github.com/calesthio/OpenMontage) [Python]
    ⭐ 0 | 今日 +1144
-   全球首个开源的面向代理的视频制作系统。包含 12 条生产流水线、100 多种工具、700 多个 Agent 技能和制作知识文件。将 AI 编码助手转变为完整的视频制作工作室。
+   世界首个开源智能体视频制作系统。包含12条生产流程、100+工具、700+Agent技能和生产知识文件。将AI编码助手转化为完整的视频制作工作室。
 8. [abi/screenshot-to-code](https://github.com/abi/screenshot-to-code) [Python]
    ⭐ 0 | 今日 +326
-   拖入截图即可转换为干净的代码（HTML、Tailwind、React、Vue）。
+   将截图输入即可转换为干净的代码（HTML/Tailwind/React/Vue）。
 9. [cursor/plugins](https://github.com/cursor/plugins) [TypeScript]
    ⭐ 0 | 今日 +246
-   Cursor 插件规范及官方插件。
+   Cursor插件规范及官方插件。
 10. [freestylefly/awesome-gpt-image-2](https://github.com/freestylefly/awesome-gpt-image-2) [JavaScript]
    ⭐ 0 | 今日 +1687
-   Prompt as Code | GPT-Image2 工业级提示词引擎与模板库，已有 530+ 案例逆向工程，20+ 套工业级模板，并提炼出 Skills，持续更新中。
+   Prompt as Code | GPT-Image2 工业级提示词引擎与模板库，530+个案例逆向工程，20+套工业级模板，并提炼出Skills，持续更新中。
 
 </div>
