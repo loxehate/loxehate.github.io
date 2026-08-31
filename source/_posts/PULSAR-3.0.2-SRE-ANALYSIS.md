@@ -1,6 +1,6 @@
 ---
 title: PULSAR-3.0.2-SRE-ANALYSIS
-tags: [Pulsar]
+tags: [Pulsar,SRE]
 categories: [SRE]
 date: 2026-8-4
 ---
