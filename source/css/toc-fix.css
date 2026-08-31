@@ -6,3 +6,9 @@
   overflow: visible;
   text-overflow: clip;
 }
+
+/* Fluid's expand-all mode may omit the collapsible class; closed lists still need clipping. */
+#toc-body ol.tocbot-is-collapsed {
+  max-height: 0;
+  overflow: hidden;
+}
