@@ -1,0 +1,50 @@
+name: Analytics Daily Stats
+
+on:
+  schedule:
+    - cron: "10 16 * * *"
+      timezone: "Asia/Shanghai"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: analytics-daily-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Query GA4 daily statistics
+        env:
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GA4_SERVICE_ACCOUNT_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_JSON }}
+          GA4_PAGE_PATH_PREFIX: ${{ vars.GA4_PAGE_PATH_PREFIX }}
+        run: node tools/update-ga4-stats.mjs
+
+      - name: Commit analytics data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add source/data/ga4-daily.json
+          if git diff --cached --quiet; then
+            echo "No analytics data changes to commit"
+          else
+            date_str="$(date -u +%Y-%m-%d)"
+            git commit -m "analytics: ${date_str} daily visitors"
+            git pull --rebase
+            git push
+          fi
