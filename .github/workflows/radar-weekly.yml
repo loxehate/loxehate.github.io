@@ -2,7 +2,7 @@ name: Radar Weekly Digest
 
 on:
   schedule:
-    - cron: "15 1 * * 1"
+    - cron: "35 8 * * 1"
       timezone: "Asia/Shanghai"
   workflow_dispatch:
 

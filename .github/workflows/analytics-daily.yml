@@ -2,7 +2,7 @@ name: Analytics Daily Stats
 
 on:
   schedule:
-    - cron: "30 16 * * *"
+    - cron: "55 23 * * *"
       timezone: "Asia/Shanghai"
   workflow_dispatch:
 
