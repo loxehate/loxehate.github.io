@@ -1,0 +1,8 @@
+/* Keep nested TOC lists visible when a long parent title wraps onto multiple lines. */
+#toc-body .toc-list-item {
+  display: block;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+  text-overflow: clip;
+}
