@@ -62,6 +62,17 @@ export interface GitHubRelease {
 /** Maximum pages to fetch for paginated repos (100 items/page). */
 const MAX_PAGES = 5;
 
+class GitHubApiError extends Error {
+  constructor(
+    readonly status: number,
+    url: string,
+    body: string,
+  ) {
+    super(`GitHub API error ${status} (${url}): ${body}`);
+    this.name = "GitHubApiError";
+  }
+}
+
 function headers(): Record<string, string> {
   return {
     Authorization: `Bearer ${process.env["GITHUB_TOKEN"] ?? ""}`,
@@ -74,8 +85,26 @@ async function githubGet<T>(url: string, params: Record<string, string> = {}): P
   const u = new URL(url);
   for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
   const resp = await fetch(u.toString(), { headers: headers() });
-  if (!resp.ok) throw new Error(`GitHub API error ${resp.status} (${url}): ${await resp.text()}`);
+  if (!resp.ok) throw new GitHubApiError(resp.status, url, await resp.text());
   return resp.json() as Promise<T>;
+}
+
+async function fetchItemList(
+  repo: string,
+  itemType: "issues" | "pulls",
+  params: Record<string, string>,
+): Promise<GitHubItem[]> {
+  try {
+    return await githubGet<GitHubItem[]>(`https://api.github.com/repos/${repo}/${itemType}`, params);
+  } catch (error) {
+    // Some public repositories disable pull requests. GitHub returns 404 for
+    // their /pulls endpoint even though the repository itself is accessible.
+    if (itemType === "pulls" && error instanceof GitHubApiError && error.status === 404) {
+      console.warn(`  [github/${repo}] pull requests unavailable (404); skipped`);
+      return [];
+    }
+    throw error;
+  }
 }
 
 async function fetchItemPage(
@@ -94,7 +123,7 @@ async function fetchItemPage(
   // /pulls does not support `since`; filter client-side instead
   if (itemType === "issues") params["since"] = since.toISOString();
 
-  const items = await githubGet<GitHubItem[]>(`https://api.github.com/repos/${repo}/${itemType}`, params);
+  const items = await fetchItemList(repo, itemType, params);
   return itemType === "pulls" ? items.filter((i) => new Date(i.updated_at) >= since) : items;
 }
 
@@ -120,10 +149,7 @@ export async function fetchRecentItems(
       per_page: "50",
     };
     if (itemType === "issues") params["since"] = since.toISOString();
-    const items = await githubGet<GitHubItem[]>(
-      `https://api.github.com/repos/${cfg.repo}/${itemType}`,
-      params,
-    );
+    const items = await fetchItemList(cfg.repo, itemType, params);
     return itemType === "pulls" ? items.filter((i) => new Date(i.updated_at) >= since) : items;
   }
 
