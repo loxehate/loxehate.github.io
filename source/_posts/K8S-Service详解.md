@@ -9,10 +9,10 @@ date: 2026-09-01
  在kubernetes中，pod是应用程序的载体，我们可以通过pod的ip来访问应用程序，但是pod的ip地址不是固定的，这也就意味着不方便直接采用pod的ip对服务进行访问。
 
  为了解决这个问题，kubernetes提供了Service资源，Service会对提供同一个服务的多个pod进行聚合，并且提供一个统一的入口地址。通过访问Service的入口地址就能访问到后面的pod服务。
-![](图片\service.png)
+![](图片/service.png)
 
  Service在很多情况下只是一个概念，真正起作用的其实是kube-proxy服务进程，每个Node节点上都运行着一个kube-proxy服务进程。当创建Service的时候会通过api-server向etcd写入创建的service的信息，而kube-proxy会基于监听的机制发现这种Service的变动，然后它会将最新的Service信息转换成对应的访问规则
-![](图片\service功能.png)
+![](图片/service功能.png)
 
 ```
 # 10.97.97.97:80 是service提供的访问入口
@@ -38,7 +38,7 @@ kube-proxy目前支持三种工作模式:
 ​ 该模式下，kube-proxy充当了一个四层负责均衡器的角色。由于kube-proxy运行在userspace中，在进行转发处理时会增加内核和用户空间之间的数据拷贝，虽然比较稳定，但是效率比较低。
 ```
 
-![](图片\service-userspace.png)
+![](图片/service-userspace.png)
 
 **iptables 模式**
 
@@ -49,7 +49,7 @@ kube-proxy目前支持三种工作模式:
 
 
 
-![](图片\service-iptables.png)
+![](图片/service-iptables.png)
 
 
 
@@ -59,7 +59,7 @@ kube-proxy目前支持三种工作模式:
  ipvs模式和iptables类似，kube-proxy监控Pod的变化并创建相应的ipvs规则。ipvs相对iptables转发效率更高。除此以外，ipvs支持更多的LB算法。
 ```
 
-![](图片\service-ipvs.png)
+![](图片/service-ipvs.png)
 
 ```
 # 此模式必须安装ipvs内核模块，否则会降级为iptables
@@ -225,7 +225,7 @@ TCP  10.97.97.97:80 rr
 
  一个Service由一组Pod组成，这些Pod通过Endpoints暴露出来，Endpoints是实现实际服务的端点集合。换句话说，service和pod之间的联系是通过endpoints实现的。
 
-![](图片\endpoints.png)
+![](图片/endpoints.png)
 
 **负载分发策略**
 
@@ -336,7 +336,7 @@ service-headliness.dev.svc.cluster.local. 30 IN A 10.244.2.33
 #### 3.4 NodePort类型的Service
 
 在之前的样例中，创建的Service的ip地址只有集群内部才可以访问，如果希望将Service暴露给集群外部使用，那么就要使用到另外一种类型的Service，称为NodePort类型。NodePort的工作原理其实就是将service的端口映射到Node的一个端口上，然后就可以通过NodeIp:NodePort来访问service了。
-![](图片\NodePort.png)
+![](图片/NodePort.png)
 
 创建service-nodeport.yaml
 
@@ -373,13 +373,13 @@ service-nodeport   NodePort   10.105.64.191   <none>        80:30002/TCP  app=ng
 
  LoadBalancer和NodePort很相似，目的都是向外部暴露一个端口，区别在于LoadBalancer会在集群的外部再来做一个负载均衡设备，而这个设备需要外部环境支持的，外部服务发送到这个设备上的请求，会被设备负载之后转发到集群中。
 
-![](图片\LoadBalancer.png)
+![](图片/LoadBalancer.png)
 
 #### 3.6 ExternalName类型的Service
 
  ExternalName类型的Service用于引入集群外部的服务，它通过`externalName`属性指定外部一个服务的地址，然后在集群内部访问此service就可以访问到外部的服务了。
 
-![](图片\ExternalName.png)
+![](图片/ExternalName.png)
 
 ```
 apiVersion: v1
@@ -478,7 +478,7 @@ port、nodePort：总的来说，port和nodePort都是service的端口，前者�
 
 #### 5.1 Metallb基本原理
 
-![](图片\metallb基本原理.png)
+![](图片/metallb基本原理.png)
 
 - 将地址池分配给指定的服务分配
 - 将地址广播或者BGP 的方式进行地址的广播

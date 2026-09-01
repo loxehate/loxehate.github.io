@@ -156,11 +156,11 @@ Kubernetes 还不支持网络或存储在 Pod 之间的隔离。如果你的应�
 Pod、PVC 和 PV 对应的关系图
 ```
 
-![](图片\volumeClaimTemplate.png)
+![](图片/volumeClaimTemplate.png)
 
 #### 6、statefulset和deployment的区别
 
-![](图片\statefulset和deployment的区别.png)
+![](图片/statefulset和deployment的区别.png)
 
 ### 三、StatefulSet工作原理机制
 
@@ -300,7 +300,7 @@ PersistentVolume（PV）是集群之中的一块网络存储。跟 Node 一样�
 
 刚才提到说PV与普通Volume的区别是动态绑定，我们来看一下这个过程是怎样的。
 
-![](图片\pvc-pv.png)
+![](图片/pvc-pv.png)
 
 这是PV的生命周期：
 

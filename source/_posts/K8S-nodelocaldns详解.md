@@ -33,7 +33,7 @@ date: 2026-09-01
 
 ### 三、工作原理
 
-![](图片\NodeLocal DNS.png)
+![](图片/NodeLocal DNS.png)
 
 ```
 配置了NodeLocal DNS本地缓存的Pod，默认会通过NodeLocal DNSCache监听于节点上的IP（169.254.20.10）解析域名。

@@ -67,9 +67,9 @@ $ kubectl get pod -f pod.yaml
 
 #### 3.1 常用操作参数分类
 
-![](图片\kubectl常用操作命令1.png)
+![](图片/kubectl常用操作命令1.png)
 
-![](图片\kubectl常用操作命令2.png)
+![](图片/kubectl常用操作命令2.png)
 
 #### 3.2 pod相关常用命令
 
