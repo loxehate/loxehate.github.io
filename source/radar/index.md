@@ -25,6 +25,7 @@ AI 生态自动追踪报告，覆盖 AI CLI、Agents、官方资讯、开源趋�
 - [AI 官方内容追踪报告](/radar/reports/2026-09-01/ai-web/)
 - [AI 开源趋势日报](/radar/reports/2026-09-01/ai-trending/)
 - [Hacker News AI 社区动态日报](/radar/reports/2026-09-01/ai-hn/)
+- [AI 工具生态月报 2026-08](/radar/reports/2026-09-01/ai-monthly/)
 
 ## 2026-08-31
 

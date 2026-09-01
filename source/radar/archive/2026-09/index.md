@@ -19,5 +19,6 @@ tags:
 - [AI 官方内容追踪报告](/radar/reports/2026-09-01/ai-web/)
 - [AI 开源趋势日报](/radar/reports/2026-09-01/ai-trending/)
 - [Hacker News AI 社区动态日报](/radar/reports/2026-09-01/ai-hn/)
+- [AI 工具生态月报 2026-08](/radar/reports/2026-09-01/ai-monthly/)
 
 </div>
