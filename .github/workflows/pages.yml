@@ -9,6 +9,7 @@ on:
       - Radar Daily Digest
       - Radar Weekly Digest
       - Radar Monthly Digest
+      - Analytics Daily Stats
     types:
       - completed
 
