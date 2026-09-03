@@ -540,23 +540,23 @@ Transaction：
 
 Broker availability：
 
-```promql
+```text
 up{job=~"pulsar-broker|broker"} == 0
 ```
 
 Lookup 失败和饱和：
 
-```promql
+```text
 sum by (cluster) (rate(pulsar_broker_lookup_failures[5m])) > 1
 ```
 
-```promql
+```text
 max by (cluster, instance) (pulsar_broker_lookup_pending_requests) > 500
 ```
 
 Metadata operation failure：
 
-```promql
+```text
 sum by (cluster, instance, name, type) (
   rate(pulsar_metadata_store_ops_latency_ms_count{status="fail"}[5m])
 ) > 0.1
@@ -564,7 +564,7 @@ sum by (cluster, instance, name, type) (
 
 Metadata p99：
 
-```promql
+```text
 histogram_quantile(
   0.99,
   sum by (cluster, instance, name, type, le) (
@@ -575,7 +575,7 @@ histogram_quantile(
 
 Ledger 写平均延迟（源码单位 µs，50ms=50000µs）：
 
-```promql
+```text
 sum by (cluster, namespace) (pulsar_storage_ledger_write_latency_sum)
 /
 clamp_min(sum by (cluster, namespace) (pulsar_storage_ledger_write_latency_count), 1)
@@ -584,13 +584,13 @@ clamp_min(sum by (cluster, namespace) (pulsar_storage_ledger_write_latency_count
 
 Backlog 增长：
 
-```promql
+```text
 deriv(sum by (cluster, namespace) (pulsar_msg_backlog)[15m:1m]) > 1000
 ```
 
 复制停滞：
 
-```promql
+```text
 sum by (cluster, namespace, remote_cluster) (pulsar_replication_backlog) > 100000
 and
 sum by (cluster, namespace, remote_cluster) (pulsar_replication_rate_out) < 1
@@ -598,7 +598,7 @@ sum by (cluster, namespace, remote_cluster) (pulsar_replication_rate_out) < 1
 
 Direct memory：
 
-```promql
+```text
 jvm_memory_direct_bytes_used
 /
 clamp_min(jvm_memory_direct_bytes_max, 1)

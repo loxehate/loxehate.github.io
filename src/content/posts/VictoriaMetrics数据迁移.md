@@ -169,7 +169,7 @@ func alignTimestamp(ts int64) int64 {
 
 3.  **冲突解决**： 当源和目标数据冲突时（如双写期间某样本写入失败），采用"后者胜出"原则，通过以下查询定期检查冲突：
 
-```promql
+```text
 # 检测时间序列差异
 count({__name__!=""}) by (__name__) 
 - on(__name__) 
@@ -292,7 +292,7 @@ done
 
 **监控并行任务**：
 
-```promql
+```text
 # 查看各迁移进程状态
 sum by (job) (vmctl_imported_samples_total)
 ```
@@ -330,7 +330,7 @@ curl http://victoriametrics:8428/api/v1/export/native -g -d 'match[]={__name__!=
 
 **关键指标对比**：
 
-```promql
+```text
 # 源和目标数据量对比
 sum(count_over_time({__name__!=""}[1h])) 
 / 

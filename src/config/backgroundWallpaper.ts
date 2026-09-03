@@ -38,7 +38,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	src: {
 		// 桌面背景图片（支持单张或多张随机）
 		// desktop: "assets/images/DesktopWallpaper/d1.avif",
-		desktop: "/img/all - 1.jpg",
+		desktop: "/img/all.jpg",
 		// 移动背景图片（支持单张或多张随机）
 		// mobile: "assets/images/MobileWallpaper/m1.avif",
 		mobile: "/img/all.jpg",
@@ -88,12 +88,12 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 					icon: "fa7-brands:github",
 					url: "https://github.com/loxehate",
 					showName: true,
-				},
-				{
-					name: "RSS",
-					icon: "fa7-solid:rss",
-					url: "/rss/",
-				},
+				}
+				// {
+				// 	name: "RSS",
+				// 	icon: "fa7-solid:rss",
+				// 	url: "/rss/",
+				// },
 			],
 		},
 		// 壁纸轮播配置，横幅壁纸和全屏壁纸共享，仅在配置多张图片时生效

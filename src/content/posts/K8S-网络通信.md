@@ -852,8 +852,8 @@ kube-system         hubble-ui        NodePort    10.96.185.26     <none>        
 
 验证 Cilium 本地重定向策略 CRD 是否已注册
 
-```vbnet
-$ kubectl get crds
+```vb
+kubectl get crds
 NAME                              CREATED AT
 [...]
 ciliumlocalredirectpolicies.cilium.io              2020-08-24T05:31:47Z
@@ -863,7 +863,7 @@ ciliumlocalredirectpolicies.cilium.io              2020-08-24T05:31:47Z
 
 部署 DNS 节点缓存
 
-```undefined
+```text
 $ wget https://raw.githubusercontent.com/cilium/cilium/1.18.2/examples/kubernetes-local-redirect/node-local-dns.yaml
 
 $ kubedns=$(kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}) && sed -i "s/__PILLAR__DNS__SERVER__/$kubedns/g;" node-local-dns.yaml
