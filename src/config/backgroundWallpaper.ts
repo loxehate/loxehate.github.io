@@ -41,6 +41,8 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	   desktop: [
 	      "assets/images/DesktopWallpaper/d1.webp",
 	      "assets/images/DesktopWallpaper/d2.webp",
+		  "assets/images/DesktopWallpaper/d3.webp",
+		  "assets/images/DesktopWallpaper/d4.webp",
 	    ],
 		// 移动背景图片（支持单张或多张随机）
 	    mobile:[
