@@ -3,7 +3,7 @@ title: Mysql-集群架构和主从模式部署
 slug: Mysql-集群架构和主从模式部署
 published: 2025-06-11
 description: 在集群架构设计时，主要遵从下面三个维度：
-image: '../../assets/images/Dota-img/lone_druid.webp'
+image: '../../assets/images/Dota-img/lone_druid.png'
 tags:
   - Mysql
 category: 数据库

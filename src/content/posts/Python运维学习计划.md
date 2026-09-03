@@ -3,7 +3,7 @@ title: Python 运维学习计划
 slug: Python运维学习计划
 published: 2025-08-01
 description: 目标：能写出可运行的 Python 脚本，能替代 Shell 脚本完成基础任务。
-image: '../../assets/images/Dota-img/sven.webp'
+image: '../../assets/images/Dota-img/sven.png'
 tags:
   - Python
 category: 职业发展

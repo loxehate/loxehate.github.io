@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import matter from "gray-matter";
 
 const root = process.cwd();
@@ -25,7 +26,20 @@ function hash(value) {
   return result >>> 0;
 }
 
-const pool = walkImages(imagesRoot).sort((a, b) => a.localeCompare(b));
+function fileHash(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+const imageHashes = new Set();
+const pool = walkImages(imagesRoot)
+  .filter((filePath) => !path.basename(filePath, path.extname(filePath)).endsWith("_full"))
+  .sort((a, b) => a.localeCompare(b))
+  .filter((filePath) => {
+    const digest = fileHash(filePath);
+    if (imageHashes.has(digest)) return false;
+    imageHashes.add(digest);
+    return true;
+  });
 const used = new Set();
 const posts = fs.readdirSync(postsRoot).filter((name) => name.endsWith(".md")).sort((a, b) => a.localeCompare(b));
 

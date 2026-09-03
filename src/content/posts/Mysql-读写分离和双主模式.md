@@ -3,7 +3,7 @@ title: Mysql-读写分离和双主模式
 slug: Mysql-读写分离和双主模式
 published: 2025-05-08
 description: 大多数互联网业务中，往往读多写少，这时候数据库的读会首先成为数据库的瓶颈。如果我们已经优化了SQL，但是读依旧还是瓶颈时，这时就可以选择“读写分离”架构了。
-image: '../../assets/images/Dota-img/disruptor.webp'
+image: '../../assets/images/Dota-img/disruptor.png'
 tags:
   - Mysql
 category: 数据库

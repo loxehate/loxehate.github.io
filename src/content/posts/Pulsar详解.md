@@ -3,7 +3,7 @@ title: Pulsar详解
 slug: Pulsar详解
 published: 2025-12-02
 description: Pulsar基于publish subscribe(pub sub)生产订阅模式，生产者将消息发布到Topic，消费者可以订阅这些主题来处理消息，并在处理完成后发送确认消息
-image: '../../assets/images/Dota-img/primal_beast.webp'
+image: '../../assets/images/Dota-img/primal_beast.png'
 tags:
   - Pulsar
 category: 中间件

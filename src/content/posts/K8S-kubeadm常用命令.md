@@ -3,7 +3,7 @@ title: K8S-kubeadm常用命令
 slug: K8S-kubeadm常用命令
 published: 2026-09-01
 description: “init” 命令执行以下阶段：
-image: '../../assets/images/Dota-img/rattletrap.webp'
+image: '../../assets/images/Dota-img/rattletrap.png'
 tags:
   - kubernetes
 category: 云原生

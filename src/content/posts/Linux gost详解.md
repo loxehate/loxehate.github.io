@@ -3,7 +3,7 @@ title: Linux gost详解
 slug: Linux gost详解
 published: 2025-05-09
 description: 你可以通过以下几种方式安装 GOST：
-image: '../../assets/images/Dota-img/spectre.webp'
+image: '../../assets/images/Dota-img/spectre.png'
 tags:
   - vpn
 category: Linux

@@ -3,7 +3,7 @@ title: Mysql-锁机制
 slug: Mysql-锁机制
 published: 2025-05-08
 description: 在 MySQL中锁有很多不同的分类。
-image: '../../assets/images/Dota-img/enchantress.webp'
+image: '../../assets/images/Dota-img/enchantress.png'
 tags:
   - Mysql
 category: 数据库

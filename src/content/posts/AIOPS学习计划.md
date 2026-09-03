@@ -60,7 +60,7 @@ title: AIOps学习计划
 slug: AIOPS学习计划
 published: 2025-05-16
 description: 适用于：运维工程师转型 AIOps 方向
-image: '../../assets/images/Dota-img/troll_warlord.webp'
+image: '../../assets/images/Dota-img/troll_warlord.png'
 tags:
   - AIOps
 category: 职业发展

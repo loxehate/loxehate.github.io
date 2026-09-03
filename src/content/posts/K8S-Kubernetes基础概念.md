@@ -3,7 +3,7 @@ title: K8S-Kubernetes基础概念
 slug: K8S-Kubernetes基础概念
 published: 2025-07-31
 description: 我们急需一个大规模容器编排系统
-image: '../../assets/images/Dota-img/warlock.webp'
+image: '../../assets/images/Dota-img/warlock.png'
 tags:
   - kubernetes
 category: 云原生

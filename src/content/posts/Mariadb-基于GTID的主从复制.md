@@ -3,7 +3,7 @@ title: Mariadb-基于GTID的主从复制
 slug: Mariadb-基于GTID的主从复制
 published: 2025-05-08
 description: 在MariaDB中，只要开启了binlog，所有的DML和DDL都会形成事件并且写入其中，并且每一件事务都会生成全局唯一的事务ID：Global transaction ID（全局事务ID），简称GTID。
-image: '../../assets/images/Dota-img/wisp.webp'
+image: '../../assets/images/Dota-img/wisp.png'
 tags:
   - Mariadb
 category: 数据库

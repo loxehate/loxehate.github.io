@@ -3,7 +3,7 @@ title: K8S-日志管理
 slug: K8S-日志管理
 published: 2025-11-19
 description: Kubernetes本身并没有为日志数据提供原生的存储解决方案，但可以将许多现有的日志记录解决方案集成到Kubernetes集群中。在Kubernetes中，有三个层次的日志：
-image: '../../assets/images/Dota-img/bounty_hunter.webp'
+image: '../../assets/images/Dota-img/bounty_hunter.png'
 tags:
   - kubernetes
 category: 云原生

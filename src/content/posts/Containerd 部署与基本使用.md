@@ -3,7 +3,7 @@ title: Containerd 部署与基本使用
 slug: Containerd 部署与基本使用
 published: 2025-06-13
 description: 在containerd的下载页面，有两种类型的包：
-image: '../../assets/images/Dota-img/chaos_knight.webp'
+image: '../../assets/images/Dota-img/chaos_knight.png'
 tags:
   - Docker
 category: 云原生

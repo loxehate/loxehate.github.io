@@ -3,7 +3,7 @@ title: k8s-pod详解
 slug: K8S-pod详解
 published: 2026-09-01
 description: 网络之间的调用【通过127.0.0.1 或 socket】
-image: '../../assets/images/Dota-img/tidehunter.webp'
+image: '../../assets/images/Dota-img/tidehunter.png'
 tags:
   - kubernetes
 category: 云原生

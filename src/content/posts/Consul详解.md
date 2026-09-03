@@ -3,7 +3,7 @@ title: Consul详解
 slug: Consul详解
 published: 2025-05-29
 description: 让我们把这幅图分解描述。首先，我们可以看到有两个数据中心，分别标记为“1”和“2”。Consul拥有对多个数据中心的一流支持，这是比较常见的情况。
-image: '../../assets/images/Dota-img/techies.webp'
+image: '../../assets/images/Dota-img/techies.png'
 tags:
   - Consul
 category: 中间件

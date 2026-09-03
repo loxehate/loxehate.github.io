@@ -3,7 +3,7 @@ title: Linux supervisor详解
 slug: linux supervisor详解
 published: 2025-05-09
 description: 对比传统方式的书写，supervisor的特性作用比较大
-image: '../../assets/images/Dota-img/pangolier.webp'
+image: '../../assets/images/Dota-img/pangolier.png'
 tags:
   - supervisor
 category: Linux

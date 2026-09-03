@@ -3,7 +3,7 @@ title: Linux nginx详解-1
 slug: Linux nginx详解-1
 published: 2025-05-09
 description: 套接字Socket是进程间通信IPC的一种实现，允许位于不同主机（或同一主机）上不同进程之间进行通信和数据交换。
-image: '../../assets/images/Dota-img/leshrac.webp'
+image: '../../assets/images/Dota-img/leshrac.png'
 tags:
   - nginx
 category: Linux

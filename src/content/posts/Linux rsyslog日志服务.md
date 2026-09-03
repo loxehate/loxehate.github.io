@@ -3,7 +3,7 @@ title: Linux rsyslog日志服务
 slug: Linux rsyslog日志服务
 published: 2025-08-28
 description: 我们如何知道 Linux 中的 rsyslogd 服务是否启动了呢？如何查询 rsyslogd 服务的自 启动状态呢？命令如下：
-image: '../../assets/images/Dota-img/storm_spirit.webp'
+image: '../../assets/images/Dota-img/storm_spirit.png'
 tags:
   - rsyslog
 category: Linux

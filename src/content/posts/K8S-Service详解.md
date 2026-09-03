@@ -3,7 +3,7 @@ title: k8s-Service详解
 slug: K8S-Service详解
 published: 2026-09-01
 description: 在kubernetes中，pod是应用程序的载体，我们可以通过pod的ip来访问应用程序，但是pod的ip地址不是固定的，这也就意味着不方便直接采用pod的ip对服务进行访问。
-image: '../../assets/images/Dota-img/batrider.webp'
+image: '../../assets/images/Dota-img/batrider.png'
 tags:
   - kubernetes
 category: 云原生

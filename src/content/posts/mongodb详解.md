@@ -3,7 +3,7 @@ title: MongoDB详解
 slug: mongodb详解
 published: 2025-05-08
 description: 文档中的值不仅可以是双引号中的字符串，也可以是其他的数据类型，例如，整型、布尔型等，也可以是另外一个文档，即文档可以嵌套。文档中的键类型只能是字符串 。
-image: '../../assets/images/Dota-img/jakiro.webp'
+image: '../../assets/images/Dota-img/jakiro.png'
 tags:
   - MongoDB
 category: 数据库

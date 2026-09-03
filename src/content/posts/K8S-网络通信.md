@@ -3,7 +3,7 @@ title: K8S-网络通信
 slug: K8S-网络通信
 published: 2025-11-18
 description: 1、k8s通过CNI接口接入其他插件来实现网络通讯。目前比较流行的插件有flannel，calico等。
-image: '../../assets/images/Dota-img/legion_commander.webp'
+image: '../../assets/images/Dota-img/legion_commander.png'
 tags:
   - kubernetes
 category: 云原生

@@ -3,7 +3,7 @@ title: Etcd详解
 slug: Etcd详解
 published: 2025-05-29
 description: '官网：https://etcd.io/'
-image: '../../assets/images/Dota-img/life_stealer.webp'
+image: '../../assets/images/Dota-img/life_stealer.png'
 tags:
   - Etcd
 category: 中间件

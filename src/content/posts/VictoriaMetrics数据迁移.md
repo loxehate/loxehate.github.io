@@ -3,7 +3,7 @@ title: VictoriaMetrics数据迁移
 slug: VictoriaMetrics数据迁移
 published: 2025-11-10
 description: VictoriaMetrics数据迁移最佳实践：零停机迁移
-image: '../../assets/images/Dota-img/undying.webp'
+image: '../../assets/images/Dota-img/undying.png'
 tags:
   - VictoriaMetrics
 category: 监控观测

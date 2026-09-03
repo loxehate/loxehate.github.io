@@ -3,7 +3,7 @@ title: Superset详解
 slug: Superset详解
 published: 2025-05-29
 description: Apache Superset是一个开源的、现代的、轻量级BI分析工具，能够对接多种数据源、拥有丰富的图表展示形式、支持自定义仪表盘，且拥有友好的用户界面，十分易用。
-image: '../../assets/images/Dota-img/tusk.webp'
+image: '../../assets/images/Dota-img/tusk.png'
 tags:
   - Superset
 category: 中间件

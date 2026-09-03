@@ -3,7 +3,7 @@ title: K8S-OpenTelemetry详解
 slug: K8S-OpenTelemetry详解
 published: 2026-01-05
 description: 可观察性（Observability）是从外部输出知识中推断所获得，可理解为衡量一个系统内部状态的方法。可观测性是一种能力，它能帮助你回答系统内部发生了什么——无需事先定义每种可能的故障或状态。系统的可观测性越高，就可以根据已识别的性能问题更快速、更准确地定位到其根本原因，而无需进行额外的测试或编码。
-image: '../../assets/images/Dota-img/tinker.webp'
+image: '../../assets/images/Dota-img/tinker.png'
 tags:
   - kubernetes
   - OpenTelemetry

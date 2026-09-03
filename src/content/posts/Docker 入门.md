@@ -3,7 +3,7 @@ title: Docker 入门
 slug: Docker 入门
 published: 2025-06-13
 description: Docker和虚拟机的对比
-image: '../../assets/images/Dota-img/centaur.webp'
+image: '../../assets/images/Dota-img/centaur.png'
 tags:
   - Docker
 category: 云原生

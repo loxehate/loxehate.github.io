@@ -3,7 +3,7 @@ title: Linux yum详解
 slug: Linux yum详解
 published: 2025-05-16
 description: yum 是一种强大的包管理工具，用于在基于 RPM 包管理系统的 Linux 发行版中管理软件包。它可以自动解决软件包之间的依赖关系，简化了软件包的安装、更新和删除过程。
-image: '../../assets/images/Dota-img/ancient_apparition.webp'
+image: '../../assets/images/Dota-img/ancient_apparition.png'
 tags:
   - yum
 category: Linux

@@ -3,7 +3,7 @@ title: Hadoop详解
 slug: Hadoop详解
 published: 2025-05-29
 description: Hadoop 是一个提供分布式存储和计算的开源软件框架，它具有无共享、高可用（HA）、弹性可扩展的特点，非常适合处理海量数量。
-image: '../../assets/images/Dota-img/sniper.webp'
+image: '../../assets/images/Dota-img/sniper.png'
 tags:
   - Hadoop
 category: 中间件

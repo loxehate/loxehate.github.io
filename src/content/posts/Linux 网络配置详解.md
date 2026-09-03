@@ -3,7 +3,7 @@ title: Linux 网络配置详解
 slug: Linux 网络配置详解
 published: 2025-08-14
 description: 命令格式：ifconfig 或 ifconfig +网卡名
-image: '../../assets/images/Dota-img/faceless_void.webp'
+image: '../../assets/images/Dota-img/faceless_void.png'
 tags:
   - 网络管理
 category: Linux

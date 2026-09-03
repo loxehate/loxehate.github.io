@@ -3,7 +3,7 @@ title: Qdrant详解
 slug: Qdrant详解
 published: 2025-05-08
 description: Qdrant（读作：quadrant）是一个矢量相似性搜索引擎和矢量数据库。它提供了一个方便的API来存储、搜索和管理点向量的生产就绪服务，并提供了额外的有效负载专门用于扩展过滤支持。这使得在各种神经网络或基于语义的匹配、多面搜索和其他应用方面更加有用。
-image: '../../assets/images/Dota-img/keeper_of_the_light.webp'
+image: '../../assets/images/Dota-img/keeper_of_the_light.png'
 tags:
   - Qdrant
 category: 数据库

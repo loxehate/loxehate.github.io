@@ -3,7 +3,7 @@ title: Nightingale详解
 slug: Nightingale 详解
 published: 2025-08-27
 description: 首先上图中间的飞鸟代表夜莺的核心进程 n9e （下文以 n9e 代替），它的集群方式非常简单只需部署多节点即可实现。
-image: '../../assets/images/Dota-img/slark.webp'
+image: '../../assets/images/Dota-img/slark.png'
 tags:
   - Nightingale
 category: 监控观测

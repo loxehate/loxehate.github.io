@@ -3,7 +3,7 @@ title: Kafka详解
 slug: Kafka详解
 published: 2025-05-29
 description: Kafka像其他Mq一样，也有自己的基础架构，主要存在生产者Producer、Kafka集群Broker、消费者Consumer、注册消息Zookeeper.
-image: '../../assets/images/Dota-img/void_spirit.webp'
+image: '../../assets/images/Dota-img/void_spirit.png'
 tags:
   - Kafka
 category: 中间件

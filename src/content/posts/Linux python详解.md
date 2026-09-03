@@ -3,7 +3,7 @@ title: Linux python详解
 slug: Linux python详解
 published: 2025-05-09
 description: 安装在 /usr/local/python3
-image: '../../assets/images/Dota-img/terrorblade.webp'
+image: '../../assets/images/Dota-img/terrorblade.png'
 tags:
   - python
 category: Linux

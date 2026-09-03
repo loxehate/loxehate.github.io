@@ -3,7 +3,7 @@ title: Mysql-安装部署
 slug: Mysql-安装部署
 published: 2025-05-08
 description: 第一种：登录数据库后操作
-image: '../../assets/images/Dota-img/death_prophet.webp'
+image: '../../assets/images/Dota-img/death_prophet.png'
 tags:
   - Mysql
 category: 数据库

@@ -3,7 +3,7 @@ title: Docker镜像仓库Harbor之搭建及配置
 slug: Docker镜像仓库Harbor之搭建及配置
 published: 2025-06-13
 description: 在虚拟机Linux Centos7上操作，以下是安装的软件及版本：
-image: '../../assets/images/Dota-img/beastmaster.webp'
+image: '../../assets/images/Dota-img/beastmaster.png'
 tags:
   - Docker
 category: 云原生

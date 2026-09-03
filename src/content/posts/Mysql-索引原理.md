@@ -3,7 +3,7 @@ title: Mysql-索引原理
 slug: Mysql-索引原理
 published: 2025-05-08
 description: 索引可以提升查询速度，会影响where查询，以及order by排序。MySQL索引类型如下：
-image: '../../assets/images/Dota-img/dragon_knight.webp'
+image: '../../assets/images/Dota-img/dragon_knight.png'
 tags:
   - Mysql
 category: 数据库

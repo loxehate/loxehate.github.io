@@ -3,7 +3,7 @@ title: Mysql-二进制日志详解
 slug: Mysql-二进制日志详解
 published: 2025-05-08
 description: Binary log主要应用场景：
-image: '../../assets/images/Dota-img/ringmaster.webp'
+image: '../../assets/images/Dota-img/ringmaster.png'
 tags:
   - Mysql
 category: 数据库

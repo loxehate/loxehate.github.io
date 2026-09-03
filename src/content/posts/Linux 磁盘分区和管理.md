@@ -3,7 +3,7 @@ title: Linux 磁盘分区和管理
 slug: Linux 磁盘分区和管理
 published: 2025-05-09
 description: 打开虚拟机（此时系统是关机状态），“编辑虚拟机” 选择“硬盘” “添加”
-image: '../../assets/images/Dota-img/zuus.webp'
+image: '../../assets/images/Dota-img/zuus.png'
 tags:
   - 磁盘管理
 category: Linux

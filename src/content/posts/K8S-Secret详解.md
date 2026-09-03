@@ -3,7 +3,7 @@ title: k8s-Secret详解
 slug: K8S-Secret详解
 published: 2026-09-01
 description: Secret 是一个主要用来存储密码、token 等一些敏感信息的资源对象。其中，敏感信息是采用 Base64 编码 保存起来的
-image: '../../assets/images/Dota-img/windrunner.webp'
+image: '../../assets/images/Dota-img/windrunner.png'
 tags:
   - kubernetes
 category: 云原生

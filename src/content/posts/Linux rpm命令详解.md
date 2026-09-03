@@ -3,7 +3,7 @@ title: Linux rpm命令详解
 slug: Linux rpm命令详解
 published: 2025-05-09
 description: rpm (选项)(参数) 包名
-image: '../../assets/images/Dota-img/ursa.webp'
+image: '../../assets/images/Dota-img/ursa.png'
 tags:
   - rpm
 category: Linux

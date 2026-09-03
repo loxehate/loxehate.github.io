@@ -3,7 +3,7 @@ title: Mariadb-基于GTID的多主环复制
 slug: Mariadb-基于GTID的多主环复制
 published: 2025-09-16
 description: 通过从属服务器进行复制的缺点
-image: '../../assets/images/Dota-img/gyrocopter.webp'
+image: '../../assets/images/Dota-img/gyrocopter.png'
 tags:
   - Mariadb
 category: 数据库

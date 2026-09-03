@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import matter from "gray-matter";
 
 const root = process.cwd();
@@ -62,10 +63,12 @@ for (const postPath of posts) {
   }
   if (coverPath) {
     requireFile(coverPath, "缺少文章封面");
-    const coverKey = path.normalize(coverPath).toLowerCase();
-    const previous = covers.get(coverKey);
-    if (previous) errors.push(`文章封面重复: ${previous} 与 ${path.basename(postPath)} -> ${cover}`);
-    covers.set(coverKey, path.basename(postPath));
+    if (fs.existsSync(coverPath)) {
+      const coverHash = crypto.createHash("sha256").update(fs.readFileSync(coverPath)).digest("hex");
+      const previous = covers.get(coverHash);
+      if (previous) errors.push(`文章封面内容重复: ${previous} 与 ${path.basename(postPath)} -> ${cover}`);
+      covers.set(coverHash, path.basename(postPath));
+    }
   }
 
   const imageReferences = [

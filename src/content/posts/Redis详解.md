@@ -3,7 +3,7 @@ title: Redis详解
 slug: Redis详解
 published: 2025-07-22
 description: '项目中使用Redis的目的，主要从性能和并发两个角度去考虑的:'
-image: '../../assets/images/Dota-img/tiny.webp'
+image: '../../assets/images/Dota-img/tiny.png'
 tags:
   - Redis
 category: 中间件

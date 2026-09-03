@@ -3,7 +3,7 @@ title: K8S-helm详解
 slug: K8S-helm详解
 published: 2025-09-16
 description: '官方文档：https://v3.helm.sh/zh/docs/'
-image: '../../assets/images/Dota-img/phantom_assassin.webp'
+image: '../../assets/images/Dota-img/phantom_assassin.png'
 tags:
   - kubernetes
 category: 云原生

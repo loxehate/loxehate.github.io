@@ -3,7 +3,7 @@ title: K8S-Statefulset详解
 slug: K8S-有状态服务Statefulset详解
 published: 2026-09-01
 description: 在K8S运行的服务，从简单到复杂可以分成三类：无状态服务、普通有状态服务和有状态集群服务。下面分别来看K8S是如何运行这三类服务的。
-image: '../../assets/images/Dota-img/dark_willow.webp'
+image: '../../assets/images/Dota-img/dark_willow.png'
 tags:
   - kubernetes
 category: 云原生

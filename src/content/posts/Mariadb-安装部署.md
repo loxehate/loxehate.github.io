@@ -3,7 +3,7 @@ title: Mariadb-安装部署
 slug: Mariadb-安装部署
 published: 2025-05-08
 description: 第一种：登录数据库后操作
-image: '../../assets/images/Dota-img/winter_wyvern.webp'
+image: '../../assets/images/Dota-img/winter_wyvern.png'
 tags:
   - Mariadb
 category: 数据库

@@ -3,7 +3,7 @@ title: Docker buildx 构建跨平台镜像
 slug: Docker buildx 构建跨平台镜像
 published: 2025-06-13
 description: 'buildx 是一个管理 Docker 构建的 CLI 插件, 底层使用 BuildKit 扩展了 Docker 构建功能。'
-image: '../../assets/images/Dota-img/venomancer.webp'
+image: '../../assets/images/Dota-img/venomancer.png'
 tags:
   - Docker
 category: 云原生

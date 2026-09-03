@@ -3,7 +3,7 @@ title: Mysql-用户权限管理
 slug: Mysql-用户权限管理
 published: 2025-05-08
 description: '相关字段：select host,user from user;'
-image: '../../assets/images/Dota-img/templar_assassin.webp'
+image: '../../assets/images/Dota-img/templar_assassin.png'
 tags:
   - Mysql
 category: 数据库

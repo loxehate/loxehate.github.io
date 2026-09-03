@@ -3,7 +3,7 @@ title: GTID主从复制
 slug: Mariadb-GTID主从复制
 published: 2025-05-08
 description: GTID(Global Transaction ID)是对于一个已提交事务的编号，并且是一个全局唯一的编号。GTID实际上是由UUID+TID组成的。其中UUID是一个MySQL实例的唯一标识，保存在mysql数据目录下的auto.cnf文件里。TID代表了该实例上已经提交的事务数量，并且随着事务提交单调递增。下面是一
-image: '../../assets/images/Dota-img/largo.webp'
+image: '../../assets/images/Dota-img/largo.png'
 tags:
   - Mariadb
 category: 数据库

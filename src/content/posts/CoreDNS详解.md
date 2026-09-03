@@ -3,7 +3,7 @@ title: CoreDNS详解
 slug: CoreDNS详解
 published: 2025-05-29
 description: '在企业高可用DNS架构部署方案中我们使用的是传统老牌DNS软件Bind, 但是现在不少企业内部流行容器化部署，所以也可以将Bind替换为 CoreDNS ，由于 CoreDNS 是 Kubernetes 的一个重要组件，稳定性不必担心，于此同时还可将K8S集群SVC解析加入到企业内部的私有的CoreDNS中。'
-image: '../../assets/images/Dota-img/phantom_lancer.webp'
+image: '../../assets/images/Dota-img/phantom_lancer.png'
 tags:
   - CoreDNS
 category: 中间件

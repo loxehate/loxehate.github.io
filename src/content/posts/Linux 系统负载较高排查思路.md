@@ -3,7 +3,7 @@ title: Linux 系统负载较高排查思路
 slug: Linux 系统负载较高排查思路
 published: 2025-05-09
 description: Load 就是对计算机干活多少的度量，Load Average 就是一段时间（1分钟、5分钟、15分钟）内平均Load。
-image: '../../assets/images/Dota-img/weaver.webp'
+image: '../../assets/images/Dota-img/weaver.png'
 tags:
   - 系统负载
 category: Linux

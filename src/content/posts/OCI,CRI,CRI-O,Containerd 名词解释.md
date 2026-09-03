@@ -3,7 +3,7 @@ title: 'OCI,CRI,CRI-O,Containerd 名词解释'
 slug: 'OCI,CRI,CRI-O,Containerd 名词解释'
 published: 2025-06-13
 description: 总结：OCI规范可以看做是Container Runtime的一个标准
-image: '../../assets/images/Dota-img/lion.webp'
+image: '../../assets/images/Dota-img/lion.png'
 tags:
   - Docker
 category: 云原生

@@ -3,7 +3,7 @@ title: Linux 内核参数详解
 slug: Linux 内核参数详解
 published: 2025-05-09
 description: HugePages 适用于哪些应用？
-image: '../../assets/images/Dota-img/bristleback.webp'
+image: '../../assets/images/Dota-img/bristleback.png'
 tags:
   - 内核参数
 category: Linux

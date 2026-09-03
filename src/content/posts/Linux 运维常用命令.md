@@ -3,7 +3,7 @@ title: Linux 运维常用命令
 slug: Linux 运维常用命令
 published: 2025-05-09
 description: df h 和 du sh 命令的输出之间存在差异，通常会让人感到困惑。以下是可能原因的详细解释以及排查方法：
-image: '../../assets/images/Dota-img/omniknight.webp'
+image: '../../assets/images/Dota-img/omniknight.png'
 tags:
   - 运维命令
 category: Linux

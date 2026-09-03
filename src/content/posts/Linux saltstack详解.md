@@ -3,7 +3,7 @@ title: Linux saltstack详解
 slug: Linux saltstack详解
 published: 2025-05-09
 description: 安装好salt之后开始配置，salt master默认监听两个端口：
-image: '../../assets/images/Dota-img/puck.webp'
+image: '../../assets/images/Dota-img/puck.png'
 tags:
   - 自动化运维
 category: Linux

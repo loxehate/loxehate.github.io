@@ -3,7 +3,7 @@ title: Docker 安装与卸载
 slug: Docker 安装与卸载
 published: 2025-06-13
 description: 以下操作使用root用户操作
-image: '../../assets/images/Dota-img/broodmother.webp'
+image: '../../assets/images/Dota-img/broodmother.png'
 tags:
   - Docker
 category: 云原生
