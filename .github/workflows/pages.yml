@@ -4,7 +4,14 @@ on:
   push:
     branches:
       - codex/astro-firefly-migration
-  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Radar Daily Digest
+      - Radar Weekly Digest
+      - Radar Monthly Digest
+      - Analytics Daily Stats
+    types:
+      - completed
 
 permissions:
   contents: read

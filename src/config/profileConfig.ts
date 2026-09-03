@@ -28,10 +28,17 @@ export const profileConfig: ProfileConfig = {
 			showName: false,
 		},
 		{
-			name: "RSS",
-			icon: "fa7-solid:rss",
-			url: "/rss/",
+			name: "Telegram",
+			icon: "fa7-brands:telegram",
+			url: "https://t.me/loxehate",
 			showName: false,
 		},
+		{
+			name: "Steam",
+			icon: "fa7-brands:steam",
+			url: "https://steamcommunity.com/profiles/76561198864146636/",
+			showName: false,
+		}		
+		
 	],
 };

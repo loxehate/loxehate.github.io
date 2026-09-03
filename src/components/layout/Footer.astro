@@ -2,7 +2,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { footerConfig, profileConfig } from "@/config";
-import { url } from "@/utils/url-utils";
 
 const currentYear = new Date().getFullYear();
 
@@ -44,18 +43,6 @@ if (footerConfig.enable) {
     <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
       &copy; <span id="copyright-year">{currentYear}</span>
       {profileConfig.name}. All Rights Reserved.
-      <span aria-hidden="true">/</span>
-      <a
-        class="transition link text-(--primary) font-medium"
-        target="_blank"
-        href={url("rss.xml")}>RSS</a
-      >
-      <span aria-hidden="true">/</span>
-      <a
-        class="transition link text-(--primary) font-medium"
-        target="_blank"
-        href={url("sitemap-index.xml")}>Sitemap</a
-      >
     </div>
     <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
       <span>Powered by</span>
