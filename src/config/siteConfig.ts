@@ -18,13 +18,13 @@ const pages = resolvePageToggles({
 	// ── 我的 (My) ──────────────────────────────────
 
 	// 动态页面开关
-	dynamic: false,
+	dynamic: true,
 	// 相册页面开关
-	gallery: false,
+	gallery: true,
 	// 书签导航页面开关
-	booknav: false,
+	booknav: true,
 	// 哔哩哔哩追番页面开关
-	bilibili: false,
+	bilibili: true,
 	// 番组计划页面开关
 	bangumi: false,
 	// VNDB页面开关
@@ -243,7 +243,7 @@ export const siteConfig: SiteConfig = {
 	// ── Bilibili配置 ──────────────────────────────────
 	bilibili: {
 		// 你的 Bilibili 用户 UID
-		uid: "38932988",
+		uid: "",
 	},
 
 	// ── 番组计划bangumi配置 ──────────────────────────────────

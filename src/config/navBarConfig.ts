@@ -42,7 +42,24 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		icon: "material-symbols:radar",
 	});
 
-	links.push(LinkPresets.About);
+	links.push({
+		name: "我的",
+		url: "#",
+		icon: "material-symbols:person-book",
+		children: [
+			LinkPresets.Dynamic,
+			LinkPresets.Gallery,
+			LinkPresets.Booknav,
+			LinkPresets.Bilibili,
+		],
+	});
+
+	links.push({
+		name: "关于",
+		url: "#",
+		icon: "material-symbols:info-rounded",
+		children: [LinkPresets.About],
+	});
 
 	// 文档链接
 	// links.push({
