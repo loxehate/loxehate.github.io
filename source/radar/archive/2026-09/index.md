@@ -1,6 +1,6 @@
 ---
 title: "2026-09 Radar 报告归档"
-date: 2026-09-02
+date: 2026-09-03
 categories:
   - AI
 tags:
@@ -11,6 +11,14 @@ tags:
 # 2026-09 Radar 报告归档
 
 [返回全部归档](/radar/archive/) · [返回 Radar 首页](/radar/)
+
+## 2026-09-03
+
+- [AI CLI 工具社区动态日报](/radar/reports/2026-09-03/ai-cli/)
+- [OpenClaw 生态日报](/radar/reports/2026-09-03/ai-agents/)
+- [AI 官方内容追踪报告](/radar/reports/2026-09-03/ai-web/)
+- [AI 开源趋势日报](/radar/reports/2026-09-03/ai-trending/)
+- [Hacker News AI 社区动态日报](/radar/reports/2026-09-03/ai-hn/)
 
 ## 2026-09-02
 
