@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import RadarReportList from "@/components/radar/RadarReportList.astro";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { groupRadarEntries } from "@/utils/radar-utils";
+
+export async function getStaticPaths() {
+	const groups = groupRadarEntries(await getCollection("radar"));
+	const months = [...new Set(groups.map((group) => group.date.slice(0, 7)))];
+	return months.map((month) => ({
+		params: { month },
+		props: { groups: groups.filter((group) => group.date.startsWith(month)) },
+	}));
+}
+
+const { month } = Astro.params;
+const { groups } = Astro.props;
+---
+
+<MainGridLayout title={`${month} Radar 报告归档`} description={`${month} 的 Radar 历史报告`}>
+	<div class="card-base rounded-(--radius-large) p-6 md:p-8">
+		<div class="mb-6 border-b border-(--line-divider) pb-5">
+			<div class="mb-3 flex flex-wrap gap-3 text-sm">
+				<a class="text-(--primary) hover:underline" href="/radar/archive/">全部归档</a>
+				<span class="text-40">/</span>
+				<a class="text-(--primary) hover:underline" href="/radar/">Radar 首页</a>
+			</div>
+			<h1 class="text-3xl font-bold text-90">{month} Radar 报告归档</h1>
+		</div>
+		<RadarReportList groups={groups} />
+	</div>
+</MainGridLayout>

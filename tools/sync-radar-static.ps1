@@ -9,7 +9,7 @@ if (-not (Test-Path -LiteralPath $radarRoot -PathType Container)) {
 
 Push-Location $radarRoot
 try {
-  node scripts/export-hexo.mjs
+  node scripts/export-astro.mjs
 }
 finally {
   Pop-Location

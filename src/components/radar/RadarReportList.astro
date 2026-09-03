@@ -1,0 +1,31 @@
+---
+import type { RadarDateGroup } from "@/utils/radar-utils";
+import { radarLabels, radarReportUrl } from "@/utils/radar-utils";
+
+interface Props {
+	groups: RadarDateGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<div class="space-y-6">
+	{groups.map((group) => (
+		<section class="border-b border-(--line-divider) pb-5 last:border-0 last:pb-0">
+			<h2 class="mb-3 text-xl font-bold text-(--primary)">{group.date}</h2>
+			<ul class="grid gap-2 md:grid-cols-2">
+				{group.reports.map((entry) => (
+					<li>
+						<a
+							href={radarReportUrl(entry)}
+							class="btn-plain flex h-full items-center gap-3 rounded-xl px-4 py-3 transition hover:text-(--primary)"
+						>
+							<span class="h-2 w-2 shrink-0 rounded-full bg-(--primary)"></span>
+							<span>{entry.data.title || radarLabels[entry.data.report] || entry.data.report}</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		</section>
+	))}
+</div>

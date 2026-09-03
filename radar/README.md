@@ -159,7 +159,7 @@ New articles are detected by comparing sitemap `lastmod` timestamps against a pe
 - Scrapes official Anthropic and OpenAI web content via sitemaps; detects new articles incrementally
 - Monitors GitHub Trending daily + searches 6 AI topic tags; classifies repos by dimension and extracts trend signals
 - Fetches top-30 AI stories from Hacker News (last 24h, ranked by points); generates community sentiment report
-- Moves generated Markdown into `source/radar/reports/YYYY-MM-DD/` as the single report copy used by the static Radar pages
+- Moves generated Markdown into `src/content/radar/reports/YYYY-MM-DD/` as the single report copy used by the Astro Radar pages
 - Runs on a daily schedule via GitHub Actions; supports manual triggering
 - All tracked repositories are configurable via `config.yml` — no code changes needed
 
@@ -237,7 +237,7 @@ pnpm start
 
 ## Output format
 
-Reports are moved to `source/radar/reports/YYYY-MM-DD/<report-type>/index.md` after generation:
+Reports are moved to `src/content/radar/reports/YYYY-MM-DD/<report-type>/index.md` after generation:
 
 | File | Content |
 |------|---------|
@@ -359,7 +359,7 @@ Top projects & releases
 Looking ahead
 ```
 
-Historical digests are stored only in [`source/radar/reports/`](../source/radar/reports/); weekly and monthly rollups read directly from that published directory.
+Historical digests are stored only in [`src/content/radar/reports/`](../src/content/radar/reports/); weekly and monthly rollups read directly from that Astro content directory.
 
 ## Schedule
 

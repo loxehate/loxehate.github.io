@@ -79,14 +79,14 @@ jobs:
           REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
         run: pnpm manifest
 
-      - name: Move Radar Markdown into Hexo source
+      - name: Move Radar Markdown into Astro content
         run: bash tools/sync-radar-static.sh
 
       - name: Commit Radar output
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add radar/digests radar/manifest.json radar/feed.xml source/radar
+          git add radar/digests radar/manifest.json radar/feed.xml src/content/radar public/radar
           if git diff --cached --quiet; then
             echo "No Radar weekly changes to commit"
           else

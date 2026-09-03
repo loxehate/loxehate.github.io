@@ -14,7 +14,7 @@
     "weekly": "tsx src/weekly.ts",
     "monthly": "tsx src/monthly.ts",
     "notify": "tsx src/notify.ts",
-    "export:hexo": "node scripts/export-hexo.mjs"
+    "export:astro": "node scripts/export-astro.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.1"

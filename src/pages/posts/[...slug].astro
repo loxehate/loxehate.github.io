@@ -1,0 +1,16 @@
+---
+import { getSortedPosts } from "@utils/content-utils";
+import { getPostUrlBySlug } from "@utils/url-utils";
+
+export async function getStaticPaths() {
+	const blogEntries = await getSortedPosts();
+	return blogEntries.map((entry) => ({
+		params: { slug: entry.data.slug },
+		props: {
+			target: getPostUrlBySlug(entry.data.slug, entry.data.published),
+		},
+	}));
+}
+
+return Astro.redirect(encodeURI(Astro.props.target), 301);
+---

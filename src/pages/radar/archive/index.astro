@@ -1,0 +1,34 @@
+---
+import { getCollection } from "astro:content";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { groupRadarEntries } from "@/utils/radar-utils";
+
+const groups = groupRadarEntries(await getCollection("radar"));
+const months = [...new Set(groups.map((group) => group.date.slice(0, 7)))].map((month) => {
+	const monthGroups = groups.filter((group) => group.date.startsWith(month));
+	return {
+		month,
+		dates: monthGroups.length,
+		reports: monthGroups.reduce((total, group) => total + group.reports.length, 0),
+	};
+});
+---
+
+<MainGridLayout title="Radar 报告归档" description="全部 Radar 历史报告按月份归档">
+	<div class="card-base rounded-(--radius-large) p-6 md:p-8">
+		<div class="mb-6 border-b border-(--line-divider) pb-5">
+			<h1 class="text-3xl font-bold text-90">Radar 报告归档</h1>
+			<p class="mt-2 text-70">全部历史报告按月份归档，当前月份也包含在内。</p>
+		</div>
+		<ul class="grid gap-3 md:grid-cols-2">
+			{months.map((item) => (
+				<li>
+					<a class="btn-plain flex items-center justify-between rounded-xl px-5 py-4" href={`/radar/archive/${item.month}/`}>
+						<strong class="text-lg text-(--primary)">{item.month}</strong>
+						<span class="text-sm text-60">{item.dates} 个日期 · {item.reports} 份报告</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	</div>
+</MainGridLayout>

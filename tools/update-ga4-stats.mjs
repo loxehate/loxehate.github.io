@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..");
 const outputPath = process.env.GA4_OUTPUT_PATH
   ? path.resolve(process.env.GA4_OUTPUT_PATH)
-  : path.join(repoRoot, "source", "data", "ga4-daily.json");
+  : path.join(repoRoot, "public", "data", "ga4-daily.json");
 const propertyId = process.env.GA4_PROPERTY_ID?.trim();
 const credentialsJson = process.env.GA4_SERVICE_ACCOUNT_JSON;
 const pagePathPrefix = process.env.GA4_PAGE_PATH_PREFIX?.trim() || null;

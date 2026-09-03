@@ -10,7 +10,7 @@ import { buildWeeklyPrompt, buildMonthlyPrompt } from "./prompts.ts";
 import { createGitHubIssue } from "./github.ts";
 
 const DIGESTS_DIR = "digests";
-const PUBLISHED_REPORTS_DIR = path.resolve("..", "source", "radar", "reports");
+const PUBLISHED_REPORTS_DIR = path.resolve("..", "src", "content", "radar", "reports");
 const MAX_CHARS_PER_REPORT = 2500;
 
 // Source report types to read for rollups (in priority order)

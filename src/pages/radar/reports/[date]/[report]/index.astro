@@ -1,0 +1,30 @@
+---
+import { getCollection, render } from "astro:content";
+import Markdown from "@/components/common/Markdown.astro";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { radarDate } from "@/utils/radar-utils";
+
+export async function getStaticPaths() {
+	const entries = await getCollection("radar");
+	return entries.map((entry) => ({
+		params: { date: radarDate(entry), report: entry.data.report },
+		props: { entry },
+	}));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<MainGridLayout title={entry.data.title} description={entry.data.title} headings={headings}>
+	<div class="card-base rounded-(--radius-large) px-6 py-7 md:px-9">
+		<div class="mb-5 flex flex-wrap gap-3 border-b border-(--line-divider) pb-4 text-sm">
+			<a class="text-(--primary) hover:underline" href="/radar/">Radar 首页</a>
+			<span class="text-40">/</span>
+			<a class="text-(--primary) hover:underline" href={`/radar/archive/${radarDate(entry).slice(0, 7)}/`}>{radarDate(entry).slice(0, 7)} 归档</a>
+		</div>
+		<Markdown class="mt-2">
+			<Content />
+		</Markdown>
+	</div>
+</MainGridLayout>

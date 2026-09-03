@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 const DIGESTS_DIR = "digests";
-const PUBLISHED_REPORTS_DIR = path.resolve("..", "source", "radar", "reports");
+const PUBLISHED_REPORTS_DIR = path.resolve("..", "src", "content", "radar", "reports");
 const MANIFEST_PATH = "manifest.json";
 const FEED_PATH = "feed.xml";
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
