@@ -3,7 +3,7 @@ name: Pages
 on:
   push:
     branches:
-      - main
+      - codex/astro-firefly-migration
   workflow_dispatch:
 
 permissions:
