@@ -4,8 +4,9 @@ import matter from "gray-matter";
 
 const root = process.cwd();
 const postsRoot = path.join(root, "src", "content", "posts");
-const imagesRoot = path.join(root, "public", "images", "posts");
+const imagesRoot = path.join(root, "src", "assets", "images", "Dota-img");
 const imageExtensions = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".webp"]);
+const coverSeed = process.env.COVER_SEED ?? "dota-covers-v1";
 
 function walkImages(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -24,50 +25,35 @@ function hash(value) {
   return result >>> 0;
 }
 
-function normalizeReference(reference) {
-  try {
-    return decodeURIComponent(reference).replaceAll("/", path.sep);
-  } catch {
-    return reference.replaceAll("/", path.sep);
-  }
-}
-
 const pool = walkImages(imagesRoot).sort((a, b) => a.localeCompare(b));
 const used = new Set();
 const posts = fs.readdirSync(postsRoot).filter((name) => name.endsWith(".md")).sort((a, b) => a.localeCompare(b));
 
+if (pool.length < posts.length) {
+  throw new Error(`Not enough Dota cover images: ${pool.length} images for ${posts.length} posts`);
+}
+
 for (const name of posts) {
   const postPath = path.join(postsRoot, name);
   const raw = fs.readFileSync(postPath, "utf8");
-  const { data, content } = matter(raw);
-  if (data.image) {
-    used.add(String(data.image));
-    continue;
-  }
+  const { data } = matter(raw);
+  const start = hash(`${coverSeed}:${String(data.slug ?? name)}`) % pool.length;
+  let selected;
 
-  const references = [
-    ...content.matchAll(/^!\[[^\]]*\]\(\/(images\/posts\/.+)\)\s*$/gm),
-    ...content.matchAll(/(?:src|href)=["']\/(images\/posts\/[^"']+)["']/g),
-  ].map((match) => path.join(root, "public", normalizeReference(match[1])));
-
-  let selected = references.find((candidate) => fs.existsSync(candidate) && !used.has(candidate));
-  if (!selected) {
-    const start = hash(String(data.slug ?? name)) % pool.length;
-    for (let offset = 0; offset < pool.length; offset++) {
-      const candidate = pool[(start + offset) % pool.length];
-      if (!used.has(candidate)) {
-        selected = candidate;
-        break;
-      }
+  for (let offset = 0; offset < pool.length; offset++) {
+    const candidate = pool[(start + offset) % pool.length];
+    if (!used.has(candidate)) {
+      selected = candidate;
+      break;
     }
   }
   if (!selected) throw new Error(`No unused cover image available for ${name}`);
 
   used.add(selected);
-  const publicPath = `/${path.relative(path.join(root, "public"), selected).split(path.sep).join("/")}`;
-  const next = raw.replace(/^image:\s*(?:''|"")\s*$/m, `image: '${publicPath.replaceAll("'", "''")}'`);
-  if (next === raw) throw new Error(`Unable to update blank image field in ${name}`);
-  fs.writeFileSync(postPath, next, "utf8");
+  const sourcePath = path.relative(path.dirname(postPath), selected).split(path.sep).join("/");
+  if (!/^image:[^\r\n]*$/m.test(raw)) throw new Error(`Unable to find image field in ${name}`);
+  const next = raw.replace(/^image:[^\r\n]*$/m, `image: '${sourcePath.replaceAll("'", "''")}'`);
+  if (next !== raw) fs.writeFileSync(postPath, next, "utf8");
 }
 
-console.log(`Assigned stable local covers to ${posts.length} posts; ${used.size} unique images are in use.`);
+console.log(`Assigned ${used.size} stable, unique Dota covers to ${posts.length} posts.`);

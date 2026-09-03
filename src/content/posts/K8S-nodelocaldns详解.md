@@ -3,7 +3,7 @@ title: k8s-nodelocaldns详解
 slug: K8S-nodelocaldns详解
 published: 2026-09-01
 description: 获取文件将文件保存为nodelocaldns.yaml
-image: '/images/posts/NodeLocal DNS.png'
+image: '../../assets/images/Dota-img/meepo.webp'
 tags:
   - kubernetes
 category: 云原生

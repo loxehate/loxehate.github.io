@@ -3,7 +3,7 @@ title: RocketMQ详解
 slug: RocketMQ详解
 published: 2025-05-29
 description: RocketMQ 是阿里开源的分布式消息中间件，跟其它中间件相比，RocketMQ 的特点是 纯JAVA实现
-image: '/images/posts/rocktMQ架构.png'
+image: '../../assets/images/Dota-img/shadow_shaman.webp'
 tags:
   - RocketMQ
 category: 中间件

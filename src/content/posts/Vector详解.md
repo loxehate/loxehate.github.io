@@ -3,7 +3,7 @@ title: Vector详解
 slug: Vector详解
 published: 2026-02-04
 description: '描述摘自官方文档：https://vector.dev/docs/about/what is vector/'
-image: '/images/posts/vector架构图.png'
+image: '../../assets/images/Dota-img/rubick.webp'
 tags:
   - Vector
 category: 中间件

@@ -3,7 +3,7 @@ title: K8S-gitops详解
 slug: K8S-gitops详解
 published: 2025-09-16
 description: GitOps 是一种运维框架，它采用了 DevOps 在应用程序开发阶段的最佳实践(例如版本控制、协作、合规性和 CI/CD 工具)，并将其应用于基础设施自动化。
-image: '/images/posts/gitops架构.png'
+image: '../../assets/images/Dota-img/oracle.webp'
 tags:
   - kubernetes
 category: 云原生

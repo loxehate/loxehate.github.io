@@ -3,7 +3,7 @@ title: K8S-数据存储详解
 slug: K8S-数据存储详解
 published: 2025-05-16
 description: 在一个Pod中准备两个容器nginx和busybox，然后声明一个Volume分别挂在到两个容器的目录中，然后nginx容器负责向Volume中写日志，busybox中通过命令将日志内容读到控制台。
-image: '/images/posts/EmptyDir.png'
+image: '../../assets/images/Dota-img/dark_seer.webp'
 tags:
   - kubernetes
 category: 云原生

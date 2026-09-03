@@ -3,7 +3,7 @@ title: K8S-K8sGPT的详解
 slug: K8S-K8sGPT的详解
 published: 2025-11-07
 description: K8sGPT Github 地址
-image: '/images/posts/k8sgpt-1.png'
+image: '../../assets/images/Dota-img/muerta.webp'
 tags:
   - kubernetes
 category: 云原生

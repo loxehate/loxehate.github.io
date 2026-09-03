@@ -3,7 +3,7 @@ title: K8S-Cert-manager详解
 slug: K8S-Cert-manager详解
 published: 2025-11-20
 description: cert manager 是一个云原生证书管理开源项目，为 Kubernetes 或 OpenShift 集群中的工作负载创建 TLS 证书 并在证书过期之前续订证书。支持多类免费证书机构的证书签发：比如我们刚才提及的Let’s Encrypt以及HashiCorp Vault等机构。
-image: '/images/posts/cert-manager.png'
+image: '../../assets/images/Dota-img/pugna.webp'
 tags:
   - kubernetes
 category: 云原生

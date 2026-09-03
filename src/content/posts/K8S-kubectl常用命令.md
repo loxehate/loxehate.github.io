@@ -3,7 +3,7 @@ title: K8S-kubectl常用命令
 slug: K8S-kubectl常用命令
 published: 2026-09-01
 description: 1、command：指定在一个或多个资源上要执行的操作。例如：create、get、describe、delete、apply等
-image: '/images/posts/kubectl常用操作命令1.png'
+image: '../../assets/images/Dota-img/medusa.webp'
 tags:
   - kubernetes
 category: 云原生

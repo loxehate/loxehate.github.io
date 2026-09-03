@@ -3,7 +3,7 @@ title: Linux nginx详解-2
 slug: Linux nginx详解-2
 published: 2025-05-09
 description: Nginx提供了一个状态页（status page），用于查看服务器的运行状态信息。
-image: '/images/posts/网页的状态页.png'
+image: '../../assets/images/Dota-img/riki.webp'
 tags:
   - nginx
 category: Linux

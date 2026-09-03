@@ -3,7 +3,7 @@ title: Doris详解
 slug: Doris详解
 published: 2025-05-08
 description: Doris数据库是一个分布式列式存储和查询系统，主要用于实时分析和查询海量数据。它适用于以下场景：
-image: '/images/posts/Doris架构.png'
+image: '../../assets/images/Dota-img/lina.webp'
 tags:
   - Doris
 category: 数据库

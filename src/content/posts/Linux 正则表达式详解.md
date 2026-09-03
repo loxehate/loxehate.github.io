@@ -3,7 +3,7 @@ title: Linux 正则表达式详解
 slug: Linux 正则表达式详解
 published: 2025-05-09
 description: 正则表达式是一组由字母和符号组成的特殊文本，它可以用来从文本中找出满足你想要的格式的句子。通俗的讲就是按照某种规则去匹配符合条件的字符串
-image: '/images/posts/点运算符.png'
+image: '../../assets/images/Dota-img/mirana.webp'
 tags:
   - 正则表达式
 category: Linux

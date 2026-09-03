@@ -3,7 +3,7 @@ title: 麒麟系统(Liunx)离线安装docker和docker compose
 slug: 麒麟系统(Liunx)离线安装docker和docker compose
 published: 2025-06-13
 description: '下载地址：https://download.docker.com/linux/static/stable/'
-image: '/images/posts/docker版本.png'
+image: '../../assets/images/Dota-img/monkey_king.webp'
 tags:
   - Docker
 category: 云原生

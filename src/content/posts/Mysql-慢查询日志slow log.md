@@ -3,7 +3,7 @@ title: Mysql-慢查询日志slow log
 slug: Mysql-慢查询日志slow log
 published: 2025-05-08
 description: 慢查询日志，就是查询超过一定的时间没有返回结果的时候，MySQL会将执行的SQL记录到日志中，这个日志，就称为慢查询日志。通过分析慢查询日志，可以快速找出执行慢的SQL语句，然后进行优化。
-image: '/images/posts/log_throttle_queries_not_using_indexes.png'
+image: '../../assets/images/Dota-img/antimage.webp'
 tags:
   - Mysql
 category: 数据库

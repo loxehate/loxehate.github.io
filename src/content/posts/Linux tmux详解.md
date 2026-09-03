@@ -3,7 +3,7 @@ title: Linux tmux详解
 slug: Linux tmux详解
 published: 2025-09-11
 description: 在开始使用 tmux 之前我们需要先了解关于 tmux 的主要元素：
-image: '/images/posts/tmux.png'
+image: '../../assets/images/Dota-img/juggernaut.webp'
 tags:
   - Tmux
 category: Linux

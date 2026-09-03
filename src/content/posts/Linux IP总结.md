@@ -3,7 +3,7 @@ title: Linux IP总结
 slug: Linux IP总结
 published: 2025-05-09
 description: 192.168.1.x 和 192.168.2.x 不是同一个网段，它们属于不同的子网。要确定这两个 IP 地址是否在同一个网段，我们需要考虑子网掩码（Subnet Mask）。
-image: '/images/posts/kibana-创建告警规则.png'
+image: '../../assets/images/Dota-img/alchemist.webp'
 tags:
   - IP
 category: Linux

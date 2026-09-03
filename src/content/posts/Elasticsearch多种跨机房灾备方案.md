@@ -3,7 +3,7 @@ title: Elasticsearch多种跨机房灾备方案
 slug: Elasticsearch多种跨机房灾备方案
 published: 2025-05-29
 description: Elasticsearch 集群的高可用，保证服务的连续性是企业最关注的需求。通常当企业达到一定规模时，不管是在云上还是线下都会有多个机房做异地灾备，确保在某个机房不可用时，还能持续对外提供业务。本文将会介绍几种 Elasticsearch 常见的灾备方案，同时提供了 Demo 案例方便大家动手体验。
-image: '/images/posts/es灾备-01.png'
+image: '../../assets/images/Dota-img/skeleton_king.webp'
 tags:
   - Elasticsearch
 category: 中间件

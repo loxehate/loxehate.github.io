@@ -3,7 +3,7 @@ title: Hive详解
 slug: Hive详解
 published: 2025-05-29
 description: '基于Hadoop版本为3.3.6，zookeeper版本为3.8.3，mysql版本为8.x,jdk版本为1.8'
-image: '/images/posts/hive初始化元数据库.png'
+image: '../../assets/images/Dota-img/earthshaker.webp'
 tags:
   - Hive
 category: 中间件

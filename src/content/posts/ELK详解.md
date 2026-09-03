@@ -3,7 +3,7 @@ title: ELK详解
 slug: ELK详解
 published: 2025-05-29
 description: 一般我们需要进行日志分析场景：直接在日志文件中 grep、awk 就可以获得自己想要的信息。但在规模较大的场景中，此方法效率低下，面临问题包括日志量太大如何归档、文本搜索太慢怎么办、如何多维度查询。需要集中化的日志管理，所有服务器上的日志收集汇总。常见解决思路是建立集中式日志收集系统，将所有节点上的日志统一收集，管理，
-image: '/images/posts/ELK单机.png'
+image: '../../assets/images/Dota-img/ogre_magi.webp'
 tags:
   - Elasticsearch
 category: 中间件

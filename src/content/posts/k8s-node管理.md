@@ -3,7 +3,7 @@ title: k8s-node管理
 slug: k8s-node管理
 published: 2026-09-01
 description: 把master上的管理文件 /etc/kubernetes/admin.conf 拷贝到node节点的 $HOME/.kube/config 就可以让node节点也可以实现kubectl命令管理
-image: '/images/posts/调度计算.png'
+image: '../../assets/images/Dota-img/razor.webp'
 tags:
   - kubernetes
 category: 云原生

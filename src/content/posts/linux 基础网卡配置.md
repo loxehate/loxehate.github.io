@@ -3,7 +3,7 @@ title: Linux 基础网卡配置
 slug: linux 基础网卡配置
 published: 2025-05-09
 description: 网卡有三种模式（我们也称其为网络模式），我们可以在【虚拟机设置】——【网络适配器】中配置。
-image: '/images/posts/opentelemetry-kafka.png'
+image: '../../assets/images/Dota-img/abyssal_underlord.webp'
 tags:
   - 网卡配置
 category: Linux

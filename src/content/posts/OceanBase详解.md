@@ -3,7 +3,7 @@ title: OceanBase详解
 slug: OceanBase详解
 published: 2025-05-08
 description: OceanBase 数据库是由蚂蚁集团、阿里巴巴完全自主研发的金融级分布式关系数据库。OceanBase 数据库通过 OceanBase 集群来进行管理。一个 OceanBase 集群由多个 OBServer 节点组成，每个 OBServer 节点属于一个 Zone。一般情况下，各个 Zone 内的机器配置与数量保持一
-image: '/images/posts/OceanBase基础概念.png'
+image: '../../assets/images/Dota-img/elder_titan.webp'
 tags:
   - OceanBase
 category: 数据库

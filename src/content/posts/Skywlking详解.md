@@ -3,7 +3,7 @@ title: SkyWalking详解
 slug: Skywlking详解
 published: 2026-01-19
 description: SkyWalking是一款用于分布式系统跟踪和性能监控的开源工具。它可以帮助开发人员了解分布式系统中不同组件之间的调用关系和性能指标，从而进行故障排查和性能优化。
-image: '/images/posts/skywalking.png'
+image: '../../assets/images/Dota-img/kez.webp'
 tags:
   - SkyWalking
 category: 监控观测

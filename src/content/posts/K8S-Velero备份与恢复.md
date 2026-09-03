@@ -3,7 +3,7 @@ title: K8S-Velero备份与恢复
 slug: K8S-Velero备份与恢复
 published: 2026-09-01
 description: 一、引言：为什么 K8s 备份恢复如此重要？
-image: '/images/posts/minio1.png'
+image: '../../assets/images/Dota-img/treant.webp'
 tags:
   - kubernetes
 category: 云原生

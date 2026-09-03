@@ -3,7 +3,7 @@ title: Linux JuiceFS详解
 slug: Linux JuiceFS详解
 published: 2025-05-09
 description: JuiceFS 是一款开源的分布式文件系统，它为云环境设计，兼容 POSIX 、 HDFS 和 S3 协议的分布式文件系统。
-image: '/images/posts/JuiceFS技术架构.png'
+image: '../../assets/images/Dota-img/dawnbreaker.webp'
 tags:
   - JuiceFS
 category: Linux

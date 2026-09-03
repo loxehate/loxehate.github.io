@@ -3,7 +3,7 @@ title: Docker部署zabbix5.4
 slug: Docker 部署zabbix5.4
 published: 2025-06-13
 description: 离线文件包zabbix5.4 images offline.tar.gz
-image: '/images/posts/主库配置.png'
+image: '../../assets/images/Dota-img/bloodseeker.webp'
 tags:
   - Docker
   - Zabbix

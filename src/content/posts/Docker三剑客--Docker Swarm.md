@@ -3,7 +3,7 @@ title: Docker三剑客--Docker Swarm
 slug: Docker三剑客--Docker Swarm
 published: 2025-06-13
 description: Docker Swarm 优点
-image: '/images/posts/Docker Swarm.png'
+image: '../../assets/images/Dota-img/snapfire.webp'
 tags:
   - Docker
 category: 云原生

@@ -3,7 +3,7 @@ title: ELK集群部署
 slug: ELK 集群部署
 published: 2025-12-03
 description: 使用yum localinstall 安装本地rpm包，执行代码如下（示例）：
-image: '/images/posts/kibana登录.png'
+image: '../../assets/images/Dota-img/nyx_assassin.webp'
 tags:
   - Elasticsearch
 category: 中间件

@@ -3,7 +3,7 @@ title: Linux Systemctl详解
 slug: linux systemctl详解
 published: 2025-05-09
 description: 参考后面的参数详解部分，根据需求创建一个systemd unit 配置文件，如下的ehr.service：
-image: '/images/posts/systemed-restart.png'
+image: '../../assets/images/Dota-img/skywrath_mage.webp'
 tags:
   - Systemctl
 category: Linux

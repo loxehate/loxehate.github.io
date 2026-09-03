@@ -3,7 +3,7 @@ title: Linux ansible详解
 slug: Linux ansible详解
 published: 2025-05-09
 description: 'groupname是主机组名称,hostname是主机的名称或IP地址'
-image: '/images/posts/ansible-tags-play.png'
+image: '../../assets/images/Dota-img/chen.webp'
 tags:
   - 自动化运维
 category: Linux

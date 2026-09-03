@@ -3,7 +3,7 @@ title: Cassandra详解
 slug: Cassandra详解
 published: 2025-05-08
 description: 采用3台CentOS x64系统（虚拟机）
-image: '/images/posts/cassandra-cqlsh.png'
+image: '../../assets/images/Dota-img/pudge.webp'
 tags:
   - Cassandra
 category: 数据库

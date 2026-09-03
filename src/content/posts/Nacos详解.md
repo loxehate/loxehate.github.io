@@ -3,7 +3,7 @@ title: Nacos详解
 slug: Nacos详解
 published: 2025-05-29
 description: 服务实例本身并不记录服务生产方的网络地址，所有服务实例内部都会包含服务发现客户端。
-image: '/images/posts/nacos服务发现.png'
+image: '../../assets/images/Dota-img/morphling.webp'
 tags:
   - Nacos
 category: 中间件

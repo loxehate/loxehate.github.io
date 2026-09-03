@@ -3,7 +3,7 @@ title: K8S-networkpolicy网络策略详解
 slug: K8S-networkpolicy网络策略详解
 published: 2026-09-01
 description: 可以在 ingress from 部分或 egress to 部分中指定四种选择器：
-image: '/images/posts/kafka-leader选举.png'
+image: '../../assets/images/Dota-img/spirit_breaker.webp'
 tags:
   - kubernetes
 category: 云原生

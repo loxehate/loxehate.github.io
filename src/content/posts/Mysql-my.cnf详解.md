@@ -3,7 +3,7 @@ title: Mysql-my.cnf详解
 slug: Mysql-my.cnf详解
 published: 2025-05-08
 description: my.cnf 配置文件参数解释：
-image: '/images/posts/skywalking-2.png'
+image: '../../assets/images/Dota-img/phoenix.webp'
 tags:
   - Mysql
 category: 数据库

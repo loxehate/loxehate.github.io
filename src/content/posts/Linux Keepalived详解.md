@@ -3,7 +3,7 @@ title: Linux Keepalived详解
 slug: Linux Keepalived详解
 published: 2025-05-09
 description: VRRP可以将两台或多台物理路由器设备虚拟成一个虚拟路由器，这个虚拟路由器通过虚拟IP（一个或多个）对外提供服务，而在虚拟路由器内部是多个物理路由器协同工作，VRRP角色如下：
-image: '/images/posts/VRRP协议.png'
+image: '../../assets/images/Dota-img/silencer.webp'
 tags:
   - Keepalived
 category: Linux

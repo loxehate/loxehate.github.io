@@ -3,7 +3,7 @@ title: ELK日志分析平台
 slug: ELK日志分析平台
 published: 2025-05-29
 description: ElasticSearch是一个 分布式，高性能、高可用、可伸缩、RESTful 风格 的搜索和数据分析引擎。通常作为 Elastic Stack的核心 来使用，Elastic Stack大致是如下这样组成的：
-image: '/images/posts/Elastic Stack.png'
+image: '../../assets/images/Dota-img/brewmaster.webp'
 tags:
   - Elasticsearch
 category: 中间件

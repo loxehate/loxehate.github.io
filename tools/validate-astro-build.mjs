@@ -47,13 +47,25 @@ for (const postPath of posts) {
   requireFile(path.join(distRoot, "posts", slug, "index.html"), "缺少旧网址跳转");
 
   const cover = String(data.image ?? "");
-  if (!cover.startsWith("/")) {
+  let coverPath;
+  if (!cover) {
     errors.push(`文章未配置本地封面: ${path.relative(root, postPath)}`);
+  } else if (cover.startsWith("/")) {
+    coverPath = path.join(publicRoot, ...decodeURIComponent(cover.slice(1)).split("/"));
   } else {
-    requireFile(path.join(publicRoot, ...decodeURIComponent(cover.slice(1)).split("/")), "缺少文章封面");
-    const previous = covers.get(cover);
+    coverPath = path.resolve(path.dirname(postPath), decodeURIComponent(cover));
+    const relativeToSource = path.relative(path.join(root, "src"), coverPath);
+    if (relativeToSource.startsWith("..") || path.isAbsolute(relativeToSource)) {
+      errors.push(`文章封面不在 src 或 public 目录: ${path.basename(postPath)} -> ${cover}`);
+      coverPath = undefined;
+    }
+  }
+  if (coverPath) {
+    requireFile(coverPath, "缺少文章封面");
+    const coverKey = path.normalize(coverPath).toLowerCase();
+    const previous = covers.get(coverKey);
     if (previous) errors.push(`文章封面重复: ${previous} 与 ${path.basename(postPath)} -> ${cover}`);
-    covers.set(cover, path.basename(postPath));
+    covers.set(coverKey, path.basename(postPath));
   }
 
   const imageReferences = [

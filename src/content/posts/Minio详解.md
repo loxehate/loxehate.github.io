@@ -3,7 +3,7 @@ title: Minio详解
 slug: Minio详解
 published: 2025-05-29
 description: 互联网海量非结构化数据的存储需求
-image: '/images/posts/flannel1.png'
+image: '../../assets/images/Dota-img/clinkz.webp'
 tags:
   - Minio
 category: 中间件

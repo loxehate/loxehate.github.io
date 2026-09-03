@@ -3,7 +3,7 @@ title: Mysql-架构原理
 slug: Mysql-架构原理
 published: 2025-05-08
 description: MySQL Server架构自顶向下大致可以分网络连接层、服务层、存储引擎层和系统文件层。
-image: '/images/posts/MySQL体系架构.png'
+image: '../../assets/images/Dota-img/drow_ranger.webp'
 tags:
   - Mysql
 category: 数据库

@@ -3,7 +3,7 @@ title: Linux wireguard详解
 slug: Linux wireguard详解
 published: 2025-05-09
 description: wireguard是什么？
-image: '/images/posts/wireguard服务端启动.png'
+image: '../../assets/images/Dota-img/crystal_maiden.webp'
 tags:
   - vpn
 category: Linux

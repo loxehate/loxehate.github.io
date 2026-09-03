@@ -3,7 +3,7 @@ title: PULSAR-3.0.2-SRE-ANALYSIS
 slug: PULSAR-3.0.2-SRE-ANALYSIS
 published: 2026-08-04
 description: 目标：建立“源码 → 配置 → 指标 → 日志 → 告警 → 根因 → 恢复 → 自动化”的闭环。
-image: '/images/posts/drugs_for_longevity.png'
+image: '../../assets/images/Dota-img/magnataur.webp'
 tags:
   - Pulsar
   - SRE

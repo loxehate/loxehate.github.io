@@ -3,7 +3,7 @@ title: Milvus详解
 slug: Milvus详解
 published: 2025-12-11
 description: 在当今数字化时代，人工智能AI正迅速改变着我们的生活和工作方式。从智能助手到自动驾驶汽车，AI正在成为各行各业的创新引擎。然而，这种AI的崛起也带来了一个关键的挑战：如何有效地处理和分析越来越丰富和复杂的数据。在这个背景下，向量数据库技术应运而生，为AI提供了强大的加速引擎。
-image: '/images/posts/milvus-apply.png'
+image: '../../assets/images/Dota-img/dazzle.webp'
 tags:
   - Milvus
 category: 数据库

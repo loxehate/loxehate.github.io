@@ -3,7 +3,7 @@ title: Elasticsearch集群升级详解
 slug: Elasticsearch集群升级详解
 published: 2025-05-29
 description: 从 Elasticsearch 7.17.9 进行滚动升级到 7.17.28，可以按照以下步骤进行。确保你已经备份了数据，并且了解整个升级过程对集群的影响。
-image: '/images/posts/pulsar-failover.png'
+image: '../../assets/images/Dota-img/invoker.webp'
 tags:
   - Elasticsearch
 category: 中间件

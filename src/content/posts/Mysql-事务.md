@@ -3,7 +3,7 @@ title: Mysql-事务
 slug: Mysql-事务
 published: 2025-05-08
 description: 在关系型数据库管理系统中，一个逻辑工作单元要成为事务，必须满足这 4 个特性，即所谓的 ACID：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）和持久性（Durability）。
-image: '/images/posts/mysql提交.png'
+image: '../../assets/images/Dota-img/doom_bringer.webp'
 tags:
   - Mysql
 category: 数据库

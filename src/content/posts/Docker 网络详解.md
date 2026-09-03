@@ -3,7 +3,7 @@ title: Docker 网络详解
 slug: Docker 网络详解
 published: 2025-06-13
 description: Docker默认提供了3种网络模式，生成容器时不指定网络模式下默认使用bridge桥接模式。
-image: '/images/posts/docker-bridge.png'
+image: '../../assets/images/Dota-img/shadow_demon.webp'
 tags:
   - Docker
 category: 云原生

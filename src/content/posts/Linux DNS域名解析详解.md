@@ -3,7 +3,7 @@ title: Linux DNS域名解析详解
 slug: Linux DNS域名解析详解
 published: 2025-05-09
 description: 域名解析协议（DNS，Domain Name System）来将域名和IP地址相互映射。
-image: '/images/posts/域名的结构.png'
+image: '../../assets/images/Dota-img/slardar.webp'
 tags:
   - 域名解析
 category: Linux

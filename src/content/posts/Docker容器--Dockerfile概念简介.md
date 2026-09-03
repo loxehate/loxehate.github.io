@@ -3,7 +3,7 @@ title: Docker容器--Dockerfile概念简介
 slug: Docker容器--Dockerfile概念简介
 published: 2025-06-13
 description: dockerfile的原理就是镜像分层。
-image: '/images/posts/dockerfile流程.png'
+image: '../../assets/images/Dota-img/huskar.webp'
 tags:
   - Docker
 category: 云原生

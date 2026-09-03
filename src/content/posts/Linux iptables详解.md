@@ -3,7 +3,7 @@ title: Linux iptables详解
 slug: Linux iptables详解
 published: 2025-05-09
 description: 保障数据的安全性是继保障数据的可用性之后最为重要的一项工作。防火墙作为公网与内网之间的保护屏障，在保障数据的安全性方面起着至关重要的作用。
-image: '/images/posts/iptables.png'
+image: '../../assets/images/Dota-img/visage.webp'
 tags:
   - iptables
 category: Linux

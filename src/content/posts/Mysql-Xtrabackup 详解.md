@@ -3,7 +3,7 @@ title: Mysql-Xtrabackup 详解
 slug: Mysql-Xtrabackup 详解
 published: 2025-05-08
 description: Xtrabackup 是由 Percona 公司开源的一款 MySQL 物理热备份工具，目前社区非常活跃，是 MySQL 开源社区的主流备份工具，深受用户喜爱。
-image: '/images/posts/增量备份.png'
+image: '../../assets/images/Dota-img/earth_spirit.webp'
 tags:
   - Mysql
 category: 数据库
