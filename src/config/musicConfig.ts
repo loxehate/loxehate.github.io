@@ -51,7 +51,7 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 				name: "We Are Electric",
 				artist: "dota",
 				url: "/assets/music/We-Are-Electric.mp3",
-				cover: "/assets/music/Dota.webp",
+				cover: "/assets/music/cover/Dota.webp",
 				lrc: "",
 			},
 		],
