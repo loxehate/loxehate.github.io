@@ -42,7 +42,7 @@ jobs:
 
       - name: Install Radar dependencies
         working-directory: radar
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-workspace
 
       - name: Resolve Radar Pages URL
         env:
