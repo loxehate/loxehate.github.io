@@ -238,6 +238,18 @@ export const siteConfig: SiteConfig = {
 		sharePoster: true,
 		// OpenGraph图片功能，注意开启后要渲染很长时间，不建议本地调试的时候开启
 		generateOgImages: false,
+
+		// 沉浸阅读：文章页右下角按钮，进入后只保留文章卡片和目录
+		immersiveReading: {
+			// 总开关：false 则不显示沉浸阅读按钮
+			enable: true,
+			// 是否在进入文章页时自动开启
+			defaultOn: false,
+			// 沉浸阅读中是否显示目录栏
+			tocEnabled: true,
+			// 目录栏位置："left" | "right"
+			tocPosition: "left",
+		},
 	},
 
 	// ── Bilibili配置 ──────────────────────────────────
