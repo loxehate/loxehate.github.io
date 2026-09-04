@@ -29,7 +29,7 @@ import type { FontDefinition, FontSelectionConfig } from "@/types/fontConfig";
 export const fontsList: FontDefinition[] = [
 	{
 		name: "Zen Maru Gothic",
-		cssVariable: "--font-zen-maru-gothic",
+		cssVariable: "--font-greatvibes",
 		provider: "fontsource",
 		weights: ["300", "400", "500", "600", "700"],
 		styles: ["normal"],
