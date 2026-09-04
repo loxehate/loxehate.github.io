@@ -3,10 +3,10 @@ import type { MusicPlayerConfig } from "../types/musicConfig";
 // 音乐播放器配置
 export const musicPlayerConfig: MusicPlayerConfig = {
 	// 是否在导航栏显示音乐播放器入口
-	showInNavbar: false,
+	showInNavbar: true,
 
 	// 是否在侧边栏显示音乐播放器组件
-	showInSidebar: false,
+	showInSidebar: true,
 
 	// 使用方式："meting" 使用 Meting API，"local" 使用本地音乐列表
 	mode: "local",
@@ -48,10 +48,10 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	local: {
 		playlist: [
 			{
-				name: "使一颗心免于哀伤",
-				artist: "知更鸟 / HOYO-MiX / Chevy",
-				url: "/assets/music/使一颗心免于哀伤-哼唱.mp3",
-				cover: "/assets/music/cover/109951169585655912.webp",
+				name: "We Are Electric",
+				artist: "dota",
+				url: "/assets/music/We-Are-Electric.mp3",
+				cover: "/assets/music/Dota.webp",
 				lrc: "",
 			},
 		],
