@@ -524,6 +524,52 @@ const siteLogo = await getSiteLogo();
 
     <!-- GitHub 卡片客户端实时补全（forks/stars） -->
     <GithubCardManager />
+
+    <!-- 页面失焦标题提示 -->
+    <script is:inline>
+      (function () {
+        const root = document.documentElement;
+
+        // Layout 会随 Swup 切页重新执行，避免重复注册全局监听器
+        if (root.dataset.titleSwitcherReady === "true") return;
+        root.dataset.titleSwitcherReady = "true";
+
+        const hiddenTitle = "你别走啊~ (╥﹏╥)";
+        const welcomeTitle = "欢迎回来！(＾Ｕ＾)ノ~";
+        let originalTitle = document.title;
+        let titleTimer;
+
+        function updateOriginalTitle() {
+          const currentTitle = document.title;
+          if (currentTitle !== hiddenTitle && currentTitle !== welcomeTitle) {
+            originalTitle = currentTitle;
+          }
+        }
+
+        document.addEventListener("visibilitychange", function () {
+          clearTimeout(titleTimer);
+
+          if (document.hidden) {
+            updateOriginalTitle();
+            document.title = hiddenTitle;
+            return;
+          }
+
+          document.title = welcomeTitle;
+          titleTimer = setTimeout(function () {
+            document.title = originalTitle;
+          }, 2000);
+        });
+
+        // Firefly 使用 Swup 切页，切换后同步保存新页面标题
+        document.addEventListener("swup:contentReplaced", function () {
+          setTimeout(updateOriginalTitle, 0);
+        });
+        document.addEventListener("astro:page-load", function () {
+          setTimeout(updateOriginalTitle, 0);
+        });
+      })();
+    </script>
   </body>
 </html>
 
