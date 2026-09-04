@@ -308,12 +308,11 @@ function buildCliReportContent(
     .map((d) => {
       const skills = d.config.id === "claude-code" ? skillsSection : "";
       return [
-        `<details>`,
-        `<summary><strong>${d.config.name}</strong> — <a href="https://github.com/${d.config.repo}">${d.config.repo}</a></summary>`,
+		`:::details{title="${d.config.name}" repo="${d.config.repo}"}`,
         ``,
         skills + d.summary,
         ``,
-        `</details>`,
+		`:::`,
       ].join("\n");
     })
     .join("\n\n");
@@ -351,12 +350,11 @@ function buildOpenclawReportContent(
   const peerDetailSections = peerDigests
     .map((d) =>
       [
-        `<details>`,
-        `<summary><strong>${d.config.name}</strong> — <a href="https://github.com/${d.config.repo}">${d.config.repo}</a></summary>`,
+		`:::details{title="${d.config.name}" repo="${d.config.repo}"}`,
         ``,
         d.summary,
         ``,
-        `</details>`,
+		`:::`,
       ].join("\n"),
     )
     .join("\n\n");

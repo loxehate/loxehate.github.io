@@ -169,8 +169,7 @@ Hermes 的 #102504（P1）、OpenCode 的 #47177、Claude Code 的 Function Hook
 
 ## 各工具详细报告
 
-<details>
-<summary><strong>Claude Code</strong> — <a href="https://github.com/anthropics/claude-code">anthropics/claude-code</a></summary>
+:::details{title="Claude Code" repo="anthropics/claude-code"}
 
 ## Claude Code Skills 社区热点
 
@@ -397,10 +396,9 @@ Fable 5.1 模型在 `AskUserQuestion` 前的解释文本以 thinking block 形�
 
 *数据时间窗口：2026-09-03 ~ 2026-09-04 UTC | 数据源：GitHub `anthropics/claude-code`*
 
-</details>
+:::
 
-<details>
-<summary><strong>OpenAI Codex</strong> — <a href="https://github.com/openai/codex">openai/codex</a></summary>
+:::details{title="OpenAI Codex" repo="openai/codex"}
 
 # OpenAI Codex 社区动态日报
 **2026-09-04**
@@ -533,10 +531,9 @@ Fable 5.1 模型在 `AskUserQuestion` 前的解释文本以 thinking block 形�
 5. **多 agent 协作可靠性**：sol 调度 luna 子 agent 后出现整 session exec 失败（#42653），说明 gpt-5.6 系列子 agent 间的健壮性仍需打磨。
 6. **会话恢复可靠性**：`codex resume <thread-id>` 在 paginated 库残留 `inProgress` 时找不到 session（#42483），影响中断后继续工作流。
 
-</details>
+:::
 
-<details>
-<summary><strong>Gemini CLI</strong> — <a href="https://github.com/google-gemini/gemini-cli">google-gemini/gemini-cli</a></summary>
+:::details{title="Gemini CLI" repo="google-gemini/gemini-cli"}
 
 # Gemini CLI 社区动态日报
 **2026-09-04**
@@ -621,10 +618,9 @@ Fable 5.1 模型在 `AskUserQuestion` 前的解释文本以 thinking block 形�
 
 *数据来源：[google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) · 报告生成时间：2026-09-04*
 
-</details>
+:::
 
-<details>
-<summary><strong>DeepSeek Reasonix</strong> — <a href="https://github.com/esengine/DeepSeek-Reasonix">esengine/DeepSeek-Reasonix</a></summary>
+:::details{title="DeepSeek Reasonix" repo="esengine/DeepSeek-Reasonix"}
 
 # DeepSeek Reasonix 社区动态日报
 
@@ -716,10 +712,9 @@ Reasonix Studio v2.12.0 正式发布，远程工作区首次端到端可用，�
 
 *数据来源：github.com/esengine/DeepSeek-Reasonix · 覆盖 22 条 Issues、30 条 PR、1 个 Release*
 
-</details>
+:::
 
-<details>
-<summary><strong>OpenCode</strong> — <a href="https://github.com/anomalyco/opencode">anomalyco/opencode</a></summary>
+:::details{title="OpenCode" repo="anomalyco/opencode"}
 
 # OpenCode 社区动态日报
 
@@ -817,10 +812,9 @@ Reasonix Studio v2.12.0 正式发布，远程工作区首次端到端可用，�
 
 *数据来源：GitHub `anomalyco/opencode` Issues & Pull Requests · 采样窗口：2026-09-03 → 2026-09-04*
 
-</details>
+:::
 
-<details>
-<summary><strong>Deepseek Harness</strong> — <a href="https://github.com/deepseek-ai/deepseek-harness">deepseek-ai/deepseek-harness</a></summary>
+:::details{title="Deepseek Harness" repo="deepseek-ai/deepseek-harness"}
 
 # DeepSeek Harness 社区动态日报
 
@@ -897,10 +891,9 @@ Reasonix Studio v2.12.0 正式发布，远程工作区首次端到端可用，�
 
 *📌 日报由 AI 自动生成，基于 GitHub 公开数据整理。*
 
-</details>
+:::
 
-<details>
-<summary><strong>Hermes</strong> — <a href="https://github.com/NousResearch/hermes-agent">NousResearch/hermes-agent</a></summary>
+:::details{title="Hermes" repo="NousResearch/hermes-agent"}
 
 # Hermes 社区动态日报 · 2026-09-04
 
@@ -991,4 +984,4 @@ Reasonix Studio v2.12.0 正式发布，远程工作区首次端到端可用，�
 
 *日报生成时间:2026-09-04 · 数据来源:GitHub REST API · Hermes Agent Community Pulse*
 
-</details>
+:::

@@ -40,6 +40,39 @@ export function parseDirectiveNode() {
 			) {
 				const name = node.name ? node.name.toLowerCase() : "";
 
+				// 使用 :::details{title="..." repo="..."} 包裹 Markdown 内容。
+				// 原生 <details> HTML 块无法可靠包裹标题、列表等 Markdown 节点，
+				// 并会被 remark-sectionize 拆开；容器指令则能保留完整节点树。
+				if (node.type === "containerDirective" && name === "details") {
+					const title = node.attributes?.title || "Details";
+					const repo = node.attributes?.repo;
+					const summaryChildren = [
+						{
+							type: "strong",
+							children: [{ type: "text", value: title }],
+						},
+					];
+
+					if (repo) {
+						summaryChildren.push(
+							{ type: "text", value: " — " },
+							{
+								type: "link",
+								url: `https://github.com/${repo}`,
+								children: [{ type: "text", value: repo }],
+							},
+						);
+					}
+
+					node.children.unshift({
+						type: "paragraph",
+						data: { hName: "summary" },
+						children: summaryChildren,
+					});
+					node.data = { hName: "details", hProperties: {} };
+					return;
+				}
+
 				// 检查是否是 Admonition 类型
 				// 仅对 containerDirective 进行 Admonition 转换
 				if (
