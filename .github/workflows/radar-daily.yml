@@ -90,7 +90,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No Radar output changes to commit"
           else
-            date_str="$(date -u +%Y-%m-%d)"
+            date_str="$(date -u +%Y-%m-%d-%H-%M)"
             git commit -m "digest: ${date_str} radar daily"
             git pull --rebase
             git push
