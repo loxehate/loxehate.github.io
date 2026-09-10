@@ -1,11 +1,12 @@
 {
-  "generated": "2026-09-10T00:54:13.533Z",
+  "generated": "2026-09-10T06:04:23.566Z",
   "dates": [
     {
       "date": "2026-09-10",
       "reports": [
         "ai-cli",
         "ai-agents",
+        "ai-web",
         "ai-trending",
         "ai-hn"
       ]
@@ -517,6 +518,7 @@
       "reports": [
         "ai-cli",
         "ai-agents",
+        "ai-web",
         "ai-trending",
         "ai-hn"
       ]
@@ -672,7 +674,7 @@
     {
       "month": "2026-09",
       "dateCount": 10,
-      "reportCount": 49,
+      "reportCount": 50,
       "url": "/radar/archive/2026-09/"
     },
     {

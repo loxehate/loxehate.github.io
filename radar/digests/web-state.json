@@ -1,6 +1,6 @@
 {
   "anthropic": {
-    "lastChecked": "2026-09-10T00:45:25.494Z",
+    "lastChecked": "2026-09-10T05:49:05.046Z",
     "seenUrls": {
       "https://www.anthropic.com/news/responsible-scaling-policy-v3": "2026-02-25T23:57:06.000Z",
       "https://www.anthropic.com/research/deprecation-updates-opus-3": "2026-09-09T21:14:42.000Z",
@@ -451,11 +451,11 @@
       "https://www.anthropic.com/news/improving-alignment-security-efforts": "2026-09-07T09:43:45.000Z",
       "https://www.anthropic.com/news/enterprise-frontier-safeguards": "2026-09-02T19:11:21.000Z",
       "https://www.anthropic.com/research/formalizing-fermats-last-theorem": "2026-09-07T11:07:52.000Z",
-      "https://www.anthropic.com/research/alignment-assessment-cybersecurity-incidents": "2026-09-09T20:43:10.000Z"
+      "https://www.anthropic.com/research/alignment-assessment-cybersecurity-incidents": "2026-09-10T01:13:21.000Z"
     }
   },
   "openai": {
-    "lastChecked": "2026-09-10T00:44:07.481Z",
+    "lastChecked": "2026-09-10T05:49:07.161Z",
     "seenUrls": {
       "https://openai.com/index/arvind-kc-chief-people-officer/": "2026-08-31T19:59:23.196Z",
       "https://openai.com/index/put-ai-to-work-for-your-product-team/": "2026-09-02T00:20:45.696Z",
@@ -1242,16 +1242,16 @@
       "https://openai.com/index/supporting-california-bill-advance-ai-youth-safety/": "2026-09-09T17:20:04.756Z",
       "https://openai.com/index/path-to-astra/": "2026-09-09T17:15:02.056Z",
       "https://openai.com/signals/enterprise-data/": "2026-09-09T16:46:29.437Z",
-      "https://openai.com/index/gpt-6-astra/": "2026-09-10T00:09:08.876Z",
+      "https://openai.com/index/gpt-6-astra/": "2026-09-10T04:28:23.521Z",
       "https://openai.com/index/safety-overview-gpt-6-astra/": "2026-09-09T13:51:26.374Z",
-      "https://openai.com/index/an-alien-mind/": "2026-09-10T00:39:05.524Z",
-      "https://openai.com/index/research-acceleration-view-inside-openai/": "2026-09-10T00:16:01.792Z",
+      "https://openai.com/index/an-alien-mind/": "2026-09-10T03:02:10.668Z",
+      "https://openai.com/index/research-acceleration-view-inside-openai/": "2026-09-10T01:53:01.870Z",
       "https://openai.com/index/supporting-journalism-from-classrooms-to-newsrooms/": "2026-09-09T17:00:25.471Z",
-      "https://openai.com/index/introducing-chatgpt-images-2-5/": "2026-09-09T21:51:01.639Z",
+      "https://openai.com/index/introducing-chatgpt-images-2-5/": "2026-09-10T04:37:01.566Z",
       "https://openai.com/index/the-work-now-within-reach/": "2026-09-08T20:48:41.432Z",
       "https://openai.com/index/navier-stokes-solution/": "2026-09-08T18:13:59.989Z",
-      "https://openai.com/index/teen-development-research-grants/": "2026-09-10T00:05:39.385Z",
-      "https://openai.com/index/gpt-6-astra-next-generation-work/": "2026-09-10T00:09:02.454Z",
+      "https://openai.com/index/teen-development-research-grants/": "2026-09-10T05:16:18.620Z",
+      "https://openai.com/index/gpt-6-astra-next-generation-work/": "2026-09-10T04:28:02.572Z",
       "https://openai.com/index/paul-christiano-joins-openai-foundation-board/": "2026-09-09T21:43:37.910Z"
     }
   }
