@@ -54,7 +54,7 @@ function sleep(ms: number): Promise<void> {
 }
 
 function getLlmApiKey(): string {
-  return process.env["OPENAI_API_KEY"] ?? process.env["ANTHROPIC_API_KEY"] ?? "";
+  return (process.env["OPENAI_API_KEY"] ?? process.env["ANTHROPIC_API_KEY"] ?? "").trim();
 }
 
 export function getLlmBaseUrl(): string {
@@ -62,11 +62,13 @@ export function getLlmBaseUrl(): string {
     process.env["OPENAI_BASE_URL"] ??
     process.env["ANTHROPIC_BASE_URL"] ??
     DEFAULT_OPENAI_BASE_URL
-  ).replace(/\/$/, "");
+  )
+    .trim()
+    .replace(/\/+$/, "");
 }
 
 function getLlmModel(): string {
-  return process.env["OPENAI_MODEL"] ?? process.env["ANTHROPIC_MODEL"] ?? DEFAULT_MODEL;
+  return (process.env["OPENAI_MODEL"] ?? process.env["ANTHROPIC_MODEL"] ?? DEFAULT_MODEL).trim();
 }
 
 export function hasLlmCredentials(): boolean {
@@ -103,6 +105,45 @@ function extractTextContent(content: unknown): string {
   throw new Error("Unexpected response type from LLM");
 }
 
+function describeError(err: unknown): string {
+  const descriptions: string[] = [];
+  const seen = new Set<unknown>();
+  let current: unknown = err;
+
+  while (current != null && !seen.has(current) && descriptions.length < 4) {
+    seen.add(current);
+    if (current instanceof Error) {
+      const details = current as Error & {
+        code?: unknown;
+        errno?: unknown;
+        syscall?: unknown;
+        hostname?: unknown;
+        address?: unknown;
+        port?: unknown;
+        cause?: unknown;
+      };
+      const metadata = [
+        ["code", details.code],
+        ["errno", details.errno],
+        ["syscall", details.syscall],
+        ["hostname", details.hostname],
+        ["address", details.address],
+        ["port", details.port],
+      ]
+        .filter(([, value]) => value !== undefined)
+        .map(([key, value]) => `${key}=${String(value)}`)
+        .join(", ");
+      descriptions.push(`${details.name}: ${details.message}${metadata ? ` (${metadata})` : ""}`);
+      current = details.cause;
+    } else {
+      descriptions.push(String(current));
+      break;
+    }
+  }
+
+  return descriptions.join("; caused by: ");
+}
+
 export async function callLlm(prompt: string, maxTokens = 4096, contextTag = ""): Promise<string> {
   let tokenBudget = normalizeTokenBudget(maxTokens);
   const retryPrefix = contextTag ? `[llm/${contextTag}]` : "[llm]";
@@ -113,21 +154,32 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
       const apiKey = getLlmApiKey();
       if (!apiKey) throw new Error("Missing required environment variable: OPENAI_API_KEY");
 
-      const resp = await fetch(`${getLlmBaseUrl()}/chat/completions`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: getLlmModel(),
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.2,
-          max_tokens: tokenBudget,
-        }),
-      });
+      const endpoint = `${getLlmBaseUrl()}/chat/completions`;
+      const model = getLlmModel();
+      let resp: Response;
+      try {
+        resp = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.2,
+            max_tokens: tokenBudget,
+          }),
+        });
+      } catch (err) {
+        throw new Error(
+          `LLM network request failed: endpoint=${endpoint}; model=${JSON.stringify(model)}; ${describeError(err)}`,
+        );
+      }
       if (!resp.ok) {
-        throw new Error(`LLM API ${resp.status}: ${await resp.text()}`);
+        throw new Error(
+          `LLM API ${resp.status} ${resp.statusText}: endpoint=${endpoint}; model=${JSON.stringify(model)}; ${await resp.text()}`,
+        );
       }
 
       const data = (await resp.json()) as {
