@@ -171,8 +171,7 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
       };
       if (shouldUseOpenRouterReasoning(endpoint, model)) {
         requestBody["reasoning"] = {
-          effort: "low",
-          exclude: true,
+          enabled: true,
         };
       }
       let resp: Response;
