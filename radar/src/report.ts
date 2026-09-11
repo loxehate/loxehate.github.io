@@ -58,17 +58,24 @@ function getLlmApiKey(): string {
 }
 
 export function getLlmBaseUrl(): string {
-  return (
-    process.env["OPENAI_BASE_URL"] ??
-    process.env["ANTHROPIC_BASE_URL"] ??
-    DEFAULT_OPENAI_BASE_URL
-  )
+  return (process.env["OPENAI_BASE_URL"] ?? process.env["ANTHROPIC_BASE_URL"] ?? DEFAULT_OPENAI_BASE_URL)
     .trim()
     .replace(/\/+$/, "");
 }
 
 function getLlmModel(): string {
   return (process.env["OPENAI_MODEL"] ?? process.env["ANTHROPIC_MODEL"] ?? DEFAULT_MODEL).trim();
+}
+
+function shouldUseOpenRouterReasoning(endpoint: string, model: string): boolean {
+  try {
+    return (
+      new URL(endpoint).hostname.toLowerCase() === "openrouter.ai" &&
+      model === "nvidia/nemotron-3-super-120b-a12b:free"
+    );
+  } catch {
+    return false;
+  }
 }
 
 export function hasLlmCredentials(): boolean {
@@ -156,6 +163,18 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
 
       const endpoint = `${getLlmBaseUrl()}/chat/completions`;
       const model = getLlmModel();
+      const requestBody: Record<string, unknown> = {
+        model,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.2,
+        max_tokens: tokenBudget,
+      };
+      if (shouldUseOpenRouterReasoning(endpoint, model)) {
+        requestBody["reasoning"] = {
+          effort: "low",
+          exclude: true,
+        };
+      }
       let resp: Response;
       try {
         resp = await fetch(endpoint, {
@@ -164,12 +183,7 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            model,
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.2,
-            max_tokens: tokenBudget           
-          }),
+          body: JSON.stringify(requestBody),
         });
       } catch (err) {
         throw new Error(
@@ -186,12 +200,40 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
         choices?: Array<{
           message?: {
             content?: unknown;
+            reasoning?: unknown;
+            reasoning_content?: unknown;
+            reasoning_details?: unknown;
           };
           finish_reason?: string | null;
         }>;
+        usage?: {
+          prompt_tokens?: number;
+          completion_tokens?: number;
+          total_tokens?: number;
+          completion_tokens_details?: {
+            reasoning_tokens?: number;
+          };
+        };
       };
       const choice = data.choices?.[0];
-      const content = choice?.message?.content;
+      const message = choice?.message;
+      const content = message?.content;
+      if (content == null) {
+        const reasoningDetailsCount = Array.isArray(message?.reasoning_details)
+          ? message.reasoning_details.length
+          : 0;
+        const hasReasoning =
+          (typeof message?.reasoning === "string" && message.reasoning.length > 0) ||
+          (typeof message?.reasoning_content === "string" && message.reasoning_content.length > 0) ||
+          reasoningDetailsCount > 0;
+        const usage = data.usage;
+        const usageSummary = usage
+          ? `prompt_tokens=${usage.prompt_tokens ?? "unknown"}, completion_tokens=${usage.completion_tokens ?? "unknown"}, reasoning_tokens=${usage.completion_tokens_details?.reasoning_tokens ?? "unknown"}, total_tokens=${usage.total_tokens ?? "unknown"}`
+          : "unavailable";
+        throw new Error(
+          `LLM returned empty content; finish_reason=${choice?.finish_reason ?? "unknown"}; reasoning_present=${hasReasoning}; reasoning_details_count=${reasoningDetailsCount}; usage=${usageSummary}${contextTag ? `; context=${contextTag}` : ""}`,
+        );
+      }
       const text = extractTextContent(content);
       if (!text)
         throw new Error(
