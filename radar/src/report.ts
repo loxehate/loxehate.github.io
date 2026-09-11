@@ -169,6 +169,9 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
             messages: [{ role: "user", content: prompt }],
             temperature: 0.2,
             max_tokens: tokenBudget,
+            chat_template_kwargs: {
+              thinking: false,
+            },            
           }),
         });
       } catch (err) {
