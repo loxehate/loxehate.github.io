@@ -1,9 +1,9 @@
 ---
 title: Nightingale迁移方案
 slug: Nightingale迁移方案
-published: 2025-09-14
+published: 2026-09-14
 description: Nightingale跨云节点角色互换迁移方案。
-image: '../../assets/images/Dota-img/abaddon.png'
+image: '../../assets/images/Dota-img/axe.png'
 tags:
   - Nightingale
 category: 监控观测
