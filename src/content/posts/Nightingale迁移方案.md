@@ -3,7 +3,7 @@ title: Nightingale迁移方案
 slug: Nightingale迁移方案
 published: 2025-09-14
 description: Nightingale跨云节点角色互换迁移方案。
-image: '../../assets/images/Dota-img/axe.png'
+image: '../../assets/images/Dota-img/abaddon.png'
 tags:
   - Nightingale
 category: 监控观测
@@ -642,4 +642,3 @@ sudo systemctl start <A_BJ4_EDGE_UNIT>
 3. EmbeddedTSDB/evallog 等本地数据处理。
 4. `bj4`、`bj1` 的数据源和主机迁空。
 5. `bj4`、`bj1` 节点下线与资源删除。
-
