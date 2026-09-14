@@ -6,7 +6,7 @@ export const booknavPageConfig: BooknavPageConfig = {
 	title: "我的书签导航",
 
 	// 页面描述文本，如果留空则使用 i18n 中的翻译
-	description: "从旧版 Hexo 关于我页面迁移的常用站点与个人主页。",
+	description: "常用站点与个人主页。",
 
 	// favicon 自动获取配置
 	favicon: {
