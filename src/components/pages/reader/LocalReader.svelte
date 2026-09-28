@@ -181,6 +181,8 @@ const ENCODINGS: Array<{ value: ReaderEncoding; label: string }> = [
 	{ value: "utf-16be", label: "UTF-16 BE" },
 ];
 
+const BILINGUAL_TRANSLATION_ENABLED = false;
+
 function portal(node: HTMLElement) {
 	document.body.appendChild(node);
 	return {
@@ -261,6 +263,7 @@ onMount(() => {
 			const storedSettings = await getSettings();
 			if (storedSettings)
 				settings = { ...DEFAULT_READER_SETTINGS, ...storedSettings };
+			if (!BILINGUAL_TRANSLATION_ENABLED) settings.bilingual = false;
 			settingsReady = true;
 			const seedFailures = await seedBuiltInBooks();
 			await refreshShelf();
@@ -331,6 +334,7 @@ $effect(() => {
 
 $effect(() => {
 	if (
+		!BILINGUAL_TRANSLATION_ENABLED ||
 		view !== "reader" ||
 		!settings.bilingual ||
 		!currentBook ||
@@ -1318,9 +1322,11 @@ function handleKeyboard(event: KeyboardEvent) {
         <span>{currentChapter.title}</span>
       </div>
       <nav>
-		<button class:active={settings.bilingual} type="button" onclick={toggleBilingual} aria-label="切换中英对照" aria-pressed={settings.bilingual} title="中英对照">
-		  <Icon icon="material-symbols:translate-rounded" width="23" />
-		</button>
+		{#if BILINGUAL_TRANSLATION_ENABLED}
+		  <button class:active={settings.bilingual} type="button" onclick={toggleBilingual} aria-label="切换中英对照" aria-pressed={settings.bilingual} title="中英对照">
+			<Icon icon="material-symbols:translate-rounded" width="23" />
+		  </button>
+		{/if}
 		<button type="button" onclick={() => openReaderPanel("search")} aria-label="搜索正文">
 		  <Icon icon="material-symbols:search-rounded" width="23" />
 		</button>
@@ -1338,7 +1344,7 @@ function handleKeyboard(event: KeyboardEvent) {
         <p class="chapter-index">第 {currentChapterIndex + 1} / {chapters.length} 章</p>
         <h1>{currentChapter.title}</h1>
         <div class="chapter-rule"></div>
-		{#if settings.bilingual}
+		{#if BILINGUAL_TRANSLATION_ENABLED && settings.bilingual}
 		  <div class:has-error={translationStatus === "error" || translationStatus === "unsupported"} class="translation-notice" role="status">
 			<Icon icon={translationStatus === "ready" ? "material-symbols:translate-rounded" : translationStatus === "error" || translationStatus === "unsupported" ? "material-symbols:info-outline-rounded" : "svg-spinners:90-ring-with-bg"} width="18" />
 			<span>{#if translationStatus === "ready"}{translationSourceLanguage === "zh" ? "中译英" : "英译中"} · 译文已缓存在本机{:else if translationStatus === "downloading"}正在下载本地语言包 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "translating"}正在翻译当前章节 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "unsupported" || translationStatus === "error"}{translationError}{:else}正在检查本地翻译能力{/if}</span>
@@ -1374,7 +1380,7 @@ function handleKeyboard(event: KeyboardEvent) {
 			  <h1>{currentChapter.title}</h1>
 			  <div class="chapter-rule"></div>
 			</div>
-			{#if settings.bilingual}
+			{#if BILINGUAL_TRANSLATION_ENABLED && settings.bilingual}
 			  <div class:has-error={translationStatus === "error" || translationStatus === "unsupported"} class="translation-notice" role="status">
 				<Icon icon={translationStatus === "ready" ? "material-symbols:translate-rounded" : translationStatus === "error" || translationStatus === "unsupported" ? "material-symbols:info-outline-rounded" : "svg-spinners:90-ring-with-bg"} width="18" />
 				<span>{#if translationStatus === "ready"}{translationSourceLanguage === "zh" ? "中译英" : "英译中"} · 译文已缓存在本机{:else if translationStatus === "downloading"}正在下载本地语言包 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "translating"}正在翻译当前章节 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "unsupported" || translationStatus === "error"}{translationError}{:else}正在检查本地翻译能力{/if}</span>
@@ -1462,13 +1468,15 @@ function handleKeyboard(event: KeyboardEvent) {
 		  </div>
 		</div>
 
-		<div class="translation-field">
-		  <div><strong>中英对照</strong><small>Chrome 桌面版可在本机生成并缓存译文</small></div>
-		  <button class:active={settings.bilingual} type="button" onclick={toggleBilingual} aria-pressed={settings.bilingual}>
-			<span>{settings.bilingual ? "已开启" : "已关闭"}</span>
-			<i aria-hidden="true"></i>
-		  </button>
-		</div>
+		{#if BILINGUAL_TRANSLATION_ENABLED}
+		  <div class="translation-field">
+			<div><strong>中英对照</strong><small>Chrome 桌面版可在本机生成并缓存译文</small></div>
+			<button class:active={settings.bilingual} type="button" onclick={toggleBilingual} aria-pressed={settings.bilingual}>
+			  <span>{settings.bilingual ? "已开启" : "已关闭"}</span>
+			  <i aria-hidden="true"></i>
+			</button>
+		  </div>
+		{/if}
 
         <label>
           <span><strong>字号</strong><output>{settings.fontSize}px</output></span>
