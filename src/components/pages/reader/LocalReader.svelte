@@ -45,8 +45,8 @@ let chapters = $state<ReaderChapter[]>([]);
 let currentChapterIndex = $state(0);
 let drawerOpen = $state(false);
 let settingsOpen = $state(false);
-let readerScroller = $state<HTMLElement>();
 let progressTimer: number | undefined;
+let shelfScrollY = 0;
 
 let fileInput = $state<HTMLInputElement>();
 let selectedFile = $state<File | null>(null);
@@ -78,6 +78,15 @@ const ENCODINGS: Array<{ value: ReaderEncoding; label: string }> = [
 	{ value: "utf-16le", label: "UTF-16 LE" },
 	{ value: "utf-16be", label: "UTF-16 BE" },
 ];
+
+function portal(node: HTMLElement) {
+	document.body.appendChild(node);
+	return {
+		destroy() {
+			node.remove();
+		},
+	};
+}
 
 function callWorker(
 	action: "preview" | "parse",
@@ -158,10 +167,9 @@ $effect(() => {
 
 $effect(() => {
 	if (view !== "reader") return;
-	const previousOverflow = document.body.style.overflow;
-	document.body.style.overflow = "hidden";
+	document.body.classList.add("local-reader-active");
 	return () => {
-		document.body.style.overflow = previousOverflow;
+		document.body.classList.remove("local-reader-active");
 	};
 });
 
@@ -275,6 +283,7 @@ async function importSelectedFile() {
 		);
 		await saveBook(book, chapterRows);
 		await refreshShelf();
+		importing = false;
 		closeImport();
 		await openBook(book);
 	} catch (error) {
@@ -305,6 +314,7 @@ async function openBook(book: ReaderBook) {
 			storedProgress?.chapterIndex ?? 0,
 			storedChapters.length - 1,
 		);
+		shelfScrollY = window.scrollY;
 		view = "reader";
 		drawerOpen = false;
 		settingsOpen = false;
@@ -322,19 +332,20 @@ async function openBook(book: ReaderBook) {
 
 function restoreScroll(ratio: number) {
 	requestAnimationFrame(() => {
-		if (!readerScroller) return;
 		const maximum = Math.max(
 			0,
-			readerScroller.scrollHeight - readerScroller.clientHeight,
+			document.documentElement.scrollHeight - window.innerHeight,
 		);
-		readerScroller.scrollTop = maximum * Math.max(0, Math.min(1, ratio));
+		window.scrollTo({
+			top: maximum * Math.max(0, Math.min(1, ratio)),
+			behavior: "auto",
+		});
 	});
 }
 
 function currentScrollRatio() {
-	if (!readerScroller) return 0;
-	const maximum = readerScroller.scrollHeight - readerScroller.clientHeight;
-	return maximum > 0 ? readerScroller.scrollTop / maximum : 0;
+	const maximum = document.documentElement.scrollHeight - window.innerHeight;
+	return maximum > 0 ? window.scrollY / maximum : 0;
 }
 
 async function persistCurrentProgress() {
@@ -352,6 +363,7 @@ async function persistCurrentProgress() {
 }
 
 function handleReaderScroll() {
+	if (view !== "reader") return;
 	if (progressTimer) window.clearTimeout(progressTimer);
 	progressTimer = window.setTimeout(() => void persistCurrentProgress(), 260);
 }
@@ -365,7 +377,7 @@ async function selectChapter(index: number) {
 	currentChapterIndex = index;
 	drawerOpen = false;
 	await tick();
-	if (readerScroller) readerScroller.scrollTop = 0;
+	window.scrollTo({ top: 0, behavior: "auto" });
 	if (currentBook) {
 		const progress: ReaderProgress = {
 			bookId: currentBook.id,
@@ -386,6 +398,8 @@ async function closeReader() {
 	chapters = [];
 	window.history.replaceState({}, "", window.location.pathname);
 	await refreshShelf();
+	await tick();
+	window.scrollTo({ top: shelfScrollY, behavior: "auto" });
 }
 
 async function confirmDelete() {
@@ -407,7 +421,7 @@ function handleKeyboard(event: KeyboardEvent) {
 }
 </script>
 
-<svelte:window onkeydown={handleKeyboard} />
+<svelte:window onkeydown={handleKeyboard} onscroll={handleReaderScroll} />
 
 <div class="local-reader-shell">
   <input bind:this={fileInput} onchange={handleFileSelection} type="file" accept=".txt,text/plain" class="sr-only" />
@@ -572,6 +586,7 @@ function handleKeyboard(event: KeyboardEvent) {
 
 {#if view === "reader" && currentBook && currentChapter}
   <section
+	use:portal
     class:reader-dark={settings.theme === "dark"}
     class:reader-light={settings.theme === "light"}
     class:reader-sepia={settings.theme === "sepia"}
@@ -596,7 +611,7 @@ function handleKeyboard(event: KeyboardEvent) {
       </nav>
     </header>
 
-    <main bind:this={readerScroller} onscroll={handleReaderScroll} class="reading-scroll">
+	<main class="reading-scroll">
       <article class="reading-paper">
         <p class="chapter-index">第 {currentChapterIndex + 1} / {chapters.length} 章</p>
         <h1>{currentChapter.title}</h1>
@@ -675,6 +690,7 @@ function handleKeyboard(event: KeyboardEvent) {
 
 <style>
   :global(*) { box-sizing: border-box; }
+  :global(body.local-reader-active > :not(.reading-stage)) { display: none !important; }
   button, select, input { font: inherit; }
   button { -webkit-tap-highlight-color: transparent; }
   .local-reader-shell { width: 100%; }
@@ -757,12 +773,14 @@ function handleKeyboard(event: KeyboardEvent) {
   .loading-grid div { height: 7rem; border-radius: 1rem; }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  .reading-stage { position: fixed; inset: 0; z-index: 80; display: grid; grid-template-rows: auto minmax(0,1fr); color: #303238; background: #f6f5f1; }
+  .reading-stage { position: relative; z-index: 80; display: block; width: 100%; min-height: 100dvh; color: #303238; background: #f6f5f1; }
   :global(.dark) .reading-stage:not(.reader-light):not(.reader-sepia):not(.reader-dark) { color: #d8d7d3; background: #1d1f22; }
   .reading-stage.reader-light { color: #303238; background: #f7f7f5; }
   .reading-stage.reader-sepia { color: #42392d; background: #eee4ce; }
   .reading-stage.reader-dark { color: #d8d7d3; background: #1d1f22; }
-  .reading-toolbar { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: .85rem; min-height: 4rem; padding: .6rem clamp(.75rem,3vw,2rem); border-bottom: 1px solid rgb(60 60 60 / .1); background: color-mix(in srgb, currentColor 2%, transparent); backdrop-filter: blur(16px); }
+  .reading-toolbar { position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: .85rem; min-height: 4rem; padding: .6rem clamp(.75rem,3vw,2rem); border-bottom: 1px solid rgb(60 60 60 / .1); background: color-mix(in srgb, #f6f5f1 92%, transparent); backdrop-filter: blur(16px); }
+  .reader-dark .reading-toolbar { background: color-mix(in srgb, #1d1f22 92%, transparent); }
+  .reader-sepia .reading-toolbar { background: color-mix(in srgb, #eee4ce 92%, transparent); }
   .reader-dark .reading-toolbar { border-color: rgb(255 255 255 / .09); }
   .reading-toolbar > div { min-width: 0; }
   .reading-toolbar strong, .reading-toolbar span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -771,7 +789,7 @@ function handleKeyboard(event: KeyboardEvent) {
   .reading-toolbar nav { display: flex; gap: .45rem; }
   .reading-toolbar button { border-color: rgb(60 60 60 / .12) !important; }
   .reader-dark .reading-toolbar button { border-color: rgb(255 255 255 / .12) !important; }
-  .reading-scroll { overflow: auto; scroll-behavior: smooth; overscroll-behavior: contain; }
+  .reading-scroll { overflow: visible; }
   .reading-paper { width: min(var(--reader-width),calc(100% - 2rem)); min-height: calc(100dvh - 4rem); margin: 0 auto; padding: clamp(3rem,8vw,7rem) 0 5rem; }
   .chapter-index { margin: 0 0 .75rem; opacity: .5; font: 700 .7rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .12em; }
   .reading-paper h1 { margin: 0; font-size: clamp(1.65rem,4vw,2.4rem); line-height: 1.2; letter-spacing: -.035em; }
@@ -783,8 +801,8 @@ function handleKeyboard(event: KeyboardEvent) {
   .chapter-navigation button:last-child { justify-self: end; }
   .chapter-navigation button:disabled { opacity: .3; cursor: not-allowed; }
   .chapter-navigation span { opacity: .5; font: .72rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; }
-  .reader-backdrop { position: absolute; inset: 0; z-index: 1; background: rgb(12 14 17 / .48); backdrop-filter: blur(4px); }
-  .chapter-drawer, .settings-drawer { position: absolute; top: 0; right: 0; bottom: 0; z-index: 2; width: min(25rem,90vw); padding: 1.25rem; color: #292b30; background: #f8f8f6; box-shadow: -20px 0 60px rgb(0 0 0 / .16); animation: drawer-enter .35s cubic-bezier(.16,1,.3,1); }
+  .reader-backdrop { position: fixed; inset: 0; z-index: 4; background: rgb(12 14 17 / .48); backdrop-filter: blur(4px); }
+  .chapter-drawer, .settings-drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 5; width: min(25rem,90vw); padding: 1.25rem; color: #292b30; background: #f8f8f6; box-shadow: -20px 0 60px rgb(0 0 0 / .16); animation: drawer-enter .35s cubic-bezier(.16,1,.3,1); }
   .reader-dark .chapter-drawer, .reader-dark .settings-drawer { color: #e4e4e1; background: #25272b; }
   @keyframes drawer-enter { from { transform: translateX(100%); } to { transform: translateX(0); } }
   .chapter-drawer header, .settings-drawer header { padding-bottom: 1rem; border-bottom: 1px solid rgb(60 60 60 / .1); }
@@ -829,7 +847,6 @@ function handleKeyboard(event: KeyboardEvent) {
 
   @media (prefers-reduced-motion: reduce) {
     .book-row, .loading-line, .loading-grid div, .chapter-drawer, .settings-drawer { animation: none; opacity: 1; }
-    .reading-scroll { scroll-behavior: auto; }
   }
 
   @media (prefers-color-scheme: dark) {
