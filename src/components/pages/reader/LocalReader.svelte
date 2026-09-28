@@ -130,6 +130,25 @@ const ENCODINGS: Array<{ value: ReaderEncoding; label: string }> = [
 	{ value: "utf-16be", label: "UTF-16 BE" },
 ];
 
+const BUILT_IN_BOOKS = [
+	{
+		key: "gu-zhen-ren",
+		path: "books/gu-zhen-ren.txt",
+		fileName: "蛊真人.txt",
+		title: "蛊真人",
+		format: "txt" as const,
+		hash: "f3fc31df064dfae5100bf98c23406692b2e3376972263c52eb165acfa99a1862",
+	},
+	{
+		key: "shen-kong-bi-an",
+		path: "books/shen-kong-bi-an.epub",
+		fileName: "深空彼岸.epub",
+		title: "深空彼岸",
+		format: "epub" as const,
+		hash: "297e632f7a5021684313297da5677bded571096781cb058b277482c2f5a9d638",
+	},
+];
+
 function portal(node: HTMLElement) {
 	document.body.appendChild(node);
 	return {
@@ -211,7 +230,10 @@ onMount(() => {
 			if (storedSettings)
 				settings = { ...DEFAULT_READER_SETTINGS, ...storedSettings };
 			settingsReady = true;
+			const seedFailures = await seedBuiltInBooks();
 			await refreshShelf();
+			if (seedFailures.length > 0)
+				fatalError = `内置书籍导入失败：${seedFailures.join("、")}`;
 			const requestedBook = new URLSearchParams(window.location.search).get(
 				"book",
 			);
@@ -358,6 +380,108 @@ async function sha256(buffer: ArrayBuffer) {
 	).join("");
 }
 
+type BookImportOptions = {
+	buffer: ArrayBuffer;
+	hash: string;
+	fileName: string;
+	fileSize: number;
+	format: "txt" | "epub";
+	title?: string;
+	author?: string;
+	encoding?: ReaderEncoding;
+	id?: string;
+};
+
+async function parseAndSaveBook(options: BookImportOptions) {
+	const result = await callWorker(
+		options.format,
+		"parse",
+		options.buffer,
+		options.format === "txt" ? options.encoding : undefined,
+	);
+	const parsedChapters = result.chapters ?? [];
+	if (parsedChapters.length === 0) throw new Error("没有识别到可阅读的文本");
+
+	const id = options.id ?? crypto.randomUUID();
+	const now = Date.now();
+	const book: ReaderBook = {
+		id,
+		hash: options.hash,
+		title:
+			result.title ||
+			options.title ||
+			options.fileName.replace(/\.(?:txt|epub)$/i, ""),
+		author: result.author || options.author || undefined,
+		format: options.format,
+		encoding:
+			options.format === "txt"
+				? (result.encoding ?? options.encoding ?? "utf-8")
+				: undefined,
+		cover: result.cover
+			? new Blob([result.cover.data], { type: result.cover.mimeType })
+			: undefined,
+		fileSize: options.fileSize,
+		chapterCount: parsedChapters.length,
+		totalCharacters: result.totalCharacters ?? 0,
+		createdAt: now,
+		updatedAt: now,
+	};
+	const chapterRows: ReaderChapter[] = parsedChapters.map((chapter, index) => ({
+		id: `${id}:${index}`,
+		bookId: id,
+		index,
+		title: chapter.title,
+		content: chapter.content,
+		characterCount: chapter.content.length,
+		href: chapter.href,
+		manifestId: chapter.manifestId,
+		cfiBase: chapter.cfiBase,
+		level: chapter.level,
+	}));
+	await saveBook(book, chapterRows);
+	return book;
+}
+
+async function seedBuiltInBooks() {
+	const failures: string[] = [];
+	for (const builtIn of BUILT_IN_BOOKS) {
+		const marker = `local-reader:builtin:${builtIn.key}:${builtIn.hash}`;
+		try {
+			const existing = await getBookByHash(builtIn.hash);
+			if (existing) {
+				localStorage.setItem(marker, "ready");
+				continue;
+			}
+			if (localStorage.getItem(marker) === "ready") continue;
+
+			const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+				? import.meta.env.BASE_URL
+				: `${import.meta.env.BASE_URL}/`;
+			const response = await fetch(`${baseUrl}${builtIn.path}`);
+			if (!response.ok) throw new Error(`下载失败（HTTP ${response.status}）`);
+			const buffer = await response.arrayBuffer();
+			if ((await sha256(buffer)) !== builtIn.hash)
+				throw new Error("文件完整性校验失败");
+			await parseAndSaveBook({
+				buffer,
+				hash: builtIn.hash,
+				fileName: builtIn.fileName,
+				fileSize: response.headers.get("content-length")
+					? Number(response.headers.get("content-length"))
+					: buffer.byteLength,
+				format: builtIn.format,
+				title: builtIn.title,
+				id: `builtin-${builtIn.key}`,
+			});
+			localStorage.setItem(marker, "ready");
+		} catch (error) {
+			console.error(`无法导入内置书籍《${builtIn.title}》`, error);
+			failures.push(builtIn.title);
+		}
+	}
+	return failures;
+}
+
 function cfiFor(chapter: ReaderChapter, ratio: number) {
 	const offset = Math.round(
 		Math.max(0, Math.min(1, ratio)) * chapter.characterCount,
@@ -448,52 +572,16 @@ async function importSelectedFile() {
 		const hash = await sha256(buffer);
 		if (await getBookByHash(hash)) throw new Error("这本书已经在书架中");
 		const format = selectedFormat;
-		const result = await callWorker(
-			format,
-			"parse",
+		const book = await parseAndSaveBook({
 			buffer,
-			format === "txt" ? importEncoding : undefined,
-		);
-		const parsedChapters = result.chapters ?? [];
-		if (parsedChapters.length === 0) throw new Error("没有识别到可阅读的文本");
-
-		const id = crypto.randomUUID();
-		const now = Date.now();
-		const book: ReaderBook = {
-			id,
 			hash,
-			title:
-				result.title ||
-				importTitle ||
-				selectedFile.name.replace(/\.(?:txt|epub)$/i, ""),
-			author: result.author || importAuthor || undefined,
-			format,
-			encoding:
-				format === "txt" ? (result.encoding ?? importEncoding) : undefined,
-			cover: result.cover
-				? new Blob([result.cover.data], { type: result.cover.mimeType })
-				: undefined,
+			fileName: selectedFile.name,
 			fileSize: selectedFile.size,
-			chapterCount: parsedChapters.length,
-			totalCharacters: result.totalCharacters ?? 0,
-			createdAt: now,
-			updatedAt: now,
-		};
-		const chapterRows: ReaderChapter[] = parsedChapters.map(
-			(chapter, index) => ({
-				id: `${id}:${index}`,
-				bookId: id,
-				index,
-				title: chapter.title,
-				content: chapter.content,
-				characterCount: chapter.content.length,
-				href: chapter.href,
-				manifestId: chapter.manifestId,
-				cfiBase: chapter.cfiBase,
-				level: chapter.level,
-			}),
-		);
-		await saveBook(book, chapterRows);
+			format,
+			title: importTitle,
+			author: importAuthor,
+			encoding: format === "txt" ? importEncoding : undefined,
+		});
 		await refreshShelf();
 		importing = false;
 		closeImport();
@@ -748,7 +836,7 @@ function handleKeyboard(event: KeyboardEvent) {
       <div>
         <p class="reader-kicker">LOCAL LIBRARY</p>
         <h2>本地阅读</h2>
-        <p>小说只保存在当前浏览器中，不会上传到服务器。支持 TXT 与 EPUB、封面和目录提取、全文搜索及阅读进度。</p>
+        <p>小说只保存在当前浏览器中,支持 TXT 与 EPUB。</p>
       </div>
       <button type="button" class="primary-action" onclick={chooseFile}>
         <Icon icon="material-symbols:add-rounded" width="22" />
@@ -789,7 +877,7 @@ function handleKeyboard(event: KeyboardEvent) {
       <div class="shelf-heading">
         <div>
           <h3>我的书架</h3>
-          <span>{books.length} 本本地小说</span>
+          <span>{books.length} 本小说</span>
         </div>
       </div>
 

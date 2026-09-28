@@ -1,0 +1,2 @@
+public/books/*.txt -text
+public/books/*.epub -text
