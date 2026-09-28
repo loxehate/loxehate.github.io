@@ -3,10 +3,11 @@ import type {
 	ReaderChapter,
 	ReaderProgress,
 	ReaderSettings,
+	ReaderTranslation,
 } from "./types";
 
 const DB_NAME = "loxehate-local-reader";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let dbPromise: Promise<IDBDatabase> | undefined;
 
@@ -48,6 +49,17 @@ export function openReaderDb(): Promise<IDBDatabase> {
 			}
 			if (!db.objectStoreNames.contains("settings")) {
 				db.createObjectStore("settings", { keyPath: "id" });
+			}
+			if (!db.objectStoreNames.contains("translations")) {
+				const translations = db.createObjectStore("translations", {
+					keyPath: "id",
+				});
+				translations.createIndex("chapter", [
+					"bookId",
+					"chapterIndex",
+					"targetLanguage",
+				]);
+				translations.createIndex("bookId", "bookId");
 			}
 		};
 		request.onsuccess = () => {
@@ -117,20 +129,32 @@ export async function saveBook(
 
 export async function deleteBook(bookId: string): Promise<void> {
 	const db = await openReaderDb();
-	const keys = await requestResult(
-		db
-			.transaction("chapters", "readonly")
-			.objectStore("chapters")
-			.index("bookId")
-			.getAllKeys(bookId),
-	);
+	const [chapterKeys, translationKeys] = await Promise.all([
+		requestResult(
+			db
+				.transaction("chapters", "readonly")
+				.objectStore("chapters")
+				.index("bookId")
+				.getAllKeys(bookId),
+		),
+		requestResult(
+			db
+				.transaction("translations", "readonly")
+				.objectStore("translations")
+				.index("bookId")
+				.getAllKeys(bookId),
+		),
+	]);
 	const transaction = db.transaction(
-		["books", "chapters", "progress"],
+		["books", "chapters", "progress", "translations"],
 		"readwrite",
 	);
 	transaction.objectStore("books").delete(bookId);
 	transaction.objectStore("progress").delete(bookId);
-	for (const key of keys) transaction.objectStore("chapters").delete(key);
+	for (const key of chapterKeys)
+		transaction.objectStore("chapters").delete(key);
+	for (const key of translationKeys)
+		transaction.objectStore("translations").delete(key);
 	await transactionDone(transaction);
 }
 
@@ -182,5 +206,29 @@ export async function saveSettings(settings: ReaderSettings): Promise<void> {
 	const db = await openReaderDb();
 	const transaction = db.transaction("settings", "readwrite");
 	transaction.objectStore("settings").put(settings);
+	await transactionDone(transaction);
+}
+
+export async function getChapterTranslations(
+	bookId: string,
+	chapterIndex: number,
+	targetLanguage: "zh" | "en",
+): Promise<ReaderTranslation[]> {
+	const db = await openReaderDb();
+	return requestResult(
+		db
+			.transaction("translations", "readonly")
+			.objectStore("translations")
+			.index("chapter")
+			.getAll([bookId, chapterIndex, targetLanguage]),
+	) as Promise<ReaderTranslation[]>;
+}
+
+export async function saveTranslation(
+	translation: ReaderTranslation,
+): Promise<void> {
+	const db = await openReaderDb();
+	const transaction = db.transaction("translations", "readwrite");
+	transaction.objectStore("translations").put(translation);
 	await transactionDone(transaction);
 }

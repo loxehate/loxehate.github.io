@@ -7,11 +7,13 @@ import {
 	getBookByHash,
 	getBooks,
 	getChapters,
+	getChapterTranslations,
 	getProgress,
 	getSettings,
 	saveBook,
 	saveProgress,
 	saveSettings,
+	saveTranslation,
 } from "@/lib/reader/db";
 import {
 	type BuiltInBook,
@@ -21,6 +23,7 @@ import {
 	type ReaderEncoding,
 	type ReaderProgress,
 	type ReaderSettings,
+	type ReaderTranslation,
 } from "@/lib/reader/types";
 
 let { builtInBooks = [] }: { builtInBooks?: BuiltInBook[] } = $props();
@@ -43,6 +46,45 @@ type WorkerResponse = {
 	}>;
 	totalCharacters?: number;
 	message?: string;
+};
+
+type TranslationStatus =
+	| "idle"
+	| "checking"
+	| "downloading"
+	| "translating"
+	| "ready"
+	| "unsupported"
+	| "error";
+
+type TranslationParagraph = {
+	index: number;
+	sourceText: string;
+	translatedText?: string;
+};
+
+type TranslatorSession = {
+	translate: (text: string) => Promise<string>;
+	destroy?: () => void;
+};
+
+type TranslatorMonitor = {
+	addEventListener: (
+		type: "downloadprogress",
+		listener: (event: { loaded: number }) => void,
+	) => void;
+};
+
+type TranslatorApi = {
+	availability: (options: {
+		sourceLanguage: "zh" | "en";
+		targetLanguage: "zh" | "en";
+	}) => Promise<"unavailable" | "downloadable" | "downloading" | "available">;
+	create: (options: {
+		sourceLanguage: "zh" | "en";
+		targetLanguage: "zh" | "en";
+		monitor?: (monitor: TranslatorMonitor) => void;
+	}) => Promise<TranslatorSession>;
 };
 
 let books = $state<ReaderBook[]>([]);
@@ -82,6 +124,15 @@ let importing = $state(false);
 let previewing = $state(false);
 let bookToDelete = $state<ReaderBook | null>(null);
 let coverUrls = $state<Record<string, string>>({});
+let translationParagraphs = $state<TranslationParagraph[]>([]);
+let translationStatus = $state<TranslationStatus>("idle");
+let translationProgress = $state(0);
+let translationError = $state("");
+let translationSourceLanguage = $state<"zh" | "en">("zh");
+let translationTargetLanguage = $state<"zh" | "en">("en");
+let translationRevision = $state(0);
+let translationRunId = 0;
+const translatorSessions = new Map<string, TranslatorSession>();
 
 let txtWorker: Worker | undefined;
 let epubWorker: Worker | undefined;
@@ -233,6 +284,9 @@ onMount(() => {
 	return () => {
 		txtWorker?.terminate();
 		epubWorker?.terminate();
+		for (const translator of translatorSessions.values())
+			translator.destroy?.();
+		translatorSessions.clear();
 		for (const url of Object.values(coverUrls)) URL.revokeObjectURL(url);
 		if (importCoverUrl) URL.revokeObjectURL(importCoverUrl);
 		if (progressTimer) window.clearTimeout(progressTimer);
@@ -264,6 +318,8 @@ $effect(() => {
 	settings.fontSize;
 	settings.lineHeight;
 	settings.contentWidth;
+	settings.bilingual;
+	translationRevision;
 	const frame = requestAnimationFrame(() =>
 		calculatePages(pendingRestoreRatio),
 	);
@@ -273,6 +329,23 @@ $effect(() => {
 		cancelAnimationFrame(frame);
 		observer.disconnect();
 	};
+});
+
+$effect(() => {
+	if (
+		view !== "reader" ||
+		!settings.bilingual ||
+		!currentBook ||
+		!currentChapter
+	) {
+		translationRunId += 1;
+		translationParagraphs = [];
+		translationStatus = "idle";
+		translationProgress = 0;
+		translationError = "";
+		return;
+	}
+	void translateChapter(currentBook, currentChapter);
 });
 
 function formatBytes(bytes: number) {
@@ -462,6 +535,187 @@ async function seedBuiltInBooks() {
 		}
 	}
 	return failures;
+}
+
+function splitLongTranslationParagraph(text: string, maxLength = 1200) {
+	const chunks: string[] = [];
+	let remaining = text.trim();
+	while (remaining.length > maxLength) {
+		const window = remaining.slice(0, maxLength + 1);
+		const sentenceBoundary = Math.max(
+			window.lastIndexOf("。"),
+			window.lastIndexOf("！"),
+			window.lastIndexOf("？"),
+			window.lastIndexOf("."),
+			window.lastIndexOf("!"),
+			window.lastIndexOf("?"),
+		);
+		const wordBoundary = window.lastIndexOf(" ");
+		const boundary =
+			sentenceBoundary >= maxLength * 0.55
+				? sentenceBoundary + 1
+				: wordBoundary >= maxLength * 0.55
+					? wordBoundary
+					: maxLength;
+		chunks.push(remaining.slice(0, boundary).trim());
+		remaining = remaining.slice(boundary).trim();
+	}
+	if (remaining) chunks.push(remaining);
+	return chunks;
+}
+
+function splitTranslationParagraphs(content: string) {
+	return content
+		.replace(/\r\n?/g, "\n")
+		.split(/\n+/)
+		.flatMap((paragraph) => splitLongTranslationParagraph(paragraph))
+		.filter(Boolean)
+		.map((sourceText, index) => ({ index, sourceText }));
+}
+
+function detectTranslationLanguage(content: string): "zh" | "en" {
+	const sample = content.slice(0, 12_000);
+	const chineseCharacters = sample.match(/[\u3400-\u9fff]/g)?.length ?? 0;
+	const latinCharacters = sample.match(/[a-z]/gi)?.length ?? 0;
+	return chineseCharacters >= Math.max(8, latinCharacters * 0.35) ? "zh" : "en";
+}
+
+function translationCacheId(
+	bookId: string,
+	chapterIndex: number,
+	targetLanguage: "zh" | "en",
+	paragraphIndex: number,
+) {
+	return `${bookId}:${chapterIndex}:${targetLanguage}:${paragraphIndex}`;
+}
+
+async function getTranslatorSession(
+	sourceLanguage: "zh" | "en",
+	targetLanguage: "zh" | "en",
+	runId: number,
+) {
+	const key = `${sourceLanguage}:${targetLanguage}`;
+	const cached = translatorSessions.get(key);
+	if (cached) return cached;
+	const translatorApi = (
+		globalThis as typeof globalThis & { Translator?: TranslatorApi }
+	).Translator;
+	if (!translatorApi) throw new Error("当前浏览器不支持本地翻译");
+	translationStatus = "checking";
+	const availability = await translatorApi.availability({
+		sourceLanguage,
+		targetLanguage,
+	});
+	if (availability === "unavailable")
+		throw new Error("当前浏览器没有可用的中英翻译模型");
+	if (availability === "downloadable" || availability === "downloading") {
+		translationStatus = "downloading";
+		translationProgress = 0;
+	}
+	const session = await translatorApi.create({
+		sourceLanguage,
+		targetLanguage,
+		monitor(monitor) {
+			monitor.addEventListener("downloadprogress", (event) => {
+				if (runId === translationRunId) translationProgress = event.loaded;
+			});
+		},
+	});
+	translatorSessions.set(key, session);
+	return session;
+}
+
+async function translateChapter(book: ReaderBook, chapter: ReaderChapter) {
+	const runId = ++translationRunId;
+	translationError = "";
+	translationProgress = 0;
+	translationStatus = "checking";
+	const sourceLanguage = detectTranslationLanguage(chapter.content);
+	const targetLanguage = sourceLanguage === "zh" ? "en" : "zh";
+	translationSourceLanguage = sourceLanguage;
+	translationTargetLanguage = targetLanguage;
+	translationParagraphs = splitTranslationParagraphs(chapter.content);
+	if (translationParagraphs.length === 0) {
+		translationStatus = "ready";
+		return;
+	}
+
+	try {
+		const cachedRows = await getChapterTranslations(
+			book.id,
+			chapter.index,
+			targetLanguage,
+		);
+		if (runId !== translationRunId) return;
+		const cachedByIndex = new Map(
+			cachedRows.map((row) => [row.paragraphIndex, row]),
+		);
+		for (const paragraph of translationParagraphs) {
+			const cached = cachedByIndex.get(paragraph.index);
+			if (cached?.sourceText === paragraph.sourceText)
+				paragraph.translatedText = cached.translatedText;
+		}
+		const missing = translationParagraphs.filter(
+			(paragraph) => !paragraph.translatedText,
+		);
+		if (missing.length === 0) {
+			translationProgress = 1;
+			translationStatus = "ready";
+			translationRevision += 1;
+			return;
+		}
+
+		const translator = await getTranslatorSession(
+			sourceLanguage,
+			targetLanguage,
+			runId,
+		);
+		if (runId !== translationRunId) return;
+		translationStatus = "translating";
+		let completed = translationParagraphs.length - missing.length;
+		for (const paragraph of missing) {
+			const translatedText = (
+				await translator.translate(paragraph.sourceText)
+			).trim();
+			if (runId !== translationRunId) return;
+			paragraph.translatedText = translatedText;
+			completed += 1;
+			translationProgress = completed / translationParagraphs.length;
+			const row: ReaderTranslation = {
+				id: translationCacheId(
+					book.id,
+					chapter.index,
+					targetLanguage,
+					paragraph.index,
+				),
+				bookId: book.id,
+				chapterIndex: chapter.index,
+				paragraphIndex: paragraph.index,
+				sourceLanguage,
+				targetLanguage,
+				sourceText: paragraph.sourceText,
+				translatedText,
+				updatedAt: Date.now(),
+			};
+			await saveTranslation(row);
+		}
+		if (runId !== translationRunId) return;
+		translationStatus = "ready";
+		translationProgress = 1;
+		translationRevision += 1;
+	} catch (error) {
+		if (runId !== translationRunId) return;
+		translationError =
+			error instanceof Error ? error.message : "翻译当前章节失败";
+		translationStatus = translationError.includes("不支持")
+			? "unsupported"
+			: "error";
+		translationRevision += 1;
+	}
+}
+
+function toggleBilingual() {
+	settings.bilingual = !settings.bilingual;
 }
 
 function cfiFor(chapter: ReaderChapter, ratio: number) {
@@ -980,6 +1234,9 @@ function handleKeyboard(event: KeyboardEvent) {
         <span>{currentChapter.title}</span>
       </div>
       <nav>
+		<button class:active={settings.bilingual} type="button" onclick={toggleBilingual} aria-label="切换中英对照" aria-pressed={settings.bilingual} title="中英对照">
+		  <Icon icon="material-symbols:translate-rounded" width="23" />
+		</button>
 		<button type="button" onclick={() => openReaderPanel("search")} aria-label="搜索正文">
 		  <Icon icon="material-symbols:search-rounded" width="23" />
 		</button>
@@ -997,7 +1254,22 @@ function handleKeyboard(event: KeyboardEvent) {
         <p class="chapter-index">第 {currentChapterIndex + 1} / {chapters.length} 章</p>
         <h1>{currentChapter.title}</h1>
         <div class="chapter-rule"></div>
-		<div class="chapter-content">{#each highlightSegments(currentChapter.content, activeSearchTerm) as segment}{#if segment.match}<mark>{segment.text}</mark>{:else}{segment.text}{/if}{/each}</div>
+		{#if settings.bilingual}
+		  <div class:has-error={translationStatus === "error" || translationStatus === "unsupported"} class="translation-notice" role="status">
+			<Icon icon={translationStatus === "ready" ? "material-symbols:translate-rounded" : translationStatus === "error" || translationStatus === "unsupported" ? "material-symbols:info-outline-rounded" : "svg-spinners:90-ring-with-bg"} width="18" />
+			<span>{#if translationStatus === "ready"}{translationSourceLanguage === "zh" ? "中译英" : "英译中"} · 译文已缓存在本机{:else if translationStatus === "downloading"}正在下载本地语言包 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "translating"}正在翻译当前章节 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "unsupported" || translationStatus === "error"}{translationError}{:else}正在检查本地翻译能力{/if}</span>
+		  </div>
+		  <div class="chapter-content bilingual-content">
+			{#each translationParagraphs as paragraph (paragraph.index)}
+			  <div class="bilingual-paragraph">
+				<p class="source-paragraph" lang={translationSourceLanguage}>{#each highlightSegments(paragraph.sourceText, activeSearchTerm) as segment}{#if segment.match}<mark>{segment.text}</mark>{:else}{segment.text}{/if}{/each}</p>
+				{#if paragraph.translatedText}<p class="translated-paragraph" lang={translationTargetLanguage}>{paragraph.translatedText}</p>{:else if translationStatus !== "error" && translationStatus !== "unsupported"}<span class="translation-placeholder" aria-hidden="true"></span>{/if}
+			  </div>
+			{/each}
+		  </div>
+		{:else}
+		  <div class="chapter-content">{#each highlightSegments(currentChapter.content, activeSearchTerm) as segment}{#if segment.match}<mark>{segment.text}</mark>{:else}{segment.text}{/if}{/each}</div>
+		{/if}
         <footer class="chapter-navigation">
           <button type="button" onclick={() => selectChapter(currentChapterIndex - 1)} disabled={currentChapterIndex === 0}>
             <Icon icon="material-symbols:arrow-back-rounded" width="20" /> 上一章
@@ -1017,7 +1289,22 @@ function handleKeyboard(event: KeyboardEvent) {
 			  <h1>{currentChapter.title}</h1>
 			  <div class="chapter-rule"></div>
 			</div>
-			<div class="chapter-content">{#each highlightSegments(currentChapter.content, activeSearchTerm) as segment}{#if segment.match}<mark>{segment.text}</mark>{:else}{segment.text}{/if}{/each}</div>
+			{#if settings.bilingual}
+			  <div class:has-error={translationStatus === "error" || translationStatus === "unsupported"} class="translation-notice" role="status">
+				<Icon icon={translationStatus === "ready" ? "material-symbols:translate-rounded" : translationStatus === "error" || translationStatus === "unsupported" ? "material-symbols:info-outline-rounded" : "svg-spinners:90-ring-with-bg"} width="18" />
+				<span>{#if translationStatus === "ready"}{translationSourceLanguage === "zh" ? "中译英" : "英译中"} · 译文已缓存在本机{:else if translationStatus === "downloading"}正在下载本地语言包 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "translating"}正在翻译当前章节 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "unsupported" || translationStatus === "error"}{translationError}{:else}正在检查本地翻译能力{/if}</span>
+			  </div>
+			  <div class="chapter-content bilingual-content">
+				{#each translationParagraphs as paragraph (paragraph.index)}
+				  <div class="bilingual-paragraph">
+					<p class="source-paragraph" lang={translationSourceLanguage}>{#each highlightSegments(paragraph.sourceText, activeSearchTerm) as segment}{#if segment.match}<mark>{segment.text}</mark>{:else}{segment.text}{/if}{/each}</p>
+					{#if paragraph.translatedText}<p class="translated-paragraph" lang={translationTargetLanguage}>{paragraph.translatedText}</p>{:else if translationStatus !== "error" && translationStatus !== "unsupported"}<span class="translation-placeholder" aria-hidden="true"></span>{/if}
+				  </div>
+				{/each}
+			  </div>
+			{:else}
+			  <div class="chapter-content">{#each highlightSegments(currentChapter.content, activeSearchTerm) as segment}{#if segment.match}<mark>{segment.text}</mark>{:else}{segment.text}{/if}{/each}</div>
+			{/if}
 		  </article>
 		</div>
 		<footer class="paged-controls">
@@ -1087,6 +1374,14 @@ function handleKeyboard(event: KeyboardEvent) {
 			<button class:active={settings.readingMode === "scroll"} type="button" onclick={() => changeReadingMode("scroll")}><Icon icon="material-symbols:swap-vert-rounded" width="20" /><span>滚动</span></button>
 			<button class:active={settings.readingMode === "paged"} type="button" onclick={() => changeReadingMode("paged")}><Icon icon="material-symbols:menu-book-rounded" width="20" /><span>翻页</span></button>
 		  </div>
+		</div>
+
+		<div class="translation-field">
+		  <div><strong>中英对照</strong><small>Chrome 桌面版可在本机生成并缓存译文</small></div>
+		  <button class:active={settings.bilingual} type="button" onclick={toggleBilingual} aria-pressed={settings.bilingual}>
+			<span>{settings.bilingual ? "已开启" : "已关闭"}</span>
+			<i aria-hidden="true"></i>
+		  </button>
 		</div>
 
         <label>
@@ -1229,6 +1524,7 @@ function handleKeyboard(event: KeyboardEvent) {
   .reading-toolbar nav { display: flex; gap: .45rem; }
   .reading-toolbar button { border-color: rgb(60 60 60 / .12) !important; }
   .reader-dark .reading-toolbar button { border-color: rgb(255 255 255 / .12) !important; }
+  .reading-toolbar nav button.active { color: var(--btn-content); border-color: var(--primary) !important; background: color-mix(in srgb, var(--primary) 11%, transparent); }
   .reading-scroll { overflow: visible; }
   .reading-paper { width: min(var(--reader-width),calc(100% - 2rem)); min-height: calc(100dvh - 4rem); margin: 0 auto; padding: clamp(3rem,8vw,7rem) 0 5rem; }
   .chapter-index { margin: 0 0 .75rem; opacity: .5; font: 700 .7rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .12em; }
@@ -1236,6 +1532,16 @@ function handleKeyboard(event: KeyboardEvent) {
   .chapter-rule { width: 3.5rem; height: 3px; margin: 1.5rem 0 2.6rem; border-radius: 2rem; background: var(--primary); }
   .chapter-content { font-size: var(--reader-font-size); line-height: var(--reader-line-height); letter-spacing: .025em; white-space: pre-wrap; overflow-wrap: anywhere; }
   .chapter-content mark { padding: .05em .12em; border-radius: .18em; color: inherit; background: color-mix(in srgb, #eab308 34%, transparent); }
+  .translation-notice { display: flex; align-items: center; gap: .55rem; margin: 0 0 1.7rem; padding: .65rem .75rem; border-left: 2px solid var(--primary); color: color-mix(in srgb, currentColor 68%, transparent); background: color-mix(in srgb, var(--primary) 7%, transparent); font-size: .74rem; line-height: 1.45; break-inside: avoid; }
+  .translation-notice.has-error { border-color: #c2413a; color: #a83b35; background: color-mix(in srgb, #c2413a 7%, transparent); }
+  .reader-dark .translation-notice.has-error { color: #f0a29d; }
+  .bilingual-content { white-space: normal; }
+  .bilingual-paragraph { padding: 0 0 1.35em; margin: 0 0 1.35em; border-bottom: 1px solid rgb(60 60 60 / .09); }
+  .reader-dark .bilingual-paragraph { border-color: rgb(255 255 255 / .08); }
+  .source-paragraph, .translated-paragraph { margin: 0; white-space: pre-wrap; }
+  .translated-paragraph { margin-top: .65em; padding-left: .9em; border-left: 2px solid color-mix(in srgb, var(--primary) 62%, transparent); opacity: .7; font-size: .82em; line-height: 1.78; letter-spacing: .01em; }
+  .translation-placeholder { display: block; width: min(78%,30rem); height: .72em; margin-top: .9em; border-radius: .2rem; background: color-mix(in srgb, currentColor 9%, transparent); animation: translation-pulse 1.2s ease-in-out infinite alternate; }
+  @keyframes translation-pulse { to { opacity: .35; transform: scaleX(.92); transform-origin: left; } }
   .chapter-navigation { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; margin-top: 5rem; padding-top: 1.5rem; border-top: 1px solid rgb(60 60 60 / .12); }
   .reader-dark .chapter-navigation { border-color: rgb(255 255 255 / .1); }
   .chapter-navigation button { display: inline-flex; align-items: center; gap: .4rem; width: fit-content; padding: .6rem .8rem; border: 1px solid rgb(60 60 60 / .14); border-radius: .65rem; color: inherit; background: transparent; cursor: pointer; }
@@ -1286,6 +1592,18 @@ function handleKeyboard(event: KeyboardEvent) {
   .mode-field > div { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; margin-top: .75rem; }
   .mode-field button { display: flex; align-items: center; justify-content: center; gap: .4rem; padding: .65rem; border: 1px solid rgb(60 60 60 / .12); border-radius: .65rem; color: inherit; background: transparent; cursor: pointer; }
   .mode-field button.active { border-color: var(--primary); color: var(--btn-content); background: color-mix(in srgb, var(--primary) 10%, transparent); }
+  .translation-field { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid rgb(60 60 60 / .1); }
+  .reader-dark .translation-field { border-color: rgb(255 255 255 / .1); }
+  .translation-field > div { display: grid; gap: .3rem; }
+  .translation-field strong { font-size: .84rem; }
+  .translation-field small { max-width: 15rem; opacity: .55; font-size: .7rem; line-height: 1.45; }
+  .translation-field button { display: flex; align-items: center; gap: .45rem; padding: .35rem .4rem .35rem .65rem; border: 1px solid rgb(60 60 60 / .12); border-radius: 2rem; color: inherit; background: transparent; cursor: pointer; }
+  .translation-field button span { font-size: .7rem; }
+  .translation-field button i { position: relative; display: block; width: 2rem; height: 1.1rem; border-radius: 1rem; background: rgb(80 80 80 / .16); transition: background .25s cubic-bezier(.16,1,.3,1); }
+  .translation-field button i::after { position: absolute; top: .15rem; left: .15rem; width: .8rem; height: .8rem; border-radius: 50%; background: currentColor; content: ""; transition: transform .25s cubic-bezier(.16,1,.3,1); }
+  .translation-field button.active { color: var(--btn-content); border-color: var(--primary); }
+  .translation-field button.active i { background: color-mix(in srgb, var(--primary) 42%, transparent); }
+  .translation-field button.active i::after { transform: translateX(.9rem); }
   .theme-field { padding-top: 1.2rem; }
   .theme-field > strong { font-size: .84rem; }
   .theme-field > div { display: grid; grid-template-columns: repeat(4,1fr); gap: .55rem; margin-top: .8rem; }

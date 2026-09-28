@@ -59,6 +59,19 @@ export type ReaderSettings = {
 	contentWidth: number;
 	theme: "system" | "light" | "dark" | "sepia";
 	readingMode: "scroll" | "paged";
+	bilingual: boolean;
+};
+
+export type ReaderTranslation = {
+	id: string;
+	bookId: string;
+	chapterIndex: number;
+	paragraphIndex: number;
+	sourceLanguage: "zh" | "en";
+	targetLanguage: "zh" | "en";
+	sourceText: string;
+	translatedText: string;
+	updatedAt: number;
 };
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -68,4 +81,5 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
 	contentWidth: 760,
 	theme: "system",
 	readingMode: "scroll",
+	bilingual: false,
 };
