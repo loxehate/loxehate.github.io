@@ -1341,7 +1341,6 @@ function handleKeyboard(event: KeyboardEvent) {
 
 	{#if settings.readingMode === "scroll"}<main class="reading-scroll">
       <article class="reading-paper">
-        <p class="chapter-index">第 {currentChapterIndex + 1} / {chapters.length} 章</p>
         <h1>{currentChapter.title}</h1>
         <div class="chapter-rule"></div>
 		{#if BILINGUAL_TRANSLATION_ENABLED && settings.bilingual}
@@ -1376,7 +1375,6 @@ function handleKeyboard(event: KeyboardEvent) {
 		<div bind:this={pageViewport} class="paged-viewport">
 		  <article bind:this={pagedContent} class="paged-content">
 			<div class="paged-heading">
-			  <p class="chapter-index">第 {currentChapterIndex + 1} / {chapters.length} 章</p>
 			  <h1>{currentChapter.title}</h1>
 			  <div class="chapter-rule"></div>
 			</div>
@@ -1621,7 +1619,6 @@ function handleKeyboard(event: KeyboardEvent) {
   .reading-toolbar nav button.active { color: var(--btn-content); border-color: var(--primary) !important; background: color-mix(in srgb, var(--primary) 11%, transparent); }
   .reading-scroll { overflow: visible; }
   .reading-paper { width: min(var(--reader-width),calc(100% - 2rem)); min-height: calc(100dvh - 4rem); margin: 0 auto; padding: clamp(3rem,8vw,7rem) 0 5rem; }
-  .chapter-index { margin: 0 0 .75rem; opacity: .5; font: 700 .7rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .12em; }
   .reading-paper h1 { margin: 0; font-size: clamp(1.65rem,4vw,2.4rem); line-height: 1.2; letter-spacing: -.035em; }
   .chapter-rule { width: 3.5rem; height: 3px; margin: 1.5rem 0 2.6rem; border-radius: 2rem; background: var(--primary); }
   .chapter-content { font-size: var(--reader-font-size); line-height: var(--reader-line-height); letter-spacing: .025em; white-space: pre-wrap; overflow-wrap: anywhere; }
