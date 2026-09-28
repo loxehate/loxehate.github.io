@@ -9,8 +9,10 @@ export type ReaderBook = {
 	id: string;
 	hash: string;
 	title: string;
-	format: "txt";
-	encoding: ReaderEncoding;
+	author?: string;
+	format: "txt" | "epub";
+	encoding?: ReaderEncoding;
+	cover?: Blob;
 	fileSize: number;
 	chapterCount: number;
 	totalCharacters: number;
@@ -25,12 +27,18 @@ export type ReaderChapter = {
 	title: string;
 	content: string;
 	characterCount: number;
+	href?: string;
+	manifestId?: string;
+	cfiBase?: string;
+	level?: number;
 };
 
 export type ReaderProgress = {
 	bookId: string;
 	chapterIndex: number;
 	scrollRatio: number;
+	cfi?: string;
+	pageIndex?: number;
 	percentage: number;
 	updatedAt: number;
 };
@@ -41,6 +49,7 @@ export type ReaderSettings = {
 	lineHeight: number;
 	contentWidth: number;
 	theme: "system" | "light" | "dark" | "sepia";
+	readingMode: "scroll" | "paged";
 };
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
@@ -49,4 +58,5 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
 	lineHeight: 1.9,
 	contentWidth: 760,
 	theme: "system",
+	readingMode: "scroll",
 };

@@ -143,5 +143,3 @@ workerScope.onmessage = (event: MessageEvent<WorkerRequest>) => {
 		});
 	}
 };
-
-export {};
