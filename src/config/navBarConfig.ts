@@ -49,6 +49,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		children: [
 			LinkPresets.Dynamic,
 			LinkPresets.Gallery,
+			LinkPresets.Reader,
 			LinkPresets.Booknav,
 			LinkPresets.Bilibili,
 		],
@@ -136,6 +137,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/booknav/",
 		icon: "material-symbols:bookmarks",
 		pageKey: "booknav",
+	},
+	Reader: {
+		name: "本地阅读",
+		url: "/reader/",
+		icon: "material-symbols:auto-stories-rounded",
+		pageKey: "reader",
 	},
 	Bilibili: {
 		name: "哔哩哔哩",

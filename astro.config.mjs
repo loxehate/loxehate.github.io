@@ -254,6 +254,9 @@ export default defineConfig({
 				if (pathname === "/booknav/" && !siteConfig.pages.booknav) {
 					return false;
 				}
+				if (pathname === "/reader/" && !siteConfig.pages.reader) {
+					return false;
+				}
 				if (pathname === "/bilibili/" && !siteConfig.pages.bilibili) {
 					return false;
 				}

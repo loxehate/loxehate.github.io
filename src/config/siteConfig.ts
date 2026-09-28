@@ -17,6 +17,9 @@ const pages = resolvePageToggles({
 
 	// ── 我的 (My) ──────────────────────────────────
 
+	// 本地小说阅读器页面开关
+	reader: true,
+
 	// 动态页面开关
 	dynamic: true,
 	// 相册页面开关
