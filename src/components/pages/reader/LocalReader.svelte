@@ -380,23 +380,18 @@ function calculatePages(restoreRatio?: number) {
 	const width = pageViewport.clientWidth;
 	const height = pageViewport.clientHeight;
 	if (width <= 0 || height <= 0) return;
-	const gap = Math.min(64, Math.max(24, width * 0.06));
 	pagedContent.style.setProperty("--page-width", `${width}px`);
 	pagedContent.style.setProperty("--page-height", `${height}px`);
-	pagedContent.style.setProperty("--page-gap", `${gap}px`);
 	requestAnimationFrame(() => {
 		if (!pageViewport || !pagedContent) return;
-		pageCount = Math.max(
-			1,
-			Math.round((pagedContent.scrollWidth + gap) / (width + gap)),
-		);
+		pageCount = Math.max(1, Math.round(pagedContent.scrollWidth / width));
 		const ratio =
 			restoreRatio ?? (pageCount > 1 ? pageIndex / (pageCount - 1) : 0);
 		pageIndex = Math.max(
 			0,
 			Math.min(pageCount - 1, Math.round(ratio * (pageCount - 1))),
 		);
-		pageViewport.scrollLeft = pageIndex * (width + gap);
+		pageViewport.scrollLeft = pageIndex * width;
 		pendingRestoreRatio = pageCount > 1 ? pageIndex / (pageCount - 1) : 0;
 	});
 }
@@ -405,9 +400,8 @@ async function turnPage(direction: -1 | 1) {
 	const next = pageIndex + direction;
 	if (next >= 0 && next < pageCount && pageViewport) {
 		pageIndex = next;
-		const gap = Math.min(64, Math.max(24, pageViewport.clientWidth * 0.06));
 		pageViewport.scrollTo({
-			left: pageIndex * (pageViewport.clientWidth + gap),
+			left: pageIndex * pageViewport.clientWidth,
 			behavior: "smooth",
 		});
 		pendingRestoreRatio = pageCount > 1 ? pageIndex / (pageCount - 1) : 0;
@@ -1180,7 +1174,7 @@ function handleKeyboard(event: KeyboardEvent) {
   .chapter-navigation span { opacity: .5; font: .72rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; }
   .paged-reader { position: relative; height: calc(100dvh - 4rem); overflow: hidden; }
   .paged-viewport { width: min(var(--reader-width),calc(100% - 2rem)); height: calc(100% - 3.5rem); margin: 0 auto; overflow: hidden; scroll-behavior: smooth; }
-  .paged-content { width: var(--page-width); height: var(--page-height); padding: clamp(2rem,5vw,4rem) clamp(.2rem,2vw,1.5rem); column-width: var(--page-width); column-gap: var(--page-gap); column-fill: auto; }
+  .paged-content { width: var(--page-width); height: var(--page-height); padding: clamp(2rem,5vw,4rem) 0; column-width: var(--page-width); column-gap: 0; column-fill: auto; }
   .paged-content h1 { margin: 0; font-size: clamp(1.55rem,3vw,2.15rem); line-height: 1.2; letter-spacing: -.035em; }
   .paged-heading { break-inside: avoid; }
   .paged-controls { position: absolute; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 3.5rem; padding: 0 clamp(1rem,4vw,3rem); border-top: 1px solid rgb(60 60 60 / .1); background: color-mix(in srgb, currentColor 2%, transparent); }
