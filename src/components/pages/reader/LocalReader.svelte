@@ -76,10 +76,6 @@ type TranslatorMonitor = {
 };
 
 type TranslatorApi = {
-	availability: (options: {
-		sourceLanguage: "zh" | "en";
-		targetLanguage: "zh" | "en";
-	}) => Promise<"unavailable" | "downloadable" | "downloading" | "available">;
 	create: (options: {
 		sourceLanguage: "zh" | "en";
 		targetLanguage: "zh" | "en";
@@ -133,6 +129,7 @@ let translationTargetLanguage = $state<"zh" | "en">("en");
 let translationRevision = $state(0);
 let translationRunId = 0;
 const translatorSessions = new Map<string, TranslatorSession>();
+const pendingTranslatorSessions = new Map<string, Promise<TranslatorSession>>();
 
 let txtWorker: Worker | undefined;
 let epubWorker: Worker | undefined;
@@ -287,6 +284,7 @@ onMount(() => {
 		for (const translator of translatorSessions.values())
 			translator.destroy?.();
 		translatorSessions.clear();
+		pendingTranslatorSessions.clear();
 		for (const url of Object.values(coverUrls)) URL.revokeObjectURL(url);
 		if (importCoverUrl) URL.revokeObjectURL(importCoverUrl);
 		if (progressTimer) window.clearTimeout(progressTimer);
@@ -589,40 +587,89 @@ function translationCacheId(
 	return `${bookId}:${chapterIndex}:${targetLanguage}:${paragraphIndex}`;
 }
 
-async function getTranslatorSession(
+function withTimeout<T>(
+	promise: Promise<T>,
+	timeoutMs: number,
+	message: string,
+) {
+	return new Promise<T>((resolve, reject) => {
+		const timer = window.setTimeout(
+			() => reject(new Error(message)),
+			timeoutMs,
+		);
+		promise.then(
+			(value) => {
+				window.clearTimeout(timer);
+				resolve(value);
+			},
+			(error) => {
+				window.clearTimeout(timer);
+				reject(error);
+			},
+		);
+	});
+}
+
+function createTranslatorSession(
 	sourceLanguage: "zh" | "en",
 	targetLanguage: "zh" | "en",
 	runId: number,
 ) {
 	const key = `${sourceLanguage}:${targetLanguage}`;
 	const cached = translatorSessions.get(key);
-	if (cached) return cached;
+	if (cached) return Promise.resolve(cached);
+	const pendingSession = pendingTranslatorSessions.get(key);
+	if (pendingSession) return pendingSession;
 	const translatorApi = (
 		globalThis as typeof globalThis & { Translator?: TranslatorApi }
 	).Translator;
 	if (!translatorApi) throw new Error("当前浏览器不支持本地翻译");
-	translationStatus = "checking";
-	const availability = await translatorApi.availability({
-		sourceLanguage,
-		targetLanguage,
-	});
-	if (availability === "unavailable")
-		throw new Error("当前浏览器没有可用的中英翻译模型");
-	if (availability === "downloadable" || availability === "downloading") {
-		translationStatus = "downloading";
-		translationProgress = 0;
-	}
-	const session = await translatorApi.create({
-		sourceLanguage,
-		targetLanguage,
-		monitor(monitor) {
-			monitor.addEventListener("downloadprogress", (event) => {
-				if (runId === translationRunId) translationProgress = event.loaded;
-			});
+	translationStatus = "downloading";
+	translationProgress = 0;
+	const creation = withTimeout(
+		translatorApi.create({
+			sourceLanguage,
+			targetLanguage,
+			monitor(monitor) {
+				monitor.addEventListener("downloadprogress", (event) => {
+					if (runId === translationRunId) translationProgress = event.loaded;
+				});
+			},
+		}),
+		180_000,
+		"本地语言包准备超时，请检查网络后重试",
+	);
+	pendingTranslatorSessions.set(key, creation);
+	void creation.then(
+		(session) => {
+			pendingTranslatorSessions.delete(key);
+			translatorSessions.set(key, session);
 		},
-	});
-	translatorSessions.set(key, session);
-	return session;
+		() => pendingTranslatorSessions.delete(key),
+	);
+	return creation;
+}
+
+function getTranslatorSession(
+	sourceLanguage: "zh" | "en",
+	targetLanguage: "zh" | "en",
+	runId: number,
+) {
+	const key = `${sourceLanguage}:${targetLanguage}`;
+	const cached = translatorSessions.get(key);
+	if (cached) return Promise.resolve(cached);
+	const pendingSession = pendingTranslatorSessions.get(key);
+	if (pendingSession) return pendingSession;
+	const translatorApi = (
+		globalThis as typeof globalThis & { Translator?: TranslatorApi }
+	).Translator;
+	if (!translatorApi) throw new Error("当前浏览器不支持本地翻译");
+	const userActivation = (
+		navigator as Navigator & { userActivation?: { isActive: boolean } }
+	).userActivation;
+	if (!userActivation?.isActive)
+		throw new Error("需要点击翻译按钮后才能准备本地语言包");
+	return createTranslatorSession(sourceLanguage, targetLanguage, runId);
 }
 
 async function translateChapter(book: ReaderBook, chapter: ReaderChapter) {
@@ -641,10 +688,10 @@ async function translateChapter(book: ReaderBook, chapter: ReaderChapter) {
 	}
 
 	try {
-		const cachedRows = await getChapterTranslations(
-			book.id,
-			chapter.index,
-			targetLanguage,
+		const cachedRows = await withTimeout(
+			getChapterTranslations(book.id, chapter.index, targetLanguage),
+			8_000,
+			"读取译文缓存超时，请重试",
 		);
 		if (runId !== translationRunId) return;
 		const cachedByIndex = new Map(
@@ -675,7 +722,11 @@ async function translateChapter(book: ReaderBook, chapter: ReaderChapter) {
 		let completed = translationParagraphs.length - missing.length;
 		for (const paragraph of missing) {
 			const translatedText = (
-				await translator.translate(paragraph.sourceText)
+				await withTimeout(
+					translator.translate(paragraph.sourceText),
+					45_000,
+					"当前段落翻译超时，请重试",
+				)
 			).trim();
 			if (runId !== translationRunId) return;
 			paragraph.translatedText = translatedText;
@@ -715,7 +766,40 @@ async function translateChapter(book: ReaderBook, chapter: ReaderChapter) {
 }
 
 function toggleBilingual() {
-	settings.bilingual = !settings.bilingual;
+	if (settings.bilingual) {
+		settings.bilingual = false;
+		return;
+	}
+	if (currentChapter) {
+		const sourceLanguage = detectTranslationLanguage(currentChapter.content);
+		const targetLanguage = sourceLanguage === "zh" ? "en" : "zh";
+		try {
+			void createTranslatorSession(
+				sourceLanguage,
+				targetLanguage,
+				translationRunId + 1,
+			).catch(() => undefined);
+		} catch {
+			// translateChapter 会显示具体的兼容性错误。
+		}
+	}
+	settings.bilingual = true;
+}
+
+function retryTranslation() {
+	if (!currentBook || !currentChapter) return;
+	const sourceLanguage = detectTranslationLanguage(currentChapter.content);
+	const targetLanguage = sourceLanguage === "zh" ? "en" : "zh";
+	try {
+		void createTranslatorSession(
+			sourceLanguage,
+			targetLanguage,
+			translationRunId + 1,
+		).catch(() => undefined);
+	} catch {
+		// translateChapter 会显示具体的兼容性错误。
+	}
+	void translateChapter(currentBook, currentChapter);
 }
 
 function cfiFor(chapter: ReaderChapter, ratio: number) {
@@ -1258,6 +1342,7 @@ function handleKeyboard(event: KeyboardEvent) {
 		  <div class:has-error={translationStatus === "error" || translationStatus === "unsupported"} class="translation-notice" role="status">
 			<Icon icon={translationStatus === "ready" ? "material-symbols:translate-rounded" : translationStatus === "error" || translationStatus === "unsupported" ? "material-symbols:info-outline-rounded" : "svg-spinners:90-ring-with-bg"} width="18" />
 			<span>{#if translationStatus === "ready"}{translationSourceLanguage === "zh" ? "中译英" : "英译中"} · 译文已缓存在本机{:else if translationStatus === "downloading"}正在下载本地语言包 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "translating"}正在翻译当前章节 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "unsupported" || translationStatus === "error"}{translationError}{:else}正在检查本地翻译能力{/if}</span>
+			{#if translationStatus === "error"}<button type="button" onclick={retryTranslation}>重试</button>{/if}
 		  </div>
 		  <div class="chapter-content bilingual-content">
 			{#each translationParagraphs as paragraph (paragraph.index)}
@@ -1293,6 +1378,7 @@ function handleKeyboard(event: KeyboardEvent) {
 			  <div class:has-error={translationStatus === "error" || translationStatus === "unsupported"} class="translation-notice" role="status">
 				<Icon icon={translationStatus === "ready" ? "material-symbols:translate-rounded" : translationStatus === "error" || translationStatus === "unsupported" ? "material-symbols:info-outline-rounded" : "svg-spinners:90-ring-with-bg"} width="18" />
 				<span>{#if translationStatus === "ready"}{translationSourceLanguage === "zh" ? "中译英" : "英译中"} · 译文已缓存在本机{:else if translationStatus === "downloading"}正在下载本地语言包 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "translating"}正在翻译当前章节 · {Math.round(translationProgress * 100)}%{:else if translationStatus === "unsupported" || translationStatus === "error"}{translationError}{:else}正在检查本地翻译能力{/if}</span>
+				{#if translationStatus === "error"}<button type="button" onclick={retryTranslation}>重试</button>{/if}
 			  </div>
 			  <div class="chapter-content bilingual-content">
 				{#each translationParagraphs as paragraph (paragraph.index)}
@@ -1533,6 +1619,10 @@ function handleKeyboard(event: KeyboardEvent) {
   .chapter-content { font-size: var(--reader-font-size); line-height: var(--reader-line-height); letter-spacing: .025em; white-space: pre-wrap; overflow-wrap: anywhere; }
   .chapter-content mark { padding: .05em .12em; border-radius: .18em; color: inherit; background: color-mix(in srgb, #eab308 34%, transparent); }
   .translation-notice { display: flex; align-items: center; gap: .55rem; margin: 0 0 1.7rem; padding: .65rem .75rem; border-left: 2px solid var(--primary); color: color-mix(in srgb, currentColor 68%, transparent); background: color-mix(in srgb, var(--primary) 7%, transparent); font-size: .74rem; line-height: 1.45; break-inside: avoid; }
+  .translation-notice span { flex: 1; }
+  .translation-notice button { padding: .28rem .55rem; border: 1px solid currentColor; border-radius: .45rem; color: inherit; background: transparent; cursor: pointer; transition: transform .2s cubic-bezier(.16,1,.3,1), background .2s; }
+  .translation-notice button:hover { background: color-mix(in srgb, currentColor 8%, transparent); }
+  .translation-notice button:active { transform: scale(.96); }
   .translation-notice.has-error { border-color: #c2413a; color: #a83b35; background: color-mix(in srgb, #c2413a 7%, transparent); }
   .reader-dark .translation-notice.has-error { color: #f0a29d; }
   .bilingual-content { white-space: normal; }
