@@ -20,6 +20,15 @@ export type ReaderBook = {
 	updatedAt: number;
 };
 
+export type BuiltInBook = {
+	path: string;
+	fileName: string;
+	title: string;
+	format: "txt" | "epub";
+	hash: string;
+	fileSize: number;
+};
+
 export type ReaderChapter = {
 	id: string;
 	bookId: string;

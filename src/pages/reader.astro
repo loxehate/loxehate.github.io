@@ -1,8 +1,12 @@
 ---
+import { createHash } from "node:crypto";
+import { readdir, readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import { Icon } from "astro-icon/components";
 import LocalReader from "@/components/pages/reader/LocalReader.svelte";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import type { BuiltInBook } from "@/lib/reader/types";
 
 if (!siteConfig.pages.reader) {
 	return Astro.redirect("/404/");
@@ -10,6 +14,26 @@ if (!siteConfig.pages.reader) {
 
 const title = "本地阅读";
 const description = "在浏览器中导入和阅读本地 TXT 小说，文件不会上传到服务器。";
+const booksDirectory = resolve(process.cwd(), "public", "books");
+const builtInBooks: BuiltInBook[] = await Promise.all(
+	(await readdir(booksDirectory, { withFileTypes: true }))
+		.filter((entry) => entry.isFile() && /\.(?:txt|epub)$/i.test(entry.name))
+		.sort((a, b) => a.name.localeCompare(b.name, "zh-CN"))
+		.map(async (entry) => {
+			const data = await readFile(resolve(booksDirectory, entry.name));
+			const format = entry.name.toLowerCase().endsWith(".epub")
+				? "epub"
+				: "txt";
+			return {
+				path: `books/${encodeURIComponent(entry.name)}`,
+				fileName: entry.name,
+				title: entry.name.replace(/\.(?:txt|epub)$/i, ""),
+				format,
+				hash: createHash("sha256").update(data).digest("hex"),
+				fileSize: data.byteLength,
+			};
+		}),
+);
 ---
 
 <MainGridLayout title={title} description={description}>
@@ -24,7 +48,7 @@ const description = "在浏览器中导入和阅读本地 TXT 小说，文件不
           <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">离线书架 · 数据仅保存在当前浏览器</p>
         </div>
       </div>
-      <LocalReader client:only="svelte" />
+      <LocalReader {builtInBooks} client:only="svelte" />
     </div>
   </div>
 </MainGridLayout>

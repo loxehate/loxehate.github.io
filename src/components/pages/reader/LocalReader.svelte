@@ -14,6 +14,7 @@ import {
 	saveSettings,
 } from "@/lib/reader/db";
 import {
+	type BuiltInBook,
 	DEFAULT_READER_SETTINGS,
 	type ReaderBook,
 	type ReaderChapter,
@@ -21,6 +22,8 @@ import {
 	type ReaderProgress,
 	type ReaderSettings,
 } from "@/lib/reader/types";
+
+let { builtInBooks = [] }: { builtInBooks?: BuiltInBook[] } = $props();
 
 type WorkerResponse = {
 	requestId: number;
@@ -128,25 +131,6 @@ const ENCODINGS: Array<{ value: ReaderEncoding; label: string }> = [
 	{ value: "big5", label: "Big5" },
 	{ value: "utf-16le", label: "UTF-16 LE" },
 	{ value: "utf-16be", label: "UTF-16 BE" },
-];
-
-const BUILT_IN_BOOKS = [
-	{
-		key: "gu-zhen-ren",
-		path: "books/gu-zhen-ren.txt",
-		fileName: "蛊真人.txt",
-		title: "蛊真人",
-		format: "txt" as const,
-		hash: "f3fc31df064dfae5100bf98c23406692b2e3376972263c52eb165acfa99a1862",
-	},
-	{
-		key: "shen-kong-bi-an",
-		path: "books/shen-kong-bi-an.epub",
-		fileName: "深空彼岸.epub",
-		title: "深空彼岸",
-		format: "epub" as const,
-		hash: "297e632f7a5021684313297da5677bded571096781cb058b277482c2f5a9d638",
-	},
 ];
 
 function portal(node: HTMLElement) {
@@ -444,8 +428,8 @@ async function parseAndSaveBook(options: BookImportOptions) {
 
 async function seedBuiltInBooks() {
 	const failures: string[] = [];
-	for (const builtIn of BUILT_IN_BOOKS) {
-		const marker = `local-reader:builtin:${builtIn.key}:${builtIn.hash}`;
+	for (const builtIn of builtInBooks) {
+		const marker = `local-reader:builtin:${builtIn.hash}`;
 		try {
 			const existing = await getBookByHash(builtIn.hash);
 			if (existing) {
@@ -466,12 +450,10 @@ async function seedBuiltInBooks() {
 				buffer,
 				hash: builtIn.hash,
 				fileName: builtIn.fileName,
-				fileSize: response.headers.get("content-length")
-					? Number(response.headers.get("content-length"))
-					: buffer.byteLength,
+				fileSize: builtIn.fileSize,
 				format: builtIn.format,
 				title: builtIn.title,
-				id: `builtin-${builtIn.key}`,
+				id: `builtin-${builtIn.hash.slice(0, 24)}`,
 			});
 			localStorage.setItem(marker, "ready");
 		} catch (error) {
