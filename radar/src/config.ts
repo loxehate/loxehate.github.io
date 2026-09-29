@@ -22,6 +22,7 @@ interface RawRepoEntry {
 interface RawConfig {
   cli_repos?: RawRepoEntry[];
   skills_repo?: string;
+  openclaw_report_enabled?: boolean;
   openclaw?: RawRepoEntry;
   openclaw_peers?: RawRepoEntry[];
 }
@@ -29,6 +30,7 @@ interface RawConfig {
 export interface RadarConfig {
   cliRepos: RepoConfig[];
   skillsRepo: string;
+  openclawReportEnabled: boolean;
   openclaw: RepoConfig;
   openclawPeers: RepoConfig[];
 }
@@ -85,6 +87,7 @@ export function loadConfig(configPath = "config.yml"): RadarConfig {
     return {
       cliRepos: DEFAULT_CLI_REPOS,
       skillsRepo: DEFAULT_SKILLS_REPO,
+      openclawReportEnabled: true,
       openclaw: DEFAULT_OPENCLAW,
       openclawPeers: DEFAULT_OPENCLAW_PEERS,
     };
@@ -102,6 +105,8 @@ export function loadConfig(configPath = "config.yml"): RadarConfig {
       ? raw.skills_repo.trim()
       : DEFAULT_SKILLS_REPO;
 
+  const openclawReportEnabled = raw?.openclaw_report_enabled !== false;
+
   const openclaw = raw?.openclaw?.id && raw.openclaw.repo ? toRepoConfig(raw.openclaw) : DEFAULT_OPENCLAW;
 
   const openclawPeers =
@@ -111,8 +116,8 @@ export function loadConfig(configPath = "config.yml"): RadarConfig {
 
   console.log(
     `[config] Loaded from ${configPath}: ` +
-      `${cliRepos.length} CLI repos, ${openclawPeers.length} OpenClaw peers`,
+      `${cliRepos.length} CLI repos, OpenClaw report ${openclawReportEnabled ? "enabled" : "disabled"}`,
   );
 
-  return { cliRepos, skillsRepo, openclaw, openclawPeers };
+  return { cliRepos, skillsRepo, openclawReportEnabled, openclaw, openclawPeers };
 }

@@ -45,6 +45,7 @@ import { loadConfig } from "./config.ts";
 const {
   cliRepos: CLI_REPOS,
   skillsRepo: CLAUDE_SKILLS_REPO,
+  openclawReportEnabled: OPENCLAW_REPORT_ENABLED,
   openclaw: OPENCLAW,
   openclawPeers: OPENCLAW_PEERS,
 } = loadConfig();
@@ -84,7 +85,14 @@ async function fetchAllData(
   trendingData: TrendingData;
   hnData: HnData;
 }> {
-  const allConfigs = [...CLI_REPOS, OPENCLAW, ...OPENCLAW_PEERS];
+  const configuredRepos = OPENCLAW_REPORT_ENABLED ? [OPENCLAW, ...CLI_REPOS, ...OPENCLAW_PEERS] : CLI_REPOS;
+  const seenRepos = new Set<string>();
+  const allConfigs = configuredRepos.filter((config) => {
+    const repo = config.repo.toLowerCase();
+    if (seenRepos.has(repo)) return false;
+    seenRepos.add(repo);
+    return true;
+  });
   console.log(`  Tracking: ${allConfigs.map((r) => r.id).join(", ")}, claude-code-skills, web, hn`);
 
   const [fetched, skillsData, webResults, trendingData, hnData] = await Promise.all([
@@ -141,7 +149,7 @@ async function fetchAllData(
 
 async function generateSummaries(
   fetchedCli: RepoFetch[],
-  fetchedOpenclaw: RepoFetch,
+  fetchedOpenclaw: RepoFetch | undefined,
   skillsData: { prs: GitHubItem[]; issues: GitHubItem[] },
   fetchedPeers: RepoFetch[],
   trendingData: TrendingData,
@@ -186,6 +194,7 @@ async function generateSummaries(
       }),
     ),
     (async () => {
+      if (!fetchedOpenclaw) return "";
       const { cfg, issues, prs, releases } = fetchedOpenclaw;
       const hasData = issues.length || prs.length || releases.length;
       if (!hasData) {
@@ -308,11 +317,11 @@ function buildCliReportContent(
     .map((d) => {
       const skills = d.config.id === "claude-code" ? skillsSection : "";
       return [
-		`:::details{title="${d.config.name}" repo="${d.config.repo}"}`,
+        `:::details{title="${d.config.name}" repo="${d.config.repo}"}`,
         ``,
         skills + d.summary,
         ``,
-		`:::`,
+        `:::`,
       ].join("\n");
     })
     .join("\n\n");
@@ -349,13 +358,7 @@ function buildOpenclawReportContent(
 
   const peerDetailSections = peerDigests
     .map((d) =>
-      [
-		`:::details{title="${d.config.name}" repo="${d.config.repo}"}`,
-        ``,
-        d.summary,
-        ``,
-		`:::`,
-      ].join("\n"),
+      [`:::details{title="${d.config.name}" repo="${d.config.repo}"}`, ``, d.summary, ``, `:::`].join("\n"),
     )
     .join("\n\n");
 
@@ -735,10 +738,15 @@ async function main(): Promise<void> {
   const webState = loadWebState();
   const { fetched, skillsData, webResults, trendingData, hnData } = await fetchAllData(since, webState);
 
-  const peerIds = new Set(OPENCLAW_PEERS.map((p) => p.id));
-  const fetchedCli = fetched.filter((f) => f.cfg.id !== OPENCLAW.id && !peerIds.has(f.cfg.id));
-  const fetchedOpenclaw = fetched.find((f) => f.cfg.id === OPENCLAW.id)!;
-  const fetchedPeers = fetched.filter((f) => peerIds.has(f.cfg.id));
+  const cliRepos = new Set(CLI_REPOS.map((repo) => repo.repo.toLowerCase()));
+  const peerRepos = new Set(OPENCLAW_PEERS.map((repo) => repo.repo.toLowerCase()));
+  const fetchedCli = fetched.filter((item) => cliRepos.has(item.cfg.repo.toLowerCase()));
+  const fetchedOpenclaw = OPENCLAW_REPORT_ENABLED
+    ? fetched.find((item) => item.cfg.repo.toLowerCase() === OPENCLAW.repo.toLowerCase())
+    : undefined;
+  const fetchedPeers = OPENCLAW_REPORT_ENABLED
+    ? fetched.filter((item) => peerRepos.has(item.cfg.repo.toLowerCase()))
+    : [];
 
   // 2. Generate per-repo LLM summaries per language
   let zhSummaries: Awaited<ReturnType<typeof generateSummaries>> | undefined;
@@ -774,37 +782,45 @@ async function main(): Promise<void> {
   let enComparison = "";
   let enPeersComparison = "";
   if (genZh && zhSummaries) {
-    const openclawDigest: RepoDigest = {
-      config: OPENCLAW,
-      issues: fetchedOpenclaw.issues,
-      prs: fetchedOpenclaw.prs,
-      releases: fetchedOpenclaw.releases,
-      summary: zhSummaries.openclawSummary,
-    };
+    const openclawDigest: RepoDigest | undefined = fetchedOpenclaw
+      ? {
+          config: OPENCLAW,
+          issues: fetchedOpenclaw.issues,
+          prs: fetchedOpenclaw.prs,
+          releases: fetchedOpenclaw.releases,
+          summary: zhSummaries.openclawSummary,
+        }
+      : undefined;
     [comparison, peersComparison] = await Promise.all([
       callLlm(buildComparisonPrompt(zhSummaries.cliDigests, dateStr, "zh"), 4096, "ai-cli.md/comparison"),
-      callLlm(
-        buildPeersComparisonPrompt(openclawDigest, zhSummaries.peerDigests, dateStr, "zh"),
-        4096,
-        "ai-agents.md/comparison",
-      ),
+      OPENCLAW_REPORT_ENABLED && openclawDigest
+        ? callLlm(
+            buildPeersComparisonPrompt(openclawDigest, zhSummaries.peerDigests, dateStr, "zh"),
+            4096,
+            "ai-agents.md/comparison",
+          )
+        : Promise.resolve(""),
     ]);
   }
   if (genEn && enSummaries) {
-    const enOpenclawDigest: RepoDigest = {
-      config: OPENCLAW,
-      issues: fetchedOpenclaw.issues,
-      prs: fetchedOpenclaw.prs,
-      releases: fetchedOpenclaw.releases,
-      summary: enSummaries.openclawSummary,
-    };
+    const enOpenclawDigest: RepoDigest | undefined = fetchedOpenclaw
+      ? {
+          config: OPENCLAW,
+          issues: fetchedOpenclaw.issues,
+          prs: fetchedOpenclaw.prs,
+          releases: fetchedOpenclaw.releases,
+          summary: enSummaries.openclawSummary,
+        }
+      : undefined;
     [enComparison, enPeersComparison] = await Promise.all([
       callLlm(buildComparisonPrompt(enSummaries.cliDigests, dateStr, "en"), 4096, "ai-cli-en.md/comparison"),
-      callLlm(
-        buildPeersComparisonPrompt(enOpenclawDigest, enSummaries.peerDigests, dateStr, "en"),
-        4096,
-        "ai-agents-en.md/comparison",
-      ),
+      OPENCLAW_REPORT_ENABLED && enOpenclawDigest
+        ? callLlm(
+            buildPeersComparisonPrompt(enOpenclawDigest, enSummaries.peerDigests, dateStr, "en"),
+            4096,
+            "ai-agents-en.md/comparison",
+          )
+        : Promise.resolve(""),
     ]);
   }
 
@@ -822,18 +838,7 @@ async function main(): Promise<void> {
       footer,
       "zh",
     );
-    const openclawContent = buildOpenclawReportContent(
-      fetchedOpenclaw,
-      zhSummaries.peerDigests,
-      zhSummaries.openclawSummary,
-      peersComparison,
-      utcStr,
-      dateStr,
-      footer,
-      "zh",
-    );
     console.log(`  Saved ${saveFile(digestContent, dateStr, "ai-cli.md")}`);
-    console.log(`  Saved ${saveFile(openclawContent, dateStr, "ai-agents.md")}`);
     if (digestRepo) {
       const cliUrl = await createGitHubIssue(
         `📊 AI CLI 工具社区动态日报 ${dateStr}`,
@@ -841,12 +846,27 @@ async function main(): Promise<void> {
         "digest",
       );
       console.log(`  Created CLI issue (zh): ${cliUrl}`);
-      const openclawUrl = await createGitHubIssue(
-        `🦞 OpenClaw 生态日报 ${dateStr}`,
-        openclawContent,
-        "openclaw",
+    }
+    if (OPENCLAW_REPORT_ENABLED && fetchedOpenclaw) {
+      const openclawContent = buildOpenclawReportContent(
+        fetchedOpenclaw,
+        zhSummaries.peerDigests,
+        zhSummaries.openclawSummary,
+        peersComparison,
+        utcStr,
+        dateStr,
+        footer,
+        "zh",
       );
-      console.log(`  Created OpenClaw issue (zh): ${openclawUrl}`);
+      console.log(`  Saved ${saveFile(openclawContent, dateStr, "ai-agents.md")}`);
+      if (digestRepo) {
+        const openclawUrl = await createGitHubIssue(
+          `🦞 OpenClaw 生态日报 ${dateStr}`,
+          openclawContent,
+          "openclaw",
+        );
+        console.log(`  Created OpenClaw issue (zh): ${openclawUrl}`);
+      }
     }
   }
   if (genEn && enSummaries) {
@@ -859,18 +879,7 @@ async function main(): Promise<void> {
       enFooter,
       "en",
     );
-    const enOpenclawContent = buildOpenclawReportContent(
-      fetchedOpenclaw,
-      enSummaries.peerDigests,
-      enSummaries.openclawSummary,
-      enPeersComparison,
-      utcStr,
-      dateStr,
-      enFooter,
-      "en",
-    );
     console.log(`  Saved ${saveFile(enDigestContent, dateStr, "ai-cli-en.md")}`);
-    console.log(`  Saved ${saveFile(enOpenclawContent, dateStr, "ai-agents-en.md")}`);
     if (digestRepo) {
       const cliEnUrl = await createGitHubIssue(
         `📊 AI CLI Tools Digest ${dateStr}`,
@@ -878,12 +887,27 @@ async function main(): Promise<void> {
         "digest-en",
       );
       console.log(`  Created CLI issue (en): ${cliEnUrl}`);
-      const openclawEnUrl = await createGitHubIssue(
-        `🦞 OpenClaw Ecosystem Digest ${dateStr}`,
-        enOpenclawContent,
-        "openclaw-en",
+    }
+    if (OPENCLAW_REPORT_ENABLED && fetchedOpenclaw) {
+      const enOpenclawContent = buildOpenclawReportContent(
+        fetchedOpenclaw,
+        enSummaries.peerDigests,
+        enSummaries.openclawSummary,
+        enPeersComparison,
+        utcStr,
+        dateStr,
+        enFooter,
+        "en",
       );
-      console.log(`  Created OpenClaw issue (en): ${openclawEnUrl}`);
+      console.log(`  Saved ${saveFile(enOpenclawContent, dateStr, "ai-agents-en.md")}`);
+      if (digestRepo) {
+        const openclawEnUrl = await createGitHubIssue(
+          `🦞 OpenClaw Ecosystem Digest ${dateStr}`,
+          enOpenclawContent,
+          "openclaw-en",
+        );
+        console.log(`  Created OpenClaw issue (en): ${openclawEnUrl}`);
+      }
     }
   }
 

@@ -40,6 +40,8 @@ skills_repo: anthropics/skills
 # ── OpenClaw (primary focus project) ─────────────────────────────────────────
 # Tracked with a dedicated deep-dive report. Set paginated: true for high-volume repos.
 
+openclaw_report_enabled: false
+
 # openclaw:
 #   id: openclaw
 #   repo: openclaw/openclaw
@@ -76,4 +78,3 @@ skills_repo: anthropics/skills
 #   - id: copaw
 #     repo: agentscope-ai/CoPaw
 #     name: CoPaw
-
