@@ -144,7 +144,9 @@ function parseNavigation(
 		}
 	}
 
-	const spineAttrs = attributes(opf.match(/<spine\b([^>]*)>/i)?.[1] ?? "");
+	const spineAttrs = attributes(
+		opf.match(/<(?:[\w.-]+:)?spine\b([^>]*)>/i)?.[1] ?? "",
+	);
 	const ncxItem = manifest.find(
 		(item) =>
 			item.id === spineAttrs.toc ||
@@ -154,7 +156,7 @@ function parseNavigation(
 		const ncxPath = resolvePath(opfPath, ncxItem.href);
 		const ncx = entryText(entries, ncxPath);
 		for (const match of ncx.matchAll(
-			/<navPoint\b[\s\S]*?<navLabel\b[^>]*>[\s\S]*?<text\b[^>]*>([\s\S]*?)<\/text>[\s\S]*?<content\b([^>]*)\/?>/gi,
+			/<(?:[\w.-]+:)?navPoint\b[\s\S]*?<(?:[\w.-]+:)?navLabel\b[^>]*>[\s\S]*?<(?:[\w.-]+:)?text\b[^>]*>([\s\S]*?)<\/(?:[\w.-]+:)?text>[\s\S]*?<(?:[\w.-]+:)?content\b([^>]*)\/?>/gi,
 		)) {
 			const href = attributes(match[2] ?? "").src;
 			const title = stripMarkup(match[1] ?? "");
@@ -176,7 +178,7 @@ function readPackage(buffer: ArrayBuffer, includeAllChapters: boolean) {
 	const opfPath = normalizePath(rootfile);
 	const opf = entryText(entries, opfPath);
 	const manifest: ManifestItem[] = [];
-	for (const match of opf.matchAll(/<item\b([^>]*)\/?\s*>/gi)) {
+	for (const match of opf.matchAll(/<(?:[\w.-]+:)?item\b([^>]*)\/?\s*>/gi)) {
 		const attrs = attributes(match[1] ?? "");
 		if (!attrs.id || !attrs.href) continue;
 		manifest.push({
@@ -187,14 +189,18 @@ function readPackage(buffer: ArrayBuffer, includeAllChapters: boolean) {
 		});
 	}
 	const byId = new Map(manifest.map((item) => [item.id, item]));
-	const spineIds = Array.from(opf.matchAll(/<itemref\b([^>]*)\/?\s*>/gi))
+	const spineIds = Array.from(
+		opf.matchAll(/<(?:[\w.-]+:)?itemref\b([^>]*)\/?\s*>/gi),
+	)
 		.map((match) => attributes(match[1] ?? "").idref)
 		.filter((value): value is string => Boolean(value));
 	if (spineIds.length === 0) throw new Error("EPUB 没有可阅读的 spine 内容");
 
 	const navigation = parseNavigation(entries, opfPath, manifest, opf);
 	const coverMetaId = attributes(
-		opf.match(/<meta\b(?=[^>]*name=["']cover["'])([^>]*)\/?\s*>/i)?.[1] ?? "",
+		opf.match(
+			/<(?:[\w.-]+:)?meta\b(?=[^>]*name=["']cover["'])([^>]*)\/?\s*>/i,
+		)?.[1] ?? "",
 	).content;
 	let coverItem = manifest.find((item) => item.id === coverMetaId);
 	coverItem ??= manifest.find((item) =>
@@ -203,7 +209,7 @@ function readPackage(buffer: ArrayBuffer, includeAllChapters: boolean) {
 	if (!coverItem) {
 		const guideHref = attributes(
 			opf.match(
-				/<reference\b(?=[^>]*type=["']cover["'])([^>]*)\/?\s*>/i,
+				/<(?:[\w.-]+:)?reference\b(?=[^>]*type=["']cover["'])([^>]*)\/?\s*>/i,
 			)?.[1] ?? "",
 		).href;
 		if (guideHref)
