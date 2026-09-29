@@ -828,13 +828,20 @@ function calculatePages(restoreRatio?: number) {
 	const width = pageViewport.clientWidth;
 	const height = pageViewport.clientHeight;
 	if (width <= 0 || height <= 0) return;
+	const previousPageCount = pageCount;
+	const previousPageIndex = pageIndex;
 	pagedContent.style.setProperty("--page-width", `${width}px`);
 	pagedContent.style.setProperty("--page-height", `${height}px`);
 	requestAnimationFrame(() => {
 		if (!pageViewport || !pagedContent) return;
-		pageCount = Math.max(1, Math.round(pagedContent.scrollWidth / width));
+		const nextPageCount = Math.max(
+			1,
+			Math.round(pagedContent.scrollWidth / width),
+		);
 		const ratio =
-			restoreRatio ?? (pageCount > 1 ? pageIndex / (pageCount - 1) : 0);
+			restoreRatio ??
+			(previousPageCount > 1 ? previousPageIndex / (previousPageCount - 1) : 0);
+		pageCount = nextPageCount;
 		pageIndex = Math.max(
 			0,
 			Math.min(pageCount - 1, Math.round(ratio * (pageCount - 1))),
@@ -1485,8 +1492,8 @@ function handleKeyboard(event: KeyboardEvent) {
           <input type="range" min="1.5" max="2.4" step="0.1" bind:value={settings.lineHeight} />
         </label>
         <label>
-          <span><strong>版心宽度</strong><output>{settings.contentWidth}px</output></span>
-          <input type="range" min="560" max="980" step="20" bind:value={settings.contentWidth} />
+          <span><strong>基础版心宽度</strong><output>{settings.contentWidth}px</output></span>
+          <input type="range" min="560" max="1120" step="20" bind:value={settings.contentWidth} />
         </label>
 
         <div class="theme-field">
@@ -1600,7 +1607,7 @@ function handleKeyboard(event: KeyboardEvent) {
   .loading-grid div { height: 7rem; border-radius: 1rem; }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  .reading-stage { position: relative; z-index: 80; display: block; width: 100%; min-height: 100dvh; color: #303238; background: #f6f5f1; }
+  .reading-stage { --reader-layout-width: min(calc(100% - clamp(2rem,8vw,8rem)),calc(var(--reader-width) + clamp(0px,calc(65vw - 780px),660px))); position: relative; z-index: 80; display: block; width: 100%; min-height: 100dvh; color: #303238; background: #f6f5f1; }
   :global(.dark) .reading-stage:not(.reader-light):not(.reader-sepia):not(.reader-dark) { color: #d8d7d3; background: #1d1f22; }
   .reading-stage.reader-light { color: #303238; background: #f7f7f5; }
   .reading-stage.reader-sepia { color: #42392d; background: #eee4ce; }
@@ -1618,7 +1625,7 @@ function handleKeyboard(event: KeyboardEvent) {
   .reader-dark .reading-toolbar button { border-color: rgb(255 255 255 / .12) !important; }
   .reading-toolbar nav button.active { color: var(--btn-content); border-color: var(--primary) !important; background: color-mix(in srgb, var(--primary) 11%, transparent); }
   .reading-scroll { overflow: visible; }
-  .reading-paper { width: min(var(--reader-width),calc(100% - 2rem)); min-height: calc(100dvh - 4rem); margin: 0 auto; padding: clamp(3rem,8vw,7rem) 0 5rem; }
+  .reading-paper { width: var(--reader-layout-width); min-height: calc(100dvh - 4rem); margin: 0 auto; padding: clamp(3rem,8vw,7rem) 0 5rem; }
   .reading-paper h1 { margin: 0; font-size: clamp(1.65rem,4vw,2.4rem); line-height: 1.2; letter-spacing: -.035em; }
   .chapter-rule { width: 3.5rem; height: 3px; margin: 1.5rem 0 2.6rem; border-radius: 2rem; background: var(--primary); }
   .chapter-content { font-size: var(--reader-font-size); line-height: var(--reader-line-height); letter-spacing: .025em; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -1644,7 +1651,7 @@ function handleKeyboard(event: KeyboardEvent) {
   .chapter-navigation button:disabled { opacity: .3; cursor: not-allowed; }
   .chapter-navigation span { opacity: .5; font: .72rem/1 ui-monospace, SFMono-Regular, Consolas, monospace; }
   .paged-reader { position: relative; height: calc(100dvh - 4rem); overflow: hidden; }
-  .paged-viewport { width: min(var(--reader-width),calc(100% - 2rem)); height: calc(100% - 3.5rem); margin: 0 auto; overflow: hidden; scroll-behavior: smooth; }
+  .paged-viewport { width: var(--reader-layout-width); height: calc(100% - 3.5rem); margin: 0 auto; overflow: hidden; scroll-behavior: smooth; }
   .paged-content { width: var(--page-width); height: var(--page-height); padding: clamp(2rem,5vw,4rem) 0; column-width: var(--page-width); column-gap: 0; column-fill: auto; }
   .paged-content h1 { margin: 0; font-size: clamp(1.55rem,3vw,2.15rem); line-height: 1.2; letter-spacing: -.035em; }
   .paged-heading { break-inside: avoid; }
