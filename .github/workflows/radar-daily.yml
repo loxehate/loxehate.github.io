@@ -70,6 +70,12 @@ jobs:
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL || secrets.ANTHROPIC_BASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || secrets.ANTHROPIC_API_KEY }}
           OPENAI_MODEL: ${{ secrets.OPENAI_MODEL || secrets.ANTHROPIC_MODEL }}
+          LLM_CONCURRENCY: ${{ vars.LLM_CONCURRENCY || '1' }}
+          LLM_MAX_RETRIES: ${{ vars.LLM_MAX_RETRIES || '2' }}
+          LLM_REQUEST_TIMEOUT_MS: ${{ vars.LLM_REQUEST_TIMEOUT_MS || '300000' }}
+          LLM_REASONING_MAX_TOKENS: ${{ vars.LLM_REASONING_MAX_TOKENS || '2048' }}
+          LLM_REASONING_RETRY_MAX_TOKENS: ${{ vars.LLM_REASONING_RETRY_MAX_TOKENS || '1024' }}
+          LLM_DISABLE_REASONING: ${{ vars.LLM_DISABLE_REASONING || 'false' }}
           REPORT_LANGS: ${{ vars.REPORT_LANGS || secrets.REPORT_LANGS }}
         run: pnpm start
 

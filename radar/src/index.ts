@@ -792,13 +792,23 @@ async function main(): Promise<void> {
         }
       : undefined;
     [comparison, peersComparison] = await Promise.all([
-      callLlm(buildComparisonPrompt(zhSummaries.cliDigests, dateStr, "zh"), 4096, "ai-cli.md/comparison"),
+      callLlm(
+        buildComparisonPrompt(zhSummaries.cliDigests, dateStr, "zh"),
+        4096,
+        "ai-cli.md/comparison",
+      ).catch((err): string => {
+        console.error(`  [cli/comparison] LLM call failed after retries: ${err}`);
+        return "⚠️ 今日横向对比生成失败，各仓库详细摘要仍可正常查看。";
+      }),
       OPENCLAW_REPORT_ENABLED && openclawDigest
         ? callLlm(
             buildPeersComparisonPrompt(openclawDigest, zhSummaries.peerDigests, dateStr, "zh"),
             4096,
             "ai-agents.md/comparison",
-          )
+          ).catch((err): string => {
+            console.error(`  [openclaw/comparison] LLM call failed after retries: ${err}`);
+            return "⚠️ 今日生态横向对比生成失败，各项目详细摘要仍可正常查看。";
+          })
         : Promise.resolve(""),
     ]);
   }
@@ -813,13 +823,23 @@ async function main(): Promise<void> {
         }
       : undefined;
     [enComparison, enPeersComparison] = await Promise.all([
-      callLlm(buildComparisonPrompt(enSummaries.cliDigests, dateStr, "en"), 4096, "ai-cli-en.md/comparison"),
+      callLlm(
+        buildComparisonPrompt(enSummaries.cliDigests, dateStr, "en"),
+        4096,
+        "ai-cli-en.md/comparison",
+      ).catch((err): string => {
+        console.error(`  [cli/comparison-en] LLM call failed after retries: ${err}`);
+        return "⚠️ Today's cross-tool comparison could not be generated. Per-repository summaries remain available.";
+      }),
       OPENCLAW_REPORT_ENABLED && enOpenclawDigest
         ? callLlm(
             buildPeersComparisonPrompt(enOpenclawDigest, enSummaries.peerDigests, dateStr, "en"),
             4096,
             "ai-agents-en.md/comparison",
-          )
+          ).catch((err): string => {
+            console.error(`  [openclaw/comparison-en] LLM call failed after retries: ${err}`);
+            return "⚠️ Today's ecosystem comparison could not be generated. Per-project summaries remain available.";
+          })
         : Promise.resolve(""),
     ]);
   }

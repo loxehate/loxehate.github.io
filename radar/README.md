@@ -194,6 +194,12 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `OPENAI_API_KEY` | ✅ | API key for any OpenAI-compatible endpoint |
 | `OPENAI_BASE_URL` | optional | API endpoint override. Leave unset for OpenAI, or set a compatible provider URL such as `https://api.openai.com/v1` |
 | `OPENAI_MODEL` | optional | Model name passed to `chat/completions`, e.g. `gpt-4.1-mini` |
+| `LLM_CONCURRENCY` | optional | Maximum concurrent LLM requests (default: `1`, suitable for free OpenRouter endpoints) |
+| `LLM_MAX_RETRIES` | optional | Maximum retries for retryable LLM errors (default: `2`) |
+| `LLM_REQUEST_TIMEOUT_MS` | optional | Per-request LLM timeout in milliseconds (default: `300000`) |
+| `LLM_REASONING_MAX_TOKENS` | optional | OpenRouter reasoning-token cap for the first request (default: `2048`) |
+| `LLM_REASONING_RETRY_MAX_TOKENS` | optional | Reasoning-token cap for the first reasoning-exhaustion retry (default: `1024`) |
+| `LLM_DISABLE_REASONING` | optional | Disable OpenRouter reasoning from the first request (default: `false`) |
 | `REPORT_LANGS` | optional | Report languages, e.g. `zh` or `zh,en` (default: `zh`) |
 | `PAGES_URL` | recommended | Public site base URL, e.g. `https://your-user.github.io/big_model_radar`. Prefer a repository variable for this |
 | `TELEGRAM_BOT_TOKEN` | optional | Telegram bot token from [@BotFather](https://t.me/BotFather). If set, a message is sent after each digest run |
@@ -230,6 +236,12 @@ export GITHUB_TOKEN=ghp_xxxxx
 export OPENAI_BASE_URL=https://api.openai.com/v1
 export OPENAI_API_KEY=sk-xxxxxxxx
 export OPENAI_MODEL=gpt-4.1-mini
+export LLM_CONCURRENCY=1
+export LLM_MAX_RETRIES=2
+export LLM_REQUEST_TIMEOUT_MS=300000
+export LLM_REASONING_MAX_TOKENS=2048
+export LLM_REASONING_RETRY_MAX_TOKENS=1024
+export LLM_DISABLE_REASONING=false
 export REPORT_LANGS=zh
 
 pnpm start

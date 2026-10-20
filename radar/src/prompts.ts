@@ -532,7 +532,7 @@ Generate a structured AI Open Source Trends Report in English:
 
 4. **Community Hot Spots** — Bullet list of 3-5 specific projects or directions worth developer focus, with brief reasoning
 
-Style: English, professional and concise, must include GitHub links for every project.
+Style: English, professional and concise, must include GitHub links for every project. Output only the final Markdown report without analysis or reasoning. Keep the complete report within 2,500 English words and prioritize completing every section.
 `;
   }
 
@@ -581,7 +581,7 @@ ${searchSection}
 
 4. **社区关注热点** — 以 bullet 形式列出 3~5 个值得开发者重点关注的具体项目或方向，给出简短理由
 
-语言要求：中文，专业简洁，每个项目必须附 GitHub 链接。
+语言要求：中文，专业简洁，每个项目必须附 GitHub 链接。直接输出最终 Markdown 报告，不要输出分析或思考过程；全文控制在 2500 个中文汉字以内，优先保证所有章节完整。
 `;
 }
 

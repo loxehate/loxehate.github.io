@@ -15,7 +15,20 @@ const DEFAULT_MODEL = "gpt-4.1-mini";
 // any given time; the rest queue and run as slots free up.
 // ---------------------------------------------------------------------------
 
-const LLM_CONCURRENCY = 5;
+function readIntegerEnv(name: string, fallback: number, minimum: number, maximum: number): number {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(value) ? Math.min(maximum, Math.max(minimum, value)) : fallback;
+}
+
+function readBooleanEnv(name: string, fallback: boolean): boolean {
+  const value = process.env[name]?.trim().toLowerCase();
+  if (!value) return fallback;
+  if (["1", "true", "yes", "on"].includes(value)) return true;
+  if (["0", "false", "no", "off"].includes(value)) return false;
+  return fallback;
+}
+
+const LLM_CONCURRENCY = readIntegerEnv("LLM_CONCURRENCY", 1, 1, 10);
 let llmSlots = LLM_CONCURRENCY;
 const llmQueue: Array<() => void> = [];
 
@@ -40,13 +53,39 @@ function releaseSlot(): void {
 // LLM
 // ---------------------------------------------------------------------------
 
-const MAX_RETRIES = 1;
-const RETRY_BASE_MS = 5_000; // 5 s, 10 s, 20 s
-const MIN_TOKEN_BUDGET = 16_384;
+const MAX_RETRIES = readIntegerEnv("LLM_MAX_RETRIES", 2, 0, 6);
+const RETRY_BASE_MS = readIntegerEnv("LLM_RETRY_BASE_MS", 5_000, 500, 60_000);
+const REQUEST_TIMEOUT_MS = readIntegerEnv("LLM_REQUEST_TIMEOUT_MS", 300_000, 10_000, 600_000);
+const REASONING_MAX_TOKENS = readIntegerEnv("LLM_REASONING_MAX_TOKENS", 2_048, 0, 32_768);
+const REASONING_RETRY_MAX_TOKENS = readIntegerEnv("LLM_REASONING_RETRY_MAX_TOKENS", 1_024, 0, 32_768);
+const DISABLE_REASONING = readBooleanEnv("LLM_DISABLE_REASONING", false);
+const MIN_TOKEN_BUDGET = 1_024;
 const MAX_TOKEN_BUDGET = 32_768;
+
+class EmptyLlmContentError extends Error {
+  constructor(
+    message: string,
+    readonly finishReason: string | null | undefined,
+    readonly hasReasoning: boolean,
+  ) {
+    super(message);
+    this.name = "EmptyLlmContentError";
+  }
+}
 
 function is429(err: unknown): boolean {
   return (err as { status?: number })?.status === 429 || String(err).includes("429");
+}
+
+function isRetryableError(err: unknown): boolean {
+  if (is429(err)) return true;
+  const message = describeError(err);
+  return (
+    /LLM API (408|425|500|502|503|504)\b/i.test(message) ||
+    /fetch failed|network request failed|UND_ERR_|ECONNRESET|ECONNREFUSED|EAI_AGAIN|ETIMEDOUT|socket|connection|terminated|abort/i.test(
+      message,
+    )
+  );
 }
 
 function sleep(ms: number): Promise<void> {
@@ -67,12 +106,9 @@ function getLlmModel(): string {
   return (process.env["OPENAI_MODEL"] ?? process.env["ANTHROPIC_MODEL"] ?? DEFAULT_MODEL).trim();
 }
 
-function shouldUseOpenRouterReasoning(endpoint: string, model: string): boolean {
+function isOpenRouterEndpoint(endpoint: string): boolean {
   try {
-    return (
-      new URL(endpoint).hostname.toLowerCase() === "openrouter.ai" &&
-      model === "nvidia/nemotron-3-super-120b-a12b:free"
-    );
+    return new URL(endpoint).hostname.toLowerCase() === "openrouter.ai";
   } catch {
     return false;
   }
@@ -83,8 +119,16 @@ export function hasLlmCredentials(): boolean {
 }
 
 function normalizeTokenBudget(maxTokens: number): number {
-  if (!Number.isFinite(maxTokens) || maxTokens <= 0) return MIN_TOKEN_BUDGET;
-  return maxTokens >= MAX_TOKEN_BUDGET ? MAX_TOKEN_BUDGET : MIN_TOKEN_BUDGET;
+  if (!Number.isFinite(maxTokens) || maxTokens <= 0) return 4_096;
+  return Math.min(MAX_TOKEN_BUDGET, Math.max(MIN_TOKEN_BUDGET, Math.floor(maxTokens)));
+}
+
+function getReasoningTokenLimit(tokenBudget: number, reasoningBudget: number): number {
+  return Math.min(
+    reasoningBudget,
+    Math.floor(tokenBudget * 0.25),
+    Math.max(0, tokenBudget - MIN_TOKEN_BUDGET),
+  );
 }
 
 function extractTextContent(content: unknown): string {
@@ -152,7 +196,10 @@ function describeError(err: unknown): string {
 }
 
 export async function callLlm(prompt: string, maxTokens = 4096, contextTag = ""): Promise<string> {
-  let tokenBudget = normalizeTokenBudget(maxTokens);
+  const tokenBudget = normalizeTokenBudget(maxTokens);
+  let reasoningBudget = REASONING_MAX_TOKENS;
+  let reasoningDisabled = DISABLE_REASONING;
+  let reasoningExhaustionRetries = 0;
   const retryPrefix = contextTag ? `[llm/${contextTag}]` : "[llm]";
   for (let attempt = 0; ; attempt++) {
     await acquireSlot();
@@ -163,16 +210,27 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
 
       const endpoint = `${getLlmBaseUrl()}/chat/completions`;
       const model = getLlmModel();
+      const isOpenRouter = isOpenRouterEndpoint(endpoint);
       const requestBody: Record<string, unknown> = {
         model,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.2,
-        max_tokens: tokenBudget,
       };
-      if (shouldUseOpenRouterReasoning(endpoint, model)) {
-        requestBody["reasoning"] = {
-          enabled: true,
-        };
+      if (isOpenRouter) {
+        requestBody["max_completion_tokens"] = tokenBudget;
+        if (reasoningDisabled || reasoningBudget === 0) {
+          requestBody["reasoning"] = { enabled: false, exclude: true };
+        } else {
+          // Reasoning and visible text share the completion budget. Always reserve
+          // at least MIN_TOKEN_BUDGET tokens for the report itself, and never let
+          // reasoning consume more than 25% of the requested completion budget.
+          requestBody["reasoning"] = {
+            max_tokens: getReasoningTokenLimit(tokenBudget, reasoningBudget),
+            exclude: true,
+          };
+        }
+      } else {
+        requestBody["max_tokens"] = tokenBudget;
       }
       let resp: Response;
       try {
@@ -183,10 +241,12 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
         });
       } catch (err) {
         throw new Error(
           `LLM network request failed: endpoint=${endpoint}; model=${JSON.stringify(model)}; ${describeError(err)}`,
+          { cause: err },
         );
       }
       if (!resp.ok) {
@@ -229,8 +289,10 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
         const usageSummary = usage
           ? `prompt_tokens=${usage.prompt_tokens ?? "unknown"}, completion_tokens=${usage.completion_tokens ?? "unknown"}, reasoning_tokens=${usage.completion_tokens_details?.reasoning_tokens ?? "unknown"}, total_tokens=${usage.total_tokens ?? "unknown"}`
           : "unavailable";
-        throw new Error(
+        throw new EmptyLlmContentError(
           `LLM returned empty content; finish_reason=${choice?.finish_reason ?? "unknown"}; reasoning_present=${hasReasoning}; reasoning_details_count=${reasoningDetailsCount}; usage=${usageSummary}${contextTag ? `; context=${contextTag}` : ""}`,
+          choice?.finish_reason,
+          hasReasoning,
         );
       }
       const text = extractTextContent(content);
@@ -240,15 +302,30 @@ export async function callLlm(prompt: string, maxTokens = 4096, contextTag = "")
         );
       return text;
     } catch (err) {
-      if (attempt < MAX_RETRIES && (is429(err) || String(err).includes("empty content"))) {
+      if (attempt < MAX_RETRIES && (isRetryableError(err) || String(err).includes("empty content"))) {
         releaseSlot();
         released = true;
-        if (String(err).includes("finish_reason=length")) {
-          tokenBudget = MAX_TOKEN_BUDGET;
+        if (
+          err instanceof EmptyLlmContentError &&
+          err.finishReason === "length" &&
+          err.hasReasoning &&
+          isOpenRouterEndpoint(`${getLlmBaseUrl()}/chat/completions`)
+        ) {
+          reasoningExhaustionRetries++;
+          if (reasoningExhaustionRetries === 1) {
+            const currentReasoningLimit = getReasoningTokenLimit(tokenBudget, reasoningBudget);
+            reasoningBudget = Math.min(
+              REASONING_RETRY_MAX_TOKENS,
+              Math.max(512, Math.floor(currentReasoningLimit / 2)),
+            );
+          } else {
+            reasoningDisabled = true;
+          }
         }
-        const wait = RETRY_BASE_MS * 2 ** attempt;
+        const wait = RETRY_BASE_MS * 2 ** attempt + Math.floor(Math.random() * 1_000);
+        const reasoningStatus = reasoningDisabled ? "disabled" : String(reasoningBudget);
         console.error(
-          `${retryPrefix} retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s with max_tokens=${tokenBudget}: ${err}`,
+          `${retryPrefix} retry ${attempt + 1}/${MAX_RETRIES} in ${wait / 1000}s with max_completion_tokens=${tokenBudget}, reasoning_max_tokens=${reasoningStatus}: ${err}`,
         );
         await sleep(wait);
         continue;

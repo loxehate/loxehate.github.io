@@ -71,7 +71,7 @@ Files written to `digests/YYYY-MM-DD/`:
 - All LLM prompts are in `src/prompts.ts`. Each report type has its own builder function. Prompts are written in Chinese and produce Chinese output.
 - `callLlm(prompt, maxTokens?)` defaults to 4096 tokens. Web report uses 8192, trending uses 6144. HN report uses the default 4096.
 - On 429 rate-limit errors `callLlm` retries up to 3 times with exponential backoff (5 s / 10 s / 20 s); the concurrency slot is released during the wait.
-- The concurrency limiter (`LLM_CONCURRENCY = 5`) prevents 429s when many parallel LLM calls fire. Do not bypass it by calling the Anthropic SDK directly.
+- The configurable concurrency limiter (`LLM_CONCURRENCY`, default `1`) prevents 429s when many parallel LLM calls fire, especially on free endpoints. Do not bypass it by calling an SDK directly.
 - `sampleNote(total, sampled)` in `src/prompts.ts` formats the "(共 N 条，展示前 M 条)" note. Reuse it — do not inline the same string format.
 - Web state (`digests/web-state.json`) is committed to git on every run. It is the source of truth for which URLs have been seen.
 

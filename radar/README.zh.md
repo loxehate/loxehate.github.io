@@ -194,6 +194,12 @@ openclaw_peers:
 | `OPENAI_API_KEY` | ✅ | 任意 OpenAI 兼容接口的 API 密钥 |
 | `OPENAI_BASE_URL` | 可选 | API 地址覆盖。使用 OpenAI 默认接口可留空，或设置兼容服务地址，如 `https://api.openai.com/v1` |
 | `OPENAI_MODEL` | 可选 | 传给 `chat/completions` 的模型名，例如 `gpt-4.1-mini` |
+| `LLM_CONCURRENCY` | 可选 | 同时进行的 LLM 请求数（默认：`1`，适合 OpenRouter 免费端点） |
+| `LLM_MAX_RETRIES` | 可选 | 可重试错误的最大重试次数（默认：`2`） |
+| `LLM_REQUEST_TIMEOUT_MS` | 可选 | 单次 LLM 请求超时毫秒数（默认：`300000`） |
+| `LLM_REASONING_MAX_TOKENS` | 可选 | OpenRouter 首次请求的最大推理 token（默认：`2048`） |
+| `LLM_REASONING_RETRY_MAX_TOKENS` | 可选 | 推理耗尽后的首次重试推理 token（默认：`1024`） |
+| `LLM_DISABLE_REASONING` | 可选 | 是否从首次请求起关闭 OpenRouter 推理（默认：`false`） |
 | `REPORT_LANGS` | 可选 | 报告语言，例如 `zh` 或 `zh,en`（默认：`zh`） |
 | `PAGES_URL` | 建议配置 | 站点公开地址，例如 `https://your-user.github.io/big_model_radar`。建议放在仓库 Variables 中 |
 | `TELEGRAM_BOT_TOKEN` | 可选 | Telegram bot token，从 [@BotFather](https://t.me/BotFather) 获取。设置后每次 digest 完成自动推送通知 |
@@ -230,6 +236,12 @@ export GITHUB_TOKEN=ghp_xxxxx
 export OPENAI_BASE_URL=https://api.openai.com/v1
 export OPENAI_API_KEY=sk-xxxxxxxx
 export OPENAI_MODEL=gpt-4.1-mini
+export LLM_CONCURRENCY=1
+export LLM_MAX_RETRIES=2
+export LLM_REQUEST_TIMEOUT_MS=300000
+export LLM_REASONING_MAX_TOKENS=2048
+export LLM_REASONING_RETRY_MAX_TOKENS=1024
+export LLM_DISABLE_REASONING=false
 export REPORT_LANGS=zh
 
 pnpm start
