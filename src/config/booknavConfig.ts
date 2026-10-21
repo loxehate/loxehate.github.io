@@ -133,6 +133,12 @@ export const booknavConfig: BooknavGroup[] = [
 				icon: "simple-icons:dota2",
 				weight: 70,
 			},
+			{
+				title: "Battlefield 6",
+				url: "https://battlefield6tracker.com/p/1013454504462/all/career/overview",
+				desc: "Battlefield 6 比赛数据",
+				weight: 60,
+			},
 		],
 	},
 ];
