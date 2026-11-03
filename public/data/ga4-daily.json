@@ -1,20 +1,16 @@
 {
-  "generatedAt": "2026-11-02T00:50:14.009Z",
-  "startDate": "2026-08-04",
-  "endDate": "2026-11-01",
+  "generatedAt": "2026-11-03T00:50:19.128Z",
+  "startDate": "2026-08-05",
+  "endDate": "2026-11-02",
   "scope": {
     "pathPrefix": null
   },
   "totals": {
-    "activeUsers": 47,
-    "pageViews": 1589,
-    "sessions": 261
+    "activeUsers": 48,
+    "pageViews": 1604,
+    "sessions": 265
   },
   "daily": [
-    {
-      "date": "2026-08-04",
-      "users": 0
-    },
     {
       "date": "2026-08-05",
       "users": 0
@@ -370,6 +366,10 @@
     {
       "date": "2026-11-01",
       "users": 1
+    },
+    {
+      "date": "2026-11-02",
+      "users": 2
     }
   ]
 }
