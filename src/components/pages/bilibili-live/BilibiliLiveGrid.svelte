@@ -25,6 +25,8 @@ const hasMetadataFallback = $derived(
 
 onMount(() => {
 	void loadRoomMetadata();
+	window.addEventListener("message", handlePlayerMessage);
+	return () => window.removeEventListener("message", handlePlayerMessage);
 });
 
 function createFallbackRoom(room: BilibiliLiveRoomConfig): BilibiliLiveRoom {
@@ -35,7 +37,7 @@ function createFallbackRoom(room: BilibiliLiveRoomConfig): BilibiliLiveRoom {
 		anchorName: room.name || "Bilibili 主播",
 		coverUrl: room.cover || "",
 		areaName: "Bilibili 直播",
-		liveStatus: 0,
+		liveStatus: -1,
 		online: 0,
 		metadataState: "loading",
 	};
@@ -44,31 +46,51 @@ function createFallbackRoom(room: BilibiliLiveRoomConfig): BilibiliLiveRoom {
 async function fetchRoomMetadata(
 	room: BilibiliLiveRoomConfig,
 ): Promise<BilibiliLiveRoom> {
-	const endpoint = new URL(
-		"https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom",
-	);
-	endpoint.searchParams.set("room_id", String(room.roomId));
-
 	try {
-		const response = await fetch(endpoint, {
-			headers: { Accept: "application/json" },
-			credentials: "omit",
-		});
-		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		let info;
+		let anchorName = room.name || "Bilibili 主播";
 
-		const payload = await response.json();
-		if (payload.code !== 0 || !payload.data?.room_info) {
-			throw new Error(payload.message || "Invalid Bilibili response");
+		try {
+			const endpoint = new URL(
+				"https://api.live.bilibili.com/room/v1/Room/get_info",
+			);
+			endpoint.searchParams.set("room_id", String(room.roomId));
+			const payload = await fetchBilibiliJson(endpoint);
+			if (payload.code !== 0 || !payload.data) {
+				throw new Error(payload.message || "Invalid Bilibili response");
+			}
+			info = payload.data;
+		} catch (primaryError) {
+			console.info(
+				`[Bilibili Live] Primary room API failed for ${room.roomId}, trying fallback`,
+				primaryError,
+			);
+			const endpoint = new URL(
+				"https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom",
+			);
+			endpoint.searchParams.set("room_id", String(room.roomId));
+			const payload = await fetchBilibiliJson(endpoint);
+			if (payload.code !== 0 || !payload.data?.room_info) {
+				throw new Error(payload.message || "Invalid Bilibili fallback response");
+			}
+			info = payload.data.room_info;
+			anchorName =
+				payload.data.anchor_info?.base_info?.uname || room.name || anchorName;
 		}
 
-		const info = payload.data.room_info;
-		const anchor = payload.data.anchor_info?.base_info;
 		return {
 			...room,
 			canonicalRoomId: Number(info.room_id || room.roomId),
 			title: info.title || room.name || `直播间 ${room.roomId}`,
-			anchorName: anchor?.uname || room.name || "Bilibili 主播",
-			coverUrl: toHttps(info.cover || info.keyframe || room.cover || ""),
+			anchorName,
+			coverUrl: toHttps(
+				info.user_cover ||
+					info.cover ||
+					info.keyframe ||
+					info.background ||
+					room.cover ||
+					"",
+			),
 			areaName:
 				[info.parent_area_name, info.area_name].filter(Boolean).join(" · ") ||
 				"Bilibili 直播",
@@ -82,6 +104,22 @@ async function fetchRoomMetadata(
 	}
 }
 
+async function fetchBilibiliJson(endpoint: URL) {
+	const controller = new AbortController();
+	const timeout = window.setTimeout(() => controller.abort(), 8000);
+	try {
+		const response = await fetch(endpoint, {
+			headers: { Accept: "application/json" },
+			credentials: "omit",
+			signal: controller.signal,
+		});
+		if (!response.ok) throw new Error(`HTTP ${response.status}`);
+		return await response.json();
+	} finally {
+		window.clearTimeout(timeout);
+	}
+}
+
 async function loadRoomMetadata() {
 	if (rooms.length === 0) return;
 	liveRooms = await Promise.all(rooms.map(fetchRoomMetadata));
@@ -90,6 +128,30 @@ async function loadRoomMetadata() {
 function normalizeLiveStatus(status: unknown): 0 | 1 | 2 {
 	const value = Number(status);
 	return value === 1 || value === 2 ? value : 0;
+}
+
+function handlePlayerMessage(event: MessageEvent) {
+	if (typeof event.data !== "string") return;
+	if (!event.data.startsWith("playerOperation-")) return;
+
+	try {
+		const hostname = new URL(event.origin).hostname;
+		if (hostname !== "bilibili.com" && !hostname.endsWith(".bilibili.com")) {
+			return;
+		}
+		const operation = JSON.parse(event.data.slice("playerOperation-".length));
+		if (operation.type !== "liveStateChange") return;
+		const status = normalizeLiveStatus(operation.value?.status);
+		if (!selectedRoom) return;
+
+		const selectedId = selectedRoom.roomId;
+		liveRooms = liveRooms.map((room) =>
+			room.roomId === selectedId ? { ...room, liveStatus: status } : room,
+		);
+		selectedRoom = { ...selectedRoom, liveStatus: status };
+	} catch (error) {
+		console.debug("[Bilibili Live] Ignored malformed player message", error);
+	}
 }
 
 function toHttps(url: string): string {
@@ -138,7 +200,8 @@ function formatOnline(value: number): string {
 function statusLabel(status: number): string {
 	if (status === 1) return "直播中";
 	if (status === 2) return "轮播中";
-	return "未开播";
+	if (status === 0) return "未开播";
+	return "状态未知";
 }
 </script>
 

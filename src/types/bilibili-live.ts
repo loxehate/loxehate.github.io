@@ -11,7 +11,8 @@ export interface BilibiliLiveRoom extends BilibiliLiveRoomConfig {
 	anchorName: string;
 	coverUrl: string;
 	areaName: string;
-	liveStatus: 0 | 1 | 2;
+	/** -1=状态未知，0=未开播，1=直播中，2=轮播中 */
+	liveStatus: -1 | 0 | 1 | 2;
 	online: number;
 	metadataState: "loading" | "ready" | "fallback";
 }
