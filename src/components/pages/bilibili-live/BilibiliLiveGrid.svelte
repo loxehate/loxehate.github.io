@@ -71,7 +71,9 @@ async function fetchRoomMetadata(
 			endpoint.searchParams.set("room_id", String(room.roomId));
 			const payload = await fetchBilibiliJson(endpoint);
 			if (payload.code !== 0 || !payload.data?.room_info) {
-				throw new Error(payload.message || "Invalid Bilibili fallback response");
+				throw new Error(
+					payload.message || "Invalid Bilibili fallback response",
+				);
 			}
 			info = payload.data.room_info;
 			anchorName =
