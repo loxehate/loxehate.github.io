@@ -264,7 +264,8 @@ export const siteConfig: SiteConfig = {
 		// 直播间列表：roomId 是直播间 URL 中的数字，例如 live.bilibili.com/23058
 		// 未配置时直播页会显示引导空状态；不要填写 UID 或 visit_id。
 		liveRooms: [
-			// { roomId: 23058, name: "直播间名称", description: "可选说明" },
+			{ roomId: 1429491, name: "灵犀DOTA2赛事解说", description: "灵犀DOTA2赛事解说" },
+
 		],
 	},
 
