@@ -260,6 +260,9 @@ export default defineConfig({
 				if (pathname === "/bilibili/" && !siteConfig.pages.bilibili) {
 					return false;
 				}
+				if (pathname === "/bilibili-live/" && !siteConfig.pages.bilibiliLive) {
+					return false;
+				}
 				if (pathname === "/bangumi/" && !siteConfig.pages.bangumi) {
 					return false;
 				}

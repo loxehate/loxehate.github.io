@@ -52,6 +52,7 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 			LinkPresets.Reader,
 			LinkPresets.Booknav,
 			LinkPresets.Bilibili,
+			LinkPresets.BilibiliLive,
 		],
 	});
 
@@ -149,6 +150,12 @@ export const LinkPresets: Record<string, NavBarLink> = {
 		url: "/bilibili/",
 		icon: "fa7-brands:bilibili",
 		pageKey: "bilibili",
+	},
+	BilibiliLive: {
+		name: "直播列表",
+		url: "/bilibili-live/",
+		icon: "material-symbols:live-tv-rounded",
+		pageKey: "bilibiliLive",
 	},
 	Bangumi: {
 		name: "番组计划",

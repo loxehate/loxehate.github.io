@@ -96,6 +96,7 @@ export type SiteConfig = {
 		mal: boolean; // MyAnimeList 页面开关
 		gallery: boolean; // 相册页面开关
 		bilibili: boolean; // 哔哩哔哩追番页面开关
+		bilibiliLive: boolean; // 哔哩哔哩直播页面开关
 		dynamic: boolean; // 动态页面开关
 	};
 
@@ -210,6 +211,12 @@ export type SiteConfig = {
 	// Bilibili 配置
 	bilibili?: {
 		uid?: string; // Bilibili 用户 UID
+		liveRooms?: Array<{
+			roomId: number; // 直播间房间号（不是 UID 或 visit_id）
+			name?: string; // 接口不可用时展示的名称
+			cover?: string; // 接口不可用时展示的封面
+			description?: string; // 可选的本地说明
+		}>;
 	};
 
 	// 分页配置

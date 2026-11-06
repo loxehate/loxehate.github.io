@@ -28,6 +28,8 @@ const pages = resolvePageToggles({
 	booknav: true,
 	// 哔哩哔哩追番页面开关
 	bilibili: true,
+	// 哔哩哔哩直播页面开关
+	bilibiliLive: true,
 	// 番组计划页面开关
 	bangumi: false,
 	// VNDB页面开关
@@ -259,6 +261,11 @@ export const siteConfig: SiteConfig = {
 	bilibili: {
 		// 你的 Bilibili 用户 UID
 		uid: "385995195",
+		// 直播间列表：roomId 是直播间 URL 中的数字，例如 live.bilibili.com/23058
+		// 未配置时直播页会显示引导空状态；不要填写 UID 或 visit_id。
+		liveRooms: [
+			// { roomId: 23058, name: "直播间名称", description: "可选说明" },
+		],
 	},
 
 	// ── 番组计划bangumi配置 ──────────────────────────────────
