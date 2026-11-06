@@ -1,6 +1,15 @@
 {
-  "generated": "2026-11-05T00:06:54.386Z",
+  "generated": "2026-11-06T00:07:28.273Z",
   "dates": [
+    {
+      "date": "2026-11-06",
+      "reports": [
+        "ai-cli",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
     {
       "date": "2026-11-05",
       "reports": [
@@ -969,6 +978,15 @@
   ],
   "recentDates": [
     {
+      "date": "2026-11-06",
+      "reports": [
+        "ai-cli",
+        "ai-web",
+        "ai-trending",
+        "ai-hn"
+      ]
+    },
+    {
       "date": "2026-11-05",
       "reports": [
         "ai-cli",
@@ -1177,22 +1195,13 @@
         "ai-trending",
         "ai-hn"
       ]
-    },
-    {
-      "date": "2026-10-07",
-      "reports": [
-        "ai-cli",
-        "ai-web",
-        "ai-trending",
-        "ai-hn"
-      ]
     }
   ],
   "archives": [
     {
       "month": "2026-11",
-      "dateCount": 5,
-      "reportCount": 22,
+      "dateCount": 6,
+      "reportCount": 26,
       "url": "/radar/archive/2026-11/"
     },
     {
