@@ -49,12 +49,21 @@ async function fetchRoomMetadata(
 	try {
 		let info;
 		let anchorName = room.name || "Bilibili 主播";
+		let canonicalRoomId = room.roomId;
+		try {
+			canonicalRoomId = await resolveCanonicalRoomId(room.roomId);
+		} catch (resolveError) {
+			console.info(
+				`[Bilibili Live] Could not resolve canonical cid for ${room.roomId}; using configured room id`,
+				resolveError,
+			);
+		}
 
 		try {
 			const endpoint = new URL(
 				"https://api.live.bilibili.com/room/v1/Room/get_info",
 			);
-			endpoint.searchParams.set("room_id", String(room.roomId));
+			endpoint.searchParams.set("room_id", String(canonicalRoomId));
 			const payload = await fetchBilibiliJson(endpoint);
 			if (payload.code !== 0 || !payload.data) {
 				throw new Error(payload.message || "Invalid Bilibili response");
@@ -68,7 +77,7 @@ async function fetchRoomMetadata(
 			const endpoint = new URL(
 				"https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom",
 			);
-			endpoint.searchParams.set("room_id", String(room.roomId));
+			endpoint.searchParams.set("room_id", String(canonicalRoomId));
 			const payload = await fetchBilibiliJson(endpoint);
 			if (payload.code !== 0 || !payload.data?.room_info) {
 				throw new Error(
@@ -82,7 +91,7 @@ async function fetchRoomMetadata(
 
 		return {
 			...room,
-			canonicalRoomId: Number(info.room_id || room.roomId),
+			canonicalRoomId: Number(info.room_id || canonicalRoomId),
 			title: info.title || room.name || `直播间 ${room.roomId}`,
 			anchorName,
 			coverUrl: toHttps(
@@ -106,6 +115,19 @@ async function fetchRoomMetadata(
 	}
 }
 
+async function resolveCanonicalRoomId(roomId: number): Promise<number> {
+	const endpoint = new URL(
+		"https://api.live.bilibili.com/room/v1/Room/room_init",
+	);
+	endpoint.searchParams.set("id", String(roomId));
+	const payload = await fetchBilibiliJson(endpoint);
+	const canonicalRoomId = Number(payload.data?.room_id);
+	if (payload.code !== 0 || !Number.isSafeInteger(canonicalRoomId)) {
+		throw new Error(payload.message || `无法解析直播间 ${roomId} 的真实 cid`);
+	}
+	return canonicalRoomId;
+}
+
 async function fetchBilibiliJson(endpoint: URL) {
 	const controller = new AbortController();
 	const timeout = window.setTimeout(() => controller.abort(), 8000);
@@ -124,7 +146,13 @@ async function fetchBilibiliJson(endpoint: URL) {
 
 async function loadRoomMetadata() {
 	if (rooms.length === 0) return;
-	liveRooms = await Promise.all(rooms.map(fetchRoomMetadata));
+	const loadedRooms = await Promise.all(rooms.map(fetchRoomMetadata));
+	liveRooms = loadedRooms;
+	if (selectedRoom) {
+		selectedRoom =
+			loadedRooms.find((room) => room.roomId === selectedRoom?.roomId) ||
+			selectedRoom;
+	}
 }
 
 function normalizeLiveStatus(status: unknown): 0 | 1 | 2 {
