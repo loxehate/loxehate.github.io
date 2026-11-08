@@ -19,9 +19,6 @@ let playerSection: HTMLElement | null = $state(null);
 const liveCount = $derived(
 	liveRooms.filter((room) => room.liveStatus === 1).length,
 );
-const hasMetadataFallback = $derived(
-	liveRooms.some((room) => room.metadataState === "fallback"),
-);
 
 onMount(() => {
 	void loadRoomMetadata();
@@ -95,9 +92,9 @@ async function fetchRoomMetadata(
 			title: info.title || room.name || `直播间 ${room.roomId}`,
 			anchorName,
 			coverUrl: toHttps(
-				info.user_cover ||
+				info.keyframe ||
+					info.user_cover ||
 					info.cover ||
-					info.keyframe ||
 					info.background ||
 					room.cover ||
 					"",
@@ -256,20 +253,12 @@ function statusLabel(status: number): string {
 		<div>
 			<p class="eyebrow">LIVE DIRECTORY</p>
 			<h2>关注的直播间</h2>
-			<p class="summary-copy">选择一个房间后才加载播放器，减少页面初始流量与资源占用。</p>
 		</div>
 		<div class="summary-metrics" aria-label="直播统计">
 			<div><strong>{liveCount}</strong><span>正在直播</span></div>
 			<div><strong>{liveRooms.length}</strong><span>全部房间</span></div>
 		</div>
 	</section>
-
-	{#if hasMetadataFallback}
-		<div class="metadata-notice" role="status">
-			<span aria-hidden="true"></span>
-			部分直播状态暂时无法获取，播放器与 B 站外链仍可正常使用。
-		</div>
-	{/if}
 
 	{#if selectedRoom}
 		<section class="player-shell" bind:this={playerSection} aria-label={`${selectedRoom.title} 播放器`}>
@@ -352,13 +341,10 @@ function statusLabel(status: number): string {
 	.live-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line-divider); }
 	.eyebrow { margin: 0 0 .35rem; color: var(--primary); font: 700 .7rem/1.2 ui-monospace, monospace; letter-spacing: .16em; }
 	.live-summary h2 { margin: 0; color: var(--deep-text); font-size: clamp(1.35rem, 2vw, 1.8rem); letter-spacing: -.025em; }
-	.summary-copy { margin: .55rem 0 0; color: var(--meta-divider); font-size: .9rem; }
 	.summary-metrics { display: grid; grid-template-columns: repeat(2, minmax(5.5rem, auto)); gap: .65rem; }
 	.summary-metrics div { display: flex; flex-direction: column; padding-left: 1rem; border-left: 1px solid var(--line-divider); }
 	.summary-metrics strong { color: var(--deep-text); font: 700 1.5rem/1 ui-monospace, monospace; }
 	.summary-metrics span { margin-top: .4rem; color: var(--meta-divider); font-size: .72rem; }
-	.metadata-notice { display: flex; align-items: center; gap: .55rem; margin-top: 1rem; color: var(--meta-divider); font-size: .8rem; }
-	.metadata-notice span { width: .45rem; height: .45rem; border-radius: 50%; background: #d49a38; }
 	.player-shell { scroll-margin-top: 6rem; margin-top: 1.5rem; overflow: hidden; border: 1px solid var(--line-divider); border-radius: 1.25rem; background: var(--card-bg); box-shadow: 0 18px 45px -28px color-mix(in srgb, var(--primary) 35%, transparent); animation: reveal .35s cubic-bezier(.16,1,.3,1) both; }
 	.player-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1rem; }
 	.player-title-block { display: flex; align-items: center; gap: .75rem; min-width: 0; }
