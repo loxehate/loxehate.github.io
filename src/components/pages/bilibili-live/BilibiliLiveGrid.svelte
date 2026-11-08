@@ -1,16 +1,13 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import type {
-	BilibiliLiveRoom,
-	BilibiliLiveRoomConfig,
-} from "@/types/bilibili-live";
+import type { BilibiliLiveRoom } from "@/types/bilibili-live";
 
 interface Props {
-	rooms: BilibiliLiveRoomConfig[];
+	rooms: BilibiliLiveRoom[];
 }
 
 let { rooms }: Props = $props();
-let liveRooms = $state<BilibiliLiveRoom[]>(rooms.map(createFallbackRoom));
+let liveRooms = $state<BilibiliLiveRoom[]>(rooms.map((room) => ({ ...room })));
 let selectedRoom = $state<BilibiliLiveRoom | null>(null);
 let playerLoading = $state(false);
 let playerFailed = $state(false);
@@ -21,136 +18,9 @@ const liveCount = $derived(
 );
 
 onMount(() => {
-	void loadRoomMetadata();
 	window.addEventListener("message", handlePlayerMessage);
 	return () => window.removeEventListener("message", handlePlayerMessage);
 });
-
-function createFallbackRoom(room: BilibiliLiveRoomConfig): BilibiliLiveRoom {
-	return {
-		...room,
-		canonicalRoomId: room.roomId,
-		title: room.name || `直播间 ${room.roomId}`,
-		anchorName: room.name || "Bilibili 主播",
-		coverUrl: room.cover || "",
-		areaName: "Bilibili 直播",
-		liveStatus: -1,
-		online: 0,
-		metadataState: "loading",
-	};
-}
-
-async function fetchRoomMetadata(
-	room: BilibiliLiveRoomConfig,
-): Promise<BilibiliLiveRoom> {
-	try {
-		let info;
-		let anchorName = room.name || "Bilibili 主播";
-		let canonicalRoomId = room.roomId;
-		try {
-			canonicalRoomId = await resolveCanonicalRoomId(room.roomId);
-		} catch (resolveError) {
-			console.info(
-				`[Bilibili Live] Could not resolve canonical cid for ${room.roomId}; using configured room id`,
-				resolveError,
-			);
-		}
-
-		try {
-			const endpoint = new URL(
-				"https://api.live.bilibili.com/room/v1/Room/get_info",
-			);
-			endpoint.searchParams.set("room_id", String(canonicalRoomId));
-			const payload = await fetchBilibiliJson(endpoint);
-			if (payload.code !== 0 || !payload.data) {
-				throw new Error(payload.message || "Invalid Bilibili response");
-			}
-			info = payload.data;
-		} catch (primaryError) {
-			console.info(
-				`[Bilibili Live] Primary room API failed for ${room.roomId}, trying fallback`,
-				primaryError,
-			);
-			const endpoint = new URL(
-				"https://api.live.bilibili.com/xlive/web-room/v1/index/getInfoByRoom",
-			);
-			endpoint.searchParams.set("room_id", String(canonicalRoomId));
-			const payload = await fetchBilibiliJson(endpoint);
-			if (payload.code !== 0 || !payload.data?.room_info) {
-				throw new Error(
-					payload.message || "Invalid Bilibili fallback response",
-				);
-			}
-			info = payload.data.room_info;
-			anchorName =
-				payload.data.anchor_info?.base_info?.uname || room.name || anchorName;
-		}
-
-		return {
-			...room,
-			canonicalRoomId: Number(info.room_id || canonicalRoomId),
-			title: info.title || room.name || `直播间 ${room.roomId}`,
-			anchorName,
-			coverUrl: toHttps(
-				info.keyframe ||
-					info.user_cover ||
-					info.cover ||
-					info.background ||
-					room.cover ||
-					"",
-			),
-			areaName:
-				[info.parent_area_name, info.area_name].filter(Boolean).join(" · ") ||
-				"Bilibili 直播",
-			liveStatus: normalizeLiveStatus(info.live_status),
-			online: Number(info.online || 0),
-			metadataState: "ready",
-		};
-	} catch (error) {
-		console.warn(`[Bilibili Live] Failed to load room ${room.roomId}:`, error);
-		return { ...createFallbackRoom(room), metadataState: "fallback" };
-	}
-}
-
-async function resolveCanonicalRoomId(roomId: number): Promise<number> {
-	const endpoint = new URL(
-		"https://api.live.bilibili.com/room/v1/Room/room_init",
-	);
-	endpoint.searchParams.set("id", String(roomId));
-	const payload = await fetchBilibiliJson(endpoint);
-	const canonicalRoomId = Number(payload.data?.room_id);
-	if (payload.code !== 0 || !Number.isSafeInteger(canonicalRoomId)) {
-		throw new Error(payload.message || `无法解析直播间 ${roomId} 的真实 cid`);
-	}
-	return canonicalRoomId;
-}
-
-async function fetchBilibiliJson(endpoint: URL) {
-	const controller = new AbortController();
-	const timeout = window.setTimeout(() => controller.abort(), 8000);
-	try {
-		const response = await fetch(endpoint, {
-			headers: { Accept: "application/json" },
-			credentials: "omit",
-			signal: controller.signal,
-		});
-		if (!response.ok) throw new Error(`HTTP ${response.status}`);
-		return await response.json();
-	} finally {
-		window.clearTimeout(timeout);
-	}
-}
-
-async function loadRoomMetadata() {
-	if (rooms.length === 0) return;
-	const loadedRooms = await Promise.all(rooms.map(fetchRoomMetadata));
-	liveRooms = loadedRooms;
-	if (selectedRoom) {
-		selectedRoom =
-			loadedRooms.find((room) => room.roomId === selectedRoom?.roomId) ||
-			selectedRoom;
-	}
-}
 
 function normalizeLiveStatus(status: unknown): 0 | 1 | 2 {
 	const value = Number(status);

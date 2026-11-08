@@ -3,12 +3,13 @@ import { Icon } from "astro-icon/components";
 import BilibiliLiveGrid from "@/components/pages/bilibili-live/BilibiliLiveGrid.svelte";
 import { siteConfig } from "@/config";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { loadBilibiliLiveRooms } from "@/utils/bilibili-live";
 
 if (!siteConfig.pages.bilibiliLive) {
 	return Astro.redirect("/404/");
 }
 
-const rooms = siteConfig.bilibili?.liveRooms ?? [];
+const rooms = await loadBilibiliLiveRooms(siteConfig.bilibili?.liveRooms ?? []);
 ---
 
 <MainGridLayout
