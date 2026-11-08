@@ -1,6 +1,8 @@
 export interface BilibiliLiveRoomConfig {
 	roomId: number;
 	name?: string;
+	/** 站内直播列表分区，例如 DOTA2、英雄联盟 */
+	category?: string;
 	cover?: string;
 	description?: string;
 }

@@ -214,6 +214,7 @@ export type SiteConfig = {
 		liveRooms?: Array<{
 			roomId: number; // 直播间房间号（不是 UID 或 visit_id）
 			name?: string; // 接口不可用时展示的名称
+			category?: string; // 站内直播列表分区
 			cover?: string; // 接口不可用时展示的封面
 			description?: string; // 可选的本地说明
 		}>;

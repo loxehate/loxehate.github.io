@@ -16,6 +16,19 @@ let playerSection: HTMLElement | null = $state(null);
 const liveCount = $derived(
 	liveRooms.filter((room) => room.liveStatus === 1).length,
 );
+const roomGroups = $derived.by(() => {
+	const groups = new Map<string, BilibiliLiveRoom[]>();
+	for (const room of liveRooms) {
+		const category = room.category?.trim() || "其他直播";
+		const categoryRooms = groups.get(category) || [];
+		categoryRooms.push(room);
+		groups.set(category, categoryRooms);
+	}
+	return Array.from(groups, ([name, categoryRooms]) => ({
+		name,
+		rooms: categoryRooms,
+	}));
+});
 
 onMount(() => {
 	window.addEventListener("message", handlePlayerMessage);
@@ -172,31 +185,41 @@ function statusLabel(status: number): string {
 		</section>
 	{/if}
 
-	<div class="room-grid">
-		{#each liveRooms as room, index (room.roomId)}
-			<article class:active={selectedRoom?.roomId === room.roomId} class="room-card" style={`--reveal-delay: ${Math.min(index, 8) * 60}ms`}>
-				<button type="button" class="room-select" onclick={() => playRoom(room)} aria-label={`播放 ${room.title}`}>
-					<div class="cover-wrap">
-						{#if room.coverUrl}
-							<img src={room.coverUrl} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
-						{:else}
-							<div class="cover-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 10.5 19.5 8v8L15 13.5v-3Z" stroke-width="1.5" stroke-linejoin="round" /><rect x="3" y="5" width="12" height="14" rx="3" stroke-width="1.5" /></svg></div>
-						{/if}
-						<div class="cover-shade"></div>
-						<div class:live={room.liveStatus === 1} class:loop={room.liveStatus === 2} class="status-badge"><span></span>{statusLabel(room.liveStatus)}</div>
-						<div class="play-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m9 7 8 5-8 5V7Z" /></svg></div>
-					</div>
-					<div class="room-content">
-						<div class="room-meta"><span>{room.areaName}</span>{#if room.online > 0}<span>{formatOnline(room.online)} 人气</span>{/if}</div>
-						<h3>{room.title}</h3>
-						<p>{room.description || room.anchorName}</p>
-					</div>
-				</button>
-				<a class="room-link" href={roomUrl(room)} target="_blank" rel="noopener noreferrer" aria-label={`在 Bilibili 打开 ${room.title}`}>
-					<span>房间 {room.canonicalRoomId}</span>
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
-				</a>
-			</article>
+	<div class="room-sections">
+		{#each roomGroups as group, groupIndex (group.name)}
+			<section class="room-category" aria-labelledby={`room-category-${groupIndex}`}>
+				<header class="category-header">
+					<h2 id={`room-category-${groupIndex}`}>{group.name}</h2>
+					<span>{group.rooms.length} 个房间</span>
+				</header>
+				<div class="room-grid">
+					{#each group.rooms as room, index (room.roomId)}
+						<article class:active={selectedRoom?.roomId === room.roomId} class="room-card" style={`--reveal-delay: ${Math.min(index, 8) * 60}ms`}>
+							<button type="button" class="room-select" onclick={() => playRoom(room)} aria-label={`播放 ${room.title}`}>
+								<div class="cover-wrap">
+									{#if room.coverUrl}
+										<img src={room.coverUrl} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+									{:else}
+										<div class="cover-placeholder" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 10.5 19.5 8v8L15 13.5v-3Z" stroke-width="1.5" stroke-linejoin="round" /><rect x="3" y="5" width="12" height="14" rx="3" stroke-width="1.5" /></svg></div>
+									{/if}
+									<div class="cover-shade"></div>
+									<div class:live={room.liveStatus === 1} class:loop={room.liveStatus === 2} class="status-badge"><span></span>{statusLabel(room.liveStatus)}</div>
+									<div class="play-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m9 7 8 5-8 5V7Z" /></svg></div>
+								</div>
+								<div class="room-content">
+									<div class="room-meta"><span>{room.areaName}</span>{#if room.online > 0}<span>{formatOnline(room.online)} 人气</span>{/if}</div>
+									<h3>{room.title}</h3>
+									<p>{room.description || room.anchorName}</p>
+								</div>
+							</button>
+							<a class="room-link" href={roomUrl(room)} target="_blank" rel="noopener noreferrer" aria-label={`在 Bilibili 打开 ${room.title}`}>
+								<span>房间 {room.canonicalRoomId}</span>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+							</a>
+						</article>
+					{/each}
+				</div>
+			</section>
 		{/each}
 	</div>
 {/if}
@@ -238,7 +261,12 @@ function statusLabel(status: number): string {
 	.player-error a { color: #fff; text-decoration: underline; text-underline-offset: .25rem; }
 	.player-fallback { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1rem; color: var(--meta-divider); font-size: .75rem; }
 	.player-fallback a { flex: 0 0 auto; color: var(--primary); font-weight: 600; text-decoration: none; }
-	.room-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+	.room-sections { display: grid; gap: 2rem; margin-top: 1.75rem; }
+	.room-category { min-width: 0; }
+	.category-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .85rem; }
+	.category-header h2 { margin: 0; color: var(--deep-text); font-size: 1.05rem; font-weight: 750; letter-spacing: -.015em; }
+	.category-header span { flex: 0 0 auto; padding: .28rem .55rem; border-radius: 999px; background: var(--btn-regular-bg); color: var(--meta-divider); font-size: .68rem; }
+	.room-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 	.room-card { overflow: hidden; border: 1px solid var(--line-divider); border-radius: 1.1rem; background: var(--card-bg); transition: transform .3s cubic-bezier(.16,1,.3,1), border-color .3s, box-shadow .3s; animation: reveal .45s cubic-bezier(.16,1,.3,1) both; animation-delay: var(--reveal-delay); }
 	.room-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--primary) 35%, var(--line-divider)); box-shadow: 0 16px 30px -25px color-mix(in srgb, var(--primary) 50%, transparent); }
 	.room-card.active { border-color: color-mix(in srgb, var(--primary) 60%, var(--line-divider)); }
