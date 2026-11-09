@@ -265,7 +265,8 @@ export const siteConfig: SiteConfig = {
 		// 未配置时直播页会显示引导空状态；不要填写 UID 或 visit_id。
 		liveRooms: [
 			{ roomId: 1429491, name: "灵犀DOTA2赛事解说", category: "DOTA2", description: "灵犀DOTA2赛事解说" },
-			{ roomId: 7734200, name: "哔哩哔哩LOL赛事直播", category: "英雄联盟", description: "B站英雄联盟官方赛事直播" }
+			{ roomId: 7734200, name: "哔哩哔哩LOL赛事直播", category: "英雄联盟", description: "B站英雄联盟官方赛事直播" },
+			{ roomId: 5513659, name: "狙佬zuener", category: "战地6", description: "狙佬zuener" }
 
 		],
 	},
