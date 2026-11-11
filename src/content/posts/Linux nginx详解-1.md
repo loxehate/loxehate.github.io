@@ -5,7 +5,7 @@ published: 2025-05-09
 description: 套接字Socket是进程间通信IPC的一种实现，允许位于不同主机（或同一主机）上不同进程之间进行通信和数据交换。
 image: '../../assets/images/Dota-img/leshrac.png'
 tags:
-  - nginx
+  - Nginx
 category: Linux
 draft: false
 lang: zh-CN

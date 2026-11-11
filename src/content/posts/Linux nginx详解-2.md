@@ -5,7 +5,7 @@ published: 2025-05-09
 description: Nginx提供了一个状态页（status page），用于查看服务器的运行状态信息。
 image: '../../assets/images/Dota-img/riki.png'
 tags:
-  - nginx
+  - Nginx
 category: Linux
 draft: false
 lang: zh-CN
