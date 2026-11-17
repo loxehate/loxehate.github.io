@@ -6,7 +6,35 @@
     <description>AI 生态自动追踪报告</description>
     <language>zh-CN</language>
     <atom:link href="https://loxehate.github.io/radar/radar/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Mon, 16 Nov 2026 00:31:29 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 17 Nov 2026 00:06:37 +0000</lastBuildDate>
+    <item>
+      <title>AI CLI 工具社区动态日报</title>
+      <link>https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-cli/</link>
+      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-cli/</guid>
+      <pubDate>Tue, 17 Nov 2026 00:00:00 +0000</pubDate>
+      <description>AI CLI 工具社区动态日报</description>
+    </item>
+    <item>
+      <title>AI 官方内容追踪报告</title>
+      <link>https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-web/</link>
+      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-web/</guid>
+      <pubDate>Tue, 17 Nov 2026 00:00:00 +0000</pubDate>
+      <description>AI 官方内容追踪报告</description>
+    </item>
+    <item>
+      <title>AI 开源趋势日报</title>
+      <link>https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-trending/</link>
+      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-trending/</guid>
+      <pubDate>Tue, 17 Nov 2026 00:00:00 +0000</pubDate>
+      <description>AI 开源趋势日报</description>
+    </item>
+    <item>
+      <title>Hacker News AI 社区动态日报</title>
+      <link>https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-hn/</link>
+      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-17/ai-hn/</guid>
+      <pubDate>Tue, 17 Nov 2026 00:00:00 +0000</pubDate>
+      <description>Hacker News AI 社区动态日报</description>
+    </item>
     <item>
       <title>AI CLI 工具社区动态日报</title>
       <link>https://loxehate.github.io/radar/radar/reports/2026-11-16/ai-cli/</link>
@@ -188,34 +216,6 @@
       <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-cli/</guid>
       <pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate>
       <description>AI CLI 工具社区动态日报</description>
-    </item>
-    <item>
-      <title>AI 官方内容追踪报告</title>
-      <link>https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-web/</link>
-      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-web/</guid>
-      <pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate>
-      <description>AI 官方内容追踪报告</description>
-    </item>
-    <item>
-      <title>AI 开源趋势日报</title>
-      <link>https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-trending/</link>
-      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-trending/</guid>
-      <pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate>
-      <description>AI 开源趋势日报</description>
-    </item>
-    <item>
-      <title>Hacker News AI 社区动态日报</title>
-      <link>https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-hn/</link>
-      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-hn/</guid>
-      <pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate>
-      <description>Hacker News AI 社区动态日报</description>
-    </item>
-    <item>
-      <title>AI 工具生态周报 2026-W46</title>
-      <link>https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-weekly/</link>
-      <guid isPermaLink="true">https://loxehate.github.io/radar/radar/reports/2026-11-09/ai-weekly/</guid>
-      <pubDate>Mon, 09 Nov 2026 00:00:00 +0000</pubDate>
-      <description>AI 工具生态周报 2026-W46</description>
     </item>
   </channel>
 </rss>
