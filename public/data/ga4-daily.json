@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-22T00:50:16.163Z",
-  "startDate": "2026-08-24",
-  "endDate": "2026-11-21",
+  "generatedAt": "2026-11-23T00:50:17.088Z",
+  "startDate": "2026-08-25",
+  "endDate": "2026-11-22",
   "scope": {
     "pathPrefix": null
   },
@@ -11,10 +11,6 @@
     "sessions": 358
   },
   "daily": [
-    {
-      "date": "2026-08-24",
-      "users": 0
-    },
     {
       "date": "2026-08-25",
       "users": 0
@@ -370,6 +366,10 @@
     {
       "date": "2026-11-21",
       "users": 2
+    },
+    {
+      "date": "2026-11-22",
+      "users": 0
     }
   ]
 }
